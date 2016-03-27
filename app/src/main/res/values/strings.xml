@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">TjueSyv</string>
+    <string name="list_games">List of active games</string>
+    <string name="text_join_game_field">ENTER GAME CODE</string>
+    <string name="text_name_field">ENTER NAME</string>
+    <string name="action_create_game">Create Game</string>
+    <string name="action_join_game">Join Game</string>
+    <string name="action_enter_name">Enter name</string>
+    <string name="allowed_game_code_digits">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789</string>
+</resources>
