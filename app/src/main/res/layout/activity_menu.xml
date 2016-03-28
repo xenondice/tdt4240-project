@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorBackground"
+    android:textAlignment="center">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/pretty_title"
+        android:id="@+id/textMenuTitle"
+        android:layout_gravity="center_horizontal"
+        android:textColor="@color/colorText"
+        android:textSize="60sp"
+        android:textAlignment="inherit"
+        android:layout_marginTop="40dp"
+        android:layout_marginBottom="100dp" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/menu_start"
+        android:id="@+id/buttonMenuStart"
+        android:layout_gravity="center_horizontal"
+        android:enabled="true"
+        android:textColor="@color/colorText"
+        android:textSize="30sp"
+        android:layout_marginBottom="60dp"
+        android:width="300dp"
+        android:onClick="startGame" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/menu_browser"
+        android:id="@+id/buttonMenuBrowse"
+        android:layout_gravity="center_horizontal"
+        android:textColor="@color/colorText"
+        android:enabled="true"
+        android:width="300dp"
+        android:textSize="30sp"
+        android:onClick="openBrowser" />
+
+</LinearLayout>

@@ -31,8 +31,7 @@ proguard/
 # Android Studio captures folder
 captures/
 
-# Other
+# IDE
 *.iml
-/.idea/workspace.xml
-/.idea/libraries
+.idea/
 .DS_Store

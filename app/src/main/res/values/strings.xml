@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">LyvLyvTjueSyv</string>
 
-    <string name="dummy_button">Dummy Button</string>
-    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="menu_start">Start Game</string>
+    <string name="menu_browser">Browse Games</string>
+    <string name="pretty_title">Lyv Lyv,\nTjuesyv</string>
 </resources>
