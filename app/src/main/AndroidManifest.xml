@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="tdt4240.lyvlyvtjuesyv">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -11,8 +13,8 @@
 
         <activity
             android:name=".Menu"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/app_name">
+            android:label="@string/app_name"
+            android:theme="@style/MenuTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -21,19 +23,22 @@
 
         <service
             android:name=".LocalServer"
-            android:exported="false">
+            android:exported="false"
+            android:process=":Server">
         </service>
 
         <activity
             android:name=".GameHub"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/app_name">
+            android:label="@string/app_name"
+            android:parentActivityName=".Menu"
+            android:theme="@style/MenuTheme">
         </activity>
 
         <activity
             android:name=".ServerBrowser"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/app_name">
+            android:label="@string/app_name"
+            android:parentActivityName=".Menu"
+            android:theme="@style/MenuTheme">
         </activity>
 
     </application>

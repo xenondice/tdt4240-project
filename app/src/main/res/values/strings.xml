@@ -4,4 +4,5 @@
     <string name="menu_start">Start Game</string>
     <string name="menu_browser">Browse Games</string>
     <string name="pretty_title">Lyv Lyv,\nTjuesyv</string>
+    <string name="loading_text">Loading...</string>
 </resources>
