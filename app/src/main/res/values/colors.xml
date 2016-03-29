@@ -2,4 +2,6 @@
 <resources>
     <color name="colorBackground">#DDDDDD</color>
     <color name="colorText">#000000</color>
+    <color name="colorTextErrorFaded">#b49090</color>
+    <color name="colorTextSuccessFaded">#92b490</color>
 </resources>

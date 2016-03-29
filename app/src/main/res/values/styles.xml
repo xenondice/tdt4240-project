@@ -11,4 +11,12 @@
         <item name="android:windowAnimationStyle">@null</item>
     </style>
 
+    <style name="fade" parent="@android:style/Animation">
+        <item name="android:windowEnterAnimation">@android:anim/fade_in</item>
+        <item name="android:windowExitAnimation">@android:anim/fade_out</item>
+        <!--<item name="android:animationDuration">1000</item>
+        <item name="android:fillEnabled">true</item>
+        <item name="android:fillAfter">true</item>-->
+    </style>
+
 </resources>

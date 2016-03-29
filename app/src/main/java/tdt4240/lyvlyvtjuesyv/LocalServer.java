@@ -33,8 +33,8 @@ public class LocalServer extends IntentService {
 
     public LocalServer() {
         super("Server");
-        serverThread = Thread.currentThread();
         clients = new ArrayList<>();
+        initServer();
         try {
             server = new ServerSocket(DEFAULT_PORT);
         } catch (IOException e) {
@@ -42,8 +42,40 @@ public class LocalServer extends IntentService {
             e.printStackTrace();
             return;
         }
-        print ("Server up on port " + server.getLocalPort());
-        run();
+        serverThread.start();
+    }
+
+    private void initServer() {
+        serverThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                print("Server up, waiting for clients...");
+                startClientPinging();
+
+                state = State.waiting_for_clients;
+                while (state != State.closed) {
+                    try {
+                        switch (state) {
+                            case waiting_for_clients:
+                                Socket client = server.accept();
+                                print("New client connected!");
+                                clients.add(client);
+                                if (clients.size() == 1) {
+                                    print("This client is the host");
+                                    host = client;
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                        Thread.sleep(1000, 0);
+                    } catch (InterruptedException e) {
+                    } catch (IOException e) {
+                        close();
+                    }
+                }
+            }
+        });
     }
 
     public void close() {
@@ -89,34 +121,7 @@ public class LocalServer extends IntentService {
                 }
             }
         });
-        pingThread.run();
-    }
-
-    private void run() {
-        startClientPinging();
-        print("Server up, waiting for clients...");
-        state = State.waiting_for_clients;
-        while (state != State.closed) {
-            try {
-                switch (state) {
-                    case waiting_for_clients:
-                        Socket client = server.accept();
-                        print("New client connected!");
-                        clients.add(client);
-                        if (clients.size() == 1) {
-                            print("This client is the host");
-                            host = client;
-                        }
-                        break;
-                    default:
-                        break;
-                }
-                Thread.sleep(1000, 0);
-            } catch (InterruptedException e) {
-            } catch (IOException e) {
-                close();
-            }
-        }
+        pingThread.start();
     }
 
     @Override

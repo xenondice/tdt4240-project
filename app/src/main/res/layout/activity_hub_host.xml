@@ -9,8 +9,18 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="@string/connection_success"
-        android:id="@+id/textView6"
+        android:id="@+id/textView4"
         android:layout_gravity="center_horizontal"
         android:textColor="@color/colorTextSuccessFaded"
         android:textSize="60sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/host_message"
+        android:id="@+id/textView5"
+        android:layout_gravity="center_horizontal"
+        android:textColor="@color/colorText"
+        android:textAlignment="center" />
 </LinearLayout>

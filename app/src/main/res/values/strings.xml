@@ -5,4 +5,7 @@
     <string name="menu_browser">Browse Games</string>
     <string name="pretty_title">Lyv Lyv,\nTjuesyv</string>
     <string name="loading_text">Loading...</string>
+    <string name="connection_fail">Failed to\nconnect</string>
+    <string name="connection_success">Connected</string>
+    <string name="host_message">You are the host!\nPlease wait for\nthe rest of the players...</string>
 </resources>
