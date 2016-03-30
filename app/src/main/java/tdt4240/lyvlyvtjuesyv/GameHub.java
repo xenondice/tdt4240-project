@@ -1,9 +1,14 @@
 package tdt4240.lyvlyvtjuesyv;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -13,25 +18,57 @@ import java.net.Socket;
  */
 public class GameHub extends AppCompatActivity {
 
+    private static GameHub instance = null;
     private Intent intent;
     private String address;
     private int port;
     private boolean is_host;
     private Socket client;
+    private BroadcastReceiver serverReceiver = null;
+
+    public static GameHub getInstance() {
+        return instance;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (instance != null) return;
+        instance = this;
+        intent = getIntent();
+        port = intent.getIntExtra(Constants.SERVER_PORT_ADD, Constants.DEFAULT_PORT);
+        address = intent.getStringExtra(Constants.SERVER_ADDRESS_ADD);
+        is_host = intent.getBooleanExtra(Constants.IS_HOST_ADD, false);
         setContentView(R.layout.activity_hub_connecting);
-        connect();
+
+        if (is_host)
+            createServer();
+        else
+            connect();
     }
 
-    private void connect() {
-        intent = getIntent();
-        port = intent.getIntExtra(Menu.SERVER_PORT_ID, LocalServer.DEFAULT_PORT);
-        address = intent.getStringExtra(Menu.SERVER_ADDRESS_ID);
-        is_host = intent.getBooleanExtra(Menu.IS_HOST_ID, false);
+    private void createServer() {
+/*
+        // Setup communication channel
+        serverReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                int status = intent.getIntExtra(Constants.SERVER_STATUS_ADD, 0);
+                if (status == Constants.SERVER_STATUS_ACTIVE) connect();
+                Toast.makeText(context, "Host received " + status, Toast.LENGTH_LONG).show();
+            }
+        };
+        IntentFilter serverReceiverFilter = new IntentFilter(Constants.HOST_BROADCAST_ADD);
+        registerReceiver(
+                serverReceiver,
+                serverReceiverFilter);
+*/
+        // Start server in its own process thread
+        Intent server = new Intent(this, LocalServer.class);
+        startService(server);
+    }
 
+    public void connect() {
         new AsyncTask<Void, Void, Boolean>() {
             @Override
             protected Boolean doInBackground(Void... params) {
@@ -59,10 +96,21 @@ public class GameHub extends AppCompatActivity {
     }
 
     private void connected() {
-        System.out.println(client.isConnected());
         if (is_host)
             setContentView(R.layout.activity_hub_host);
         else
             setContentView(R.layout.activity_hub);
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        instance = null;
+        LocalServer.getInstance().close();
+        /*Intent intent = new Intent(Constants.SERVER_BROADCAST_ADD)
+                .putExtra(Constants.SERVER_STATUS_ADD, Constants.HOST_STATUS_STOP);
+        sendBroadcast(intent);*/
+        //if (serverReceiver != null)
+        //    LocalBroadcastManager.getInstance(this).unregisterReceiver(serverReceiver);
     }
 }

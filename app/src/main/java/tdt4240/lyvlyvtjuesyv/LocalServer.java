@@ -1,8 +1,13 @@
 package tdt4240.lyvlyvtjuesyv;
 
 import android.app.IntentService;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -14,9 +19,7 @@ import java.util.List;
  * Created by RayTM on 28.03.2016.
  */
 public class LocalServer extends IntentService {
-    public static final int DEFAULT_PORT = 56694;
-    public static final String HOME_ADDRESS = "localhost";
-    private static final long PING_INTERVAL = 500;
+    private static LocalServer instance = null;
 
     private ServerSocket server;
     private Thread serverThread;
@@ -24,6 +27,7 @@ public class LocalServer extends IntentService {
     private State state;
     private List<Socket> clients;
     private Socket host;
+    private BroadcastReceiver hostReceiver = null;
 
     private enum State {
         waiting_for_clients,
@@ -31,18 +35,12 @@ public class LocalServer extends IntentService {
         started
     }
 
+    public static LocalServer getInstance() {
+        return instance;
+    }
+
     public LocalServer() {
         super("Server");
-        clients = new ArrayList<>();
-        initServer();
-        try {
-            server = new ServerSocket(DEFAULT_PORT);
-        } catch (IOException e) {
-            print("Couldn't start server!");
-            e.printStackTrace();
-            return;
-        }
-        serverThread.start();
     }
 
     private void initServer() {
@@ -61,7 +59,7 @@ public class LocalServer extends IntentService {
                                 print("New client connected!");
                                 clients.add(client);
                                 if (clients.size() == 1) {
-                                    print("This client is the host");
+                                    print("Welcome boss!");
                                     host = client;
                                 }
                                 break;
@@ -82,6 +80,15 @@ public class LocalServer extends IntentService {
         print("Server closing...");
         changeState(State.closed);
         pingThread.interrupt();
+        try {
+            server.close();
+        } catch (IOException e) {
+            print("Couldn't close server!");
+            e.printStackTrace();
+        }
+        //if (hostReceiver != null) unregisterReceiver(hostReceiver);
+        instance = null;
+        stopSelf();
     }
 
     public void start() {
@@ -114,7 +121,7 @@ public class LocalServer extends IntentService {
                         }
                     }
                     try {
-                        Thread.sleep(PING_INTERVAL);
+                        Thread.sleep(Constants.PING_INTERVAL);
                     } catch (InterruptedException e) {
                         return;
                     }
@@ -126,6 +133,42 @@ public class LocalServer extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent workIntent) {
-        String dataString = workIntent.getDataString();
+
+        // Setup singleton class
+        if (instance != null) {
+            print("Another server is already running!");
+            return;
+        }
+        instance = this;
+        clients = new ArrayList<>();
+/*
+        // Setup communication channel
+        hostReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                int status = intent.getIntExtra(Constants.SERVER_STATUS_ADD, 0);
+                if (status == Constants.HOST_STATUS_STOP) close();
+                Toast.makeText(context, "Server received " + status, Toast.LENGTH_LONG).show();
+            }
+        };
+        IntentFilter hostReceiverFilter = new IntentFilter(Constants.SERVER_BROADCAST_ADD);
+        registerReceiver(
+                hostReceiver,
+                hostReceiverFilter);
+*/
+        initServer();
+        try {
+            server = new ServerSocket(Constants.DEFAULT_PORT);
+        } catch (IOException e) {
+            print("Couldn't start server!");
+            e.printStackTrace();
+            return;
+        }
+        serverThread.start();
+        GameHub.getInstance().connect();
+        /*print("Broadcasting that server is up...");
+        Intent intent = new Intent(Constants.HOST_BROADCAST_ADD)
+                .putExtra(Constants.SERVER_STATUS_ADD, Constants.SERVER_STATUS_ACTIVE);
+        sendBroadcast(intent);*/
     }
 }

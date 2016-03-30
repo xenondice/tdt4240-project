@@ -23,8 +23,8 @@
 
         <service
             android:name=".LocalServer"
-            android:exported="false"
-            android:process=":Server">
+            android:exported="false">
+            <!-- android:process=":Server"> -->
         </service>
 
         <activity

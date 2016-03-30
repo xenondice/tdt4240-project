@@ -6,9 +6,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 public class Menu extends AppCompatActivity {
-    public static final String IS_HOST_ID = "tdt4240.lyvlyvtjuesyv.IS_HOST";
-    public static final String SERVER_ADDRESS_ID = "tdt4240.lyvlyvtjuesyv.SERVER_ADDRESS";
-    public static final String SERVER_PORT_ID = "tdt4240.lyvlyvtjuesyv.SERVER_PORT";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,13 +15,10 @@ public class Menu extends AppCompatActivity {
 
     /** Called when Start Game button is pressed **/
     public void startGame(View view) {
-        Intent server = new Intent(this, LocalServer.class);
-        startService(server);
-
         Intent hub = new Intent(this, GameHub.class);
-        hub.putExtra(IS_HOST_ID, true);
-        hub.putExtra(SERVER_ADDRESS_ID, "localhost");
-        hub.putExtra(SERVER_PORT_ID, LocalServer.DEFAULT_PORT);
+        hub.putExtra(Constants.IS_HOST_ADD, true);
+        hub.putExtra(Constants.SERVER_ADDRESS_ADD, Constants.HOME_ADDRESS);
+        hub.putExtra(Constants.SERVER_PORT_ADD, Constants.DEFAULT_PORT);
         //hub.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
         startActivity(hub);
     }
