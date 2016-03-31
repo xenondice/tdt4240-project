@@ -1,16 +1,16 @@
 package tdt4240.lyvlyvtjuesyv;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.Socket;
 
 /**
@@ -24,7 +24,9 @@ public class GameHub extends AppCompatActivity {
     private int port;
     private boolean is_host;
     private Socket client;
-    private BroadcastReceiver serverReceiver = null;
+    private Thread responseThread;
+    private BufferedReader input;
+    private BufferedWriter output;
 
     public static GameHub getInstance() {
         return instance;
@@ -41,33 +43,23 @@ public class GameHub extends AppCompatActivity {
         is_host = intent.getBooleanExtra(Constants.IS_HOST_ADD, false);
         setContentView(R.layout.activity_hub_connecting);
 
-        if (is_host)
-            createServer();
-        else
-            connect();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if (is_host)
+                    createServer();
+                else
+                    connect();
+            }
+        }).start();
     }
 
     private void createServer() {
-/*
-        // Setup communication channel
-        serverReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                int status = intent.getIntExtra(Constants.SERVER_STATUS_ADD, 0);
-                if (status == Constants.SERVER_STATUS_ACTIVE) connect();
-                Toast.makeText(context, "Host received " + status, Toast.LENGTH_LONG).show();
-            }
-        };
-        IntentFilter serverReceiverFilter = new IntentFilter(Constants.HOST_BROADCAST_ADD);
-        registerReceiver(
-                serverReceiver,
-                serverReceiverFilter);
-*/
-        // Start server in its own process thread
         Intent server = new Intent(this, LocalServer.class);
         startService(server);
     }
 
+    /** Called once server is up **/
     public void connect() {
         new AsyncTask<Void, Void, Boolean>() {
             @Override
@@ -91,11 +83,85 @@ public class GameHub extends AppCompatActivity {
         }.execute();
     }
 
+    public void startWaitingForMessages() {
+        responseThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                long lastResponse = System.currentTimeMillis();
+                while (System.currentTimeMillis() - lastResponse <= Constants.RESPONSE_TIMEOUT + Constants.PING_INTERVAL) {
+                    try {
+                        if (input.ready()) {
+                            gotMessage(input.readLine());
+                            lastResponse = System.currentTimeMillis();
+                        }
+                        Thread.sleep(Constants.RESPONSE_CHECK_INTERVAL);
+                    } catch (IOException e) {
+                        Toast.makeText(getApplicationContext(),"Server timed out!",Toast.LENGTH_LONG).show();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                disconnected();
+                            }
+                        });
+                        e.printStackTrace();
+                        return;
+                    } catch (InterruptedException e) {
+                        return;
+                    }
+                }
+                disconnected();
+            }
+        });
+        responseThread.start();
+    }
+
+    /** Called once the client gets something from the server **/
+    private void gotMessage(String message) {
+        char header = message.charAt(0);
+        String body = message.substring(1);
+        switch (header) {
+            case Constants.REQUEST_STATUS:
+                tellServer(Constants.STATUS_ACTIVE);
+                break;
+            default:
+        }
+    }
+
+    private void tellServer(char header) {
+        tellServer(header, "");
+    }
+
+    private void tellServer(char header, String body) {
+        try {
+            output.write(header + body + '\n');
+            output.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+            responseThread.interrupt();
+            Toast.makeText(getApplicationContext(), "Lost connection!", Toast.LENGTH_LONG).show();
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    disconnected();
+                }
+            });
+        }
+    }
+
     private void disconnected() {
         setContentView(R.layout.activity_hub_failed);
     }
 
     private void connected() {
+        try {
+            input = new BufferedReader(new InputStreamReader(client.getInputStream()));
+            output = new BufferedWriter(new OutputStreamWriter(client.getOutputStream()));
+        } catch (IOException e) {
+            disconnected();
+            e.printStackTrace();
+            return;
+        }
+        startWaitingForMessages();
         if (is_host)
             setContentView(R.layout.activity_hub_host);
         else
@@ -106,11 +172,14 @@ public class GameHub extends AppCompatActivity {
     public void finish() {
         super.finish();
         instance = null;
-        LocalServer.getInstance().close();
-        /*Intent intent = new Intent(Constants.SERVER_BROADCAST_ADD)
-                .putExtra(Constants.SERVER_STATUS_ADD, Constants.HOST_STATUS_STOP);
-        sendBroadcast(intent);*/
-        //if (serverReceiver != null)
-        //    LocalBroadcastManager.getInstance(this).unregisterReceiver(serverReceiver);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if (LocalServer.getInstance() != null)
+                    LocalServer.getInstance().close();
+                if (responseThread != null)
+                    responseThread.interrupt();
+            }
+        }).start();
     }
 }
