@@ -1,8 +1,10 @@
-package com.tjuesyv.tjuesyv;
+package com.tjuesyv.tjuesyv.firebaseObjects;
 
 public class Player {
 
     private String name;
+
+    public Player() {}
 
     public Player(String name) {
         this.name = name;

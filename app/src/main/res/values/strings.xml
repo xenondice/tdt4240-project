@@ -1,10 +1,21 @@
 <resources>
-    <string name="app_name">TjueSyv</string>
-    <string name="list_games">List of active games</string>
-    <string name="text_join_game_field">ENTER GAME CODE</string>
-    <string name="text_name_field">ENTER NAME</string>
-    <string name="action_create_game">Create Game</string>
-    <string name="action_join_game">Join Game</string>
-    <string name="action_enter_name">Enter name</string>
-    <string name="allowed_game_code_digits">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789</string>
+    <string name="app_name">Lyv Lyv, TjueSyv</string>
+    <string name="app_title">Lyv Lyv, TjueSyv!</string>
+
+    <string name="font_name">Satisfy-Regular.ttf</string>
+
+    <string name="hint_nickname">Enter nickname</string>
+    <string name="hint_game_code">Enter game code to join</string>
+
+    <string name="btn_create_game">Create Game</string>
+    <string name="btn_join_game">Join Game</string>
+    <string name="btn_start_game">Start Game</string>
+
+    <string name="edit_valid_game_codes">ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789</string>
+    <string name="edit_valid_nickname">abcdefghijklmnopqrstuvwxyzæøåABCDEFGHIJKLMNOPQRSTUVWXYZÆØÅ0123456789</string>
+
+    <string name="error_empty_game_code">Game code cannot be empty when joining a game</string>
+    <string name="error_short_game_code">Game codes are 4 characters long</string>
+    <string name="error_empty_nickname">Nickname cannot be empty</string>
+    <string name="text_game_info">Game info</string>
 </resources>
