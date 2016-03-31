@@ -8,7 +8,29 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Server Browser"
+        android:text="@string/broswer_top"
         android:id="@+id/textView2"
-        android:layout_gravity="center_horizontal" />
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="20dp" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/editText"
+        android:layout_gravity="center_horizontal"
+        android:background="@color/colorBrowserBox"
+        android:editable="false"
+        android:enabled="true"
+        android:hint="@string/browser_manual_hint"
+        android:inputType="textNoSuggestions"
+        android:textSize="40sp" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/browser_join"
+        android:id="@+id/button"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="20dp"
+        android:onClick="connect" />
 </LinearLayout>

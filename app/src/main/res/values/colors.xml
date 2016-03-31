@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorBackground">#DDDDDD</color>
+    <color name="colorBrowserBox">#FFFFFF</color>
     <color name="colorText">#000000</color>
     <color name="colorTextErrorFaded">#b49090</color>
     <color name="colorTextSuccessFaded">#92b490</color>

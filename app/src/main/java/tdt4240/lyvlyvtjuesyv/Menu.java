@@ -19,14 +19,12 @@ public class Menu extends AppCompatActivity {
         hub.putExtra(Constants.IS_HOST_ADD, true);
         hub.putExtra(Constants.SERVER_ADDRESS_ADD, Constants.HOME_ADDRESS);
         hub.putExtra(Constants.SERVER_PORT_ADD, Constants.DEFAULT_PORT);
-        //hub.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
         startActivity(hub);
     }
 
     /** Called when Browse Games button is pressed **/
     public void openBrowser(View view) {
         Intent browser = new Intent(this, ServerBrowser.class);
-        //browser.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
         startActivity(browser);
     }
 }

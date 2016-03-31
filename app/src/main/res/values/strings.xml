@@ -8,4 +8,8 @@
     <string name="connection_fail">Failed to\nconnect</string>
     <string name="connection_success">Connected</string>
     <string name="host_message">You are the host!\nPlease wait for\nthe rest of the players...</string>
+    <string name="broswer_top">Server Browser</string>
+    <string name="browser_join">Join game</string>
+    <string name="hub_ip_desc">Your local IPs</string>
+    <string name="browser_manual_hint">Enter local IP</string>
 </resources>

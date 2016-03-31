@@ -23,4 +23,22 @@
         android:layout_gravity="center_horizontal"
         android:textColor="@color/colorText"
         android:textAlignment="center" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/hub_ip_desc"
+        android:id="@+id/textView"
+        android:layout_gravity="center_horizontal"
+        android:textSize="30dp"
+        android:layout_marginTop="20dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:id="@+id/textView7"
+        android:layout_gravity="center_horizontal" />
+
 </LinearLayout>

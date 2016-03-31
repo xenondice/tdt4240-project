@@ -68,7 +68,8 @@ public class ClientListener {
         while (System.currentTimeMillis() - started <= Constants.RESPONSE_TIMEOUT) {
             try {
                 if (input.ready()) {
-                    return input.readLine();
+                    String answer = input.readLine();
+                    return answer.isEmpty() ? Constants.STATUS_EMPTY_RESPONSE + "" : answer;
                 }
             } catch (IOException e) {
                 e.printStackTrace();

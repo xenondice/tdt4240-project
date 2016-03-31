@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
@@ -11,7 +12,13 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.Socket;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.util.Enumeration;
 
 /**
  * Created by RayTM on 28.03.2016.
@@ -43,15 +50,10 @@ public class GameHub extends AppCompatActivity {
         is_host = intent.getBooleanExtra(Constants.IS_HOST_ADD, false);
         setContentView(R.layout.activity_hub_connecting);
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                if (is_host)
-                    createServer();
-                else
-                    connect();
-            }
-        }).start();
+        if (is_host)
+            createServer();
+        else
+            connect();
     }
 
     private void createServer() {
@@ -62,6 +64,8 @@ public class GameHub extends AppCompatActivity {
     /** Called once server is up **/
     public void connect() {
         new AsyncTask<Void, Void, Boolean>() {
+
+            /** This is done on its own thread **/
             @Override
             protected Boolean doInBackground(Void... params) {
                 try {
@@ -73,6 +77,7 @@ public class GameHub extends AppCompatActivity {
                 return true;
             }
 
+            /** Once completed, UIThread calls this method **/
             @Override
             protected void onPostExecute(Boolean result) {
                 if (result)
@@ -91,7 +96,8 @@ public class GameHub extends AppCompatActivity {
                 while (System.currentTimeMillis() - lastResponse <= Constants.RESPONSE_TIMEOUT + Constants.PING_INTERVAL) {
                     try {
                         if (input.ready()) {
-                            gotMessage(input.readLine());
+                            String message = input.readLine();
+                            gotMessage(message.isEmpty() ? Constants.STATUS_EMPTY_RESPONSE + "" : message);
                             lastResponse = System.currentTimeMillis();
                         }
                         Thread.sleep(Constants.RESPONSE_CHECK_INTERVAL);
@@ -162,9 +168,33 @@ public class GameHub extends AppCompatActivity {
             return;
         }
         startWaitingForMessages();
-        if (is_host)
+        if (is_host) {
             setContentView(R.layout.activity_hub_host);
-        else
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    String address = "";
+                    try {
+                        Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+                        while (interfaces.hasMoreElements()) {
+                            Enumeration<InetAddress> adresses = interfaces.nextElement().getInetAddresses();
+                            while (adresses.hasMoreElements())
+                                address += adresses.nextElement().getHostAddress() + "\n";
+                        }
+                    } catch (SocketException e) {
+                        address = "UNKNOWN";
+                    }
+                    final String finalAddress = address;
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            TextView ipField = (TextView) findViewById(R.id.textView7);
+                            ipField.setText(finalAddress);
+                        }
+                    });
+                }
+            }).start();
+        } else
             setContentView(R.layout.activity_hub);
     }
 

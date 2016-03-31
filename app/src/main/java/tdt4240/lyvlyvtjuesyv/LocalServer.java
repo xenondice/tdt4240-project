@@ -39,6 +39,7 @@ public class LocalServer extends IntentService {
         return instance;
     }
 
+    /** Called by service starter **/
     public LocalServer() {
         super("Server");
     }
@@ -103,6 +104,7 @@ public class LocalServer extends IntentService {
         System.out.println(message);
     }
 
+    /** Called by worker thread **/
     @Override
     protected void onHandleIntent(Intent workIntent) {
 

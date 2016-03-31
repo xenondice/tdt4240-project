@@ -14,6 +14,7 @@ public class Constants {
     /** Server communication **/
     public static final char STATUS_ACTIVE = 'a';
     public static final char STATUS_NO_ANSWER = 'n';
+    public static final char STATUS_EMPTY_RESPONSE = 'e';
 
     public static final char REQUEST_STATUS = 's';
 
