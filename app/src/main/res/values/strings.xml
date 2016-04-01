@@ -16,4 +16,5 @@
     <string name="error_empty_nickname">Nickname cannot be empty</string>
     <string name="text_game_info">Game info</string>
     <string name="logo_description">logo</string>
+    <string name="error_no_active_game_found">Could not join game, please try another code.</string>
 </resources>

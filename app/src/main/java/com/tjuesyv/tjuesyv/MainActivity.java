@@ -1,14 +1,12 @@
 package com.tjuesyv.tjuesyv;
 
 import android.content.Intent;
-import android.graphics.Typeface;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import com.firebase.client.AuthData;
 import com.firebase.client.ChildEventListener;
@@ -16,7 +14,6 @@ import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.Query;
-import com.firebase.client.ValueEventListener;
 import com.tjuesyv.tjuesyv.firebaseObjects.Game;
 import com.tjuesyv.tjuesyv.firebaseObjects.Player;
 
@@ -57,29 +54,72 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @OnClick(R.id.createGameButton)
-    protected void createGame() {
-        String nickname = nicknameText.getText().toString();
+    protected void createGameButton() {
         // Validate nickname
-        if (!isValidNickname(nickname))
-            return;
+        String nickname = nicknameText.getText().toString();
+        if (isValidNickname(nickname)) {
+            String gameCode = createGame(nickname);
+            joinGame(gameCode, nickname);
+        }
+    }
 
-        // Create new player
-        Player newPlayer = createPlayer(nickname);
+    @OnClick(R.id.joinGameButton)
+    protected void joinGameButton() {
+        // Validate nickname and game code formatting
+        String gameCode = gameCodeText.getText().toString();
+        String nickname = nicknameText.getText().toString();
+        if (isValidNickname(nickname) && isValidGameCode(gameCode))
+            joinGame(gameCode, nickname);
+    }
 
+    private String createGame(String nickname) {
         // Create reference to new game entry
         Firebase newGameRef = new Firebase(Constants.FIREBASE_URL).child("games").push();
         // Use the Firebase generated UID as salt to generate 4 letter/digit code
         String gameCode = createGameCode(newGameRef.getKey());
         // Populate the game entry in Firebase with the game object
         Game newGame = new Game(gameCode);
-        newGame.addPlayer(newPlayer);
         newGameRef.setValue(newGame);
-
-        // Join game
-        joinGameLobby(gameCode, newPlayer);
+        return gameCode;
     }
 
-    private Player createPlayer(final String nickname) {
+    private void joinGame(final String gameCode, final String nickname) {
+        // Make sure the game is active and not full
+        Firebase ref = new Firebase(Constants.FIREBASE_URL);
+        Firebase gamesRef = ref.child("games");
+
+        // Find games with the game code
+        Query queryRef = gamesRef.orderByChild("gameCode").equalTo(gameCode);
+        queryRef.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                Game game = dataSnapshot.getValue(Game.class);
+                if (game.getActive()) {
+                    // Join lobby as new player
+                    goToGameLobby(gameCode, createPlayer(nickname));
+                    // Clear any error messages
+                    gameCodeTextInputLayout.setErrorEnabled(false);
+                    gameCodeTextInputLayout.setError(null);
+                }
+            }
+
+            @Override public void onChildChanged(DataSnapshot dataSnapshot, String s) {}
+            @Override public void onChildRemoved(DataSnapshot dataSnapshot) {}
+            @Override public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+                Snackbar.make(findViewById(R.id.rootView),
+                        "Error joining game: " + gameCode + ". Error: " + firebaseError.toString(),
+                        Snackbar.LENGTH_LONG).show();
+            }
+        });
+
+        // Display message if the query results with nothing
+        gameCodeTextInputLayout.setError(getString(R.string.error_no_active_game_found));
+    }
+
+    private Player createPlayer(String nickname) {
         final Firebase ref = new Firebase(Constants.FIREBASE_URL);
         final Player player = new Player(nickname);
         ref.authAnonymously(new Firebase.AuthResultHandler() {
@@ -92,41 +132,18 @@ public class MainActivity extends AppCompatActivity {
             public void onAuthenticationError(FirebaseError firebaseError) {
                 Snackbar.make(findViewById(R.id.rootView),
                         "Error signing in player: " + firebaseError.toString(),
-                        Snackbar.LENGTH_LONG)
-                        .show();
+                        Snackbar.LENGTH_LONG).show();
             }
         });
         return player;
     }
 
-    private void joinGameLobby(String gameCode, Player player) {
+    private void goToGameLobby(String gameCode, Player player) {
         Intent intent = new Intent(this, GameLobby.class);
         intent.putExtra("GAME_CODE", gameCode);
         intent.putExtra("PLAYER", player.getName());
         startActivity(intent);
         overridePendingTransition(0, 0);
-    }
-
-
-    @OnClick(R.id.joinGameButton)
-    protected void joinGame() {
-        // Validate nickname
-        if (!isValidNickname(nicknameText.getText().toString()))
-            return;
-
-        // Validate game code
-        if (!isValidGameCode(gameCodeText.getText().toString())) {
-            return;
-        }
-
-        if (!isValidGame(gameCodeText.getText().toString()))
-            return;
-
-        // Create new player
-        Player player = createPlayer(nicknameText.getText().toString());
-
-        // Join game lobby
-        joinGameLobby(gameCodeText.getText().toString(), player);
     }
 
     private boolean isValidGameCode(String gameCode) {
@@ -151,26 +168,6 @@ public class MainActivity extends AppCompatActivity {
             nicknameTextInputLayout.setErrorEnabled(false);
             nicknameTextInputLayout.setError(null);
         }
-        return true;
-    }
-
-    private boolean isValidGame(String gameCode) {
-        final Firebase ref = new Firebase(Constants.FIREBASE_URL).child("games");
-        Query queryRef = ref.orderByChild("gameCode").equalTo(gameCodeText.getText().toString());
-        queryRef.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-            }
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {}
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {}
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {}
-        });
-
         return true;
     }
 
