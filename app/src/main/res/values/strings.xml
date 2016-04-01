@@ -9,7 +9,7 @@
     <string name="btn_start_game">Start Game</string>
 
     <string name="edit_valid_game_codes">ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789</string>
-    <string name="edit_valid_nickname">abcdefghijklmnopqrstuvwxyzæøåABCDEFGHIJKLMNOPQRSTUVWXYZÆØÅ0123456789</string>
+    <string name="edit_valid_nickname">abcdefghijklmnopqrstuvwxyzæøå ABCDEFGHIJKLMNOPQRSTUVWXYZÆØÅ0123456789</string>
 
     <string name="error_empty_game_code">Game code cannot be empty when joining a game</string>
     <string name="error_short_game_code">Game codes are 4 characters long</string>
