@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#EC1C4B</color>
+    <color name="colorPrimaryDark">#D00030</color>
+    <color name="colorPrimaryDarker">#A20026</color>
+    <color name="windowBackgroundPrimary">#EC1C4B</color>
+    <color name="colorAccentPrimary">#FFFFFF</color>
+
+    <color name="colorSecondary">#2F9595</color>
+    <color name="colorSecondaryDark">#178A8A</color>
+    <color name="colorSecondaryDarker">#096D6D</color>
+    <color name="windowBackgroundSecondary">#2F9595</color>
+    <color name="colorAccentSecondary">#FFFFFF</color>
+</resources>
