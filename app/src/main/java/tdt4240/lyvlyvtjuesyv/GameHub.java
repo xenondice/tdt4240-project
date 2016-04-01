@@ -178,8 +178,11 @@ public class GameHub extends AppCompatActivity {
                         Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
                         while (interfaces.hasMoreElements()) {
                             Enumeration<InetAddress> adresses = interfaces.nextElement().getInetAddresses();
-                            while (adresses.hasMoreElements())
-                                address += adresses.nextElement().getHostAddress() + "\n";
+                            while (adresses.hasMoreElements()) {
+                                String ip = adresses.nextElement().getHostAddress();
+                                if (ip.contains(".") && !ip.equals(Constants.HOME_ADDRESS))
+                                    address += ip + "\n";
+                            }
                         }
                     } catch (SocketException e) {
                         address = "UNKNOWN";

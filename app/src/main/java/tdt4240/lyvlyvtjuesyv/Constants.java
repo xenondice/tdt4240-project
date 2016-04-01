@@ -20,7 +20,7 @@ public class Constants {
 
     /** Variables **/
     public static final int DEFAULT_PORT = 56694;
-    public static final String HOME_ADDRESS = "localhost";
+    public static final String HOME_ADDRESS = "127.0.0.1";
     public static final long PING_INTERVAL = 5000;
     public static final long RESPONSE_TIMEOUT = 10000;
     public static final long RESPONSE_CHECK_INTERVAL = 100;
