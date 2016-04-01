@@ -35,7 +35,6 @@ public class MainActivity extends AppCompatActivity {
     @Bind(R.id.nicknameText) EditText nicknameText;
     @Bind(R.id.nicknameTextInputLayout) TextInputLayout nicknameTextInputLayout;
     @Bind(R.id.gameCodeTextInputLayout) TextInputLayout gameCodeTextInputLayout;
-    @Bind(R.id.titleText) TextView titleText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,10 +44,6 @@ public class MainActivity extends AppCompatActivity {
         // Setup ButterKnife and Firebase
         ButterKnife.bind(this);
         Firebase.setAndroidContext(this);
-
-        // Create typeface from ttf and set for title
-        Typeface typeface = Typeface.createFromAsset(getAssets(), getString(R.string.font_name));
-        titleText.setTypeface(typeface);
     }
 
     @OnTextChanged(R.id.gameCodeText)
