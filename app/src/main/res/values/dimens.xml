@@ -9,5 +9,5 @@
     <dimen name="text_size_medium">15sp</dimen>
     <dimen name="text_size_large">25sp</dimen>
 
-    <dimen name="title_size">60sp</dimen>
+    <dimen name="title_size">40sp</dimen>
 </resources>
