@@ -68,4 +68,9 @@ public class GameLobby extends AppCompatActivity{
         });
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        overridePendingTransition(0, 0);
+    }
 }

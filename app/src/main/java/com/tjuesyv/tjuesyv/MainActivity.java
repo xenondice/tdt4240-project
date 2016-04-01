@@ -104,6 +104,7 @@ public class MainActivity extends AppCompatActivity {
         intent.putExtra("GAME_CODE", gameCode);
         intent.putExtra("PLAYER", player.getName());
         startActivity(intent);
+        overridePendingTransition(0, 0);
     }
 
 
