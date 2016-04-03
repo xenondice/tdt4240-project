@@ -1,20 +1,31 @@
 <resources>
     <string name="app_name">Lyv Lyv, TjueSyv</string>
 
+    <string name="firebase_url">https://tjuesyv.firebaseio.com</string>
+
     <string name="hint_nickname">Enter nickname</string>
     <string name="hint_game_code">Enter game code to join</string>
 
     <string name="btn_create_game">Create Game</string>
     <string name="btn_join_game">Join Game</string>
     <string name="btn_start_game">Start Game</string>
+    <string name="btn_logout">Logout</string>
 
-    <string name="edit_valid_game_codes">ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789</string>
+    <string name="edit_valid_game_codes">ABCDEFGHIJKLMNOPQRSTUVWXYZ</string>
     <string name="edit_valid_nickname">abcdefghijklmnopqrstuvwxyzæøå ABCDEFGHIJKLMNOPQRSTUVWXYZÆØÅ0123456789</string>
 
+    <string name="text_game_info">Game info</string>
+    <string name="text_game_code">Game code</string>
+    <string name="text_started">Started</string>
+    <string name="text_active">Active</string>
+    <string name="text_players_in_lobby">Players in lobby</string>
+
+    <string name="logo_description">logo</string>
+
+    <string name="error_game_not_found">Could not find game, please try another code.</string>
+    <string name="error_game_not_active">Could not join game, game is not active.</string>
+    <string name="error_game_is_full">Could not join game, game is full.</string>
     <string name="error_empty_game_code">Game code cannot be empty when joining a game</string>
     <string name="error_short_game_code">Game codes are 4 characters long</string>
     <string name="error_empty_nickname">Nickname cannot be empty</string>
-    <string name="text_game_info">Game info</string>
-    <string name="logo_description">logo</string>
-    <string name="error_no_active_game_found">Could not join game, please try another code.</string>
 </resources>

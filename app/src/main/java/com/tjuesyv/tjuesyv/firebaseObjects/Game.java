@@ -1,41 +1,36 @@
 package com.tjuesyv.tjuesyv.firebaseObjects;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.firebase.client.ServerValue;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 
 public class Game {
     private String gameCode;
     private Boolean active;
     private Boolean started;
-    private Long createdAt;
-    private Long round;
-    private Long maxPlayers;
-    private List<Player> players;
+    private int round;
+    private int maxPlayers;
+    private Map<String, String> createdAt;
+    private Map<String, Object> players = new HashMap<String, Object>();
 
+    // Required default constructor for Firebase object mapping
+    @SuppressWarnings("unused")
     public Game() {}
 
     public Game(String gameCode) {
         this.gameCode = gameCode;
         active = true;
         started = false;
-        round = 1L;
-        maxPlayers = 8L;
-        players = new ArrayList<Player>();
+        round = 1;
+        maxPlayers = 8;
+        createdAt = ServerValue.TIMESTAMP;
     };
 
+    @JsonIgnore
     public Map<String, String> getCreatedAt() {
-        return ServerValue.TIMESTAMP;
-    }
-
-    public Long getCreatedAtLong() {
         return createdAt;
-    }
-
-    public void setCreatedAt(Long createdAt) {
-        this.createdAt = createdAt;
     }
 
     public Boolean getStarted() {
@@ -50,11 +45,11 @@ public class Game {
         return active;
     }
 
-    public List<Player> getPlayers() {
+    public Map<String, Object> getPlayers() {
         return players;
     }
 
-    public Long getRound() {
+    public int getRound() {
         return round;
     }
 
@@ -66,15 +61,15 @@ public class Game {
         round ++;
     }
 
-    public void addPlayer(Player player) {
-        players.add(player);
+    public void addPlayer(String playerId) {
+        players.put(playerId, true);
     }
 
     public void setGameState(boolean state) {
         active = state;
     }
 
-    public Long getMaxPlayers() {
+    public int getMaxPlayers() {
         return maxPlayers;
     }
 }

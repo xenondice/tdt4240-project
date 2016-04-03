@@ -62,7 +62,7 @@
                 android:layout_height="wrap_content"
                 android:hint="@string/hint_game_code"
                 android:textSize="@dimen/text_size_large"
-                android:maxLength="4"
+                android:maxLength="6"
                 android:inputType="textCapCharacters|textNoSuggestions"
                 android:singleLine="true"
                 android:digits="@string/edit_valid_game_codes"
@@ -81,8 +81,16 @@
             android:id="@+id/joinGameButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
             android:text="@string/btn_join_game"
             android:textSize="@dimen/btn_size_large" />
+
+        <Button
+            android:id="@+id/logoutButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_logout"
+            android:textSize="@dimen/btn_size_medium" />
 
     </LinearLayout>
 
