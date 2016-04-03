@@ -278,6 +278,7 @@ public class MainActivity extends AppCompatActivity {
             gameCodeTextInputLayout.setError(getString(R.string.error_short_game_code));
             valid = false;
         } else {
+            joinGameButton.setEnabled(true);
             gameCodeTextInputLayout.setErrorEnabled(false);
             gameCodeTextInputLayout.setError(null);
         }
