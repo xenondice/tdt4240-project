@@ -62,7 +62,7 @@
                 android:layout_height="wrap_content"
                 android:hint="@string/hint_game_code"
                 android:textSize="@dimen/text_size_large"
-                android:maxLength="6"
+                android:maxLength="4"
                 android:inputType="textCapCharacters|textNoSuggestions"
                 android:singleLine="true"
                 android:digits="@string/edit_valid_game_codes"

@@ -121,6 +121,9 @@ public class MainActivity extends AppCompatActivity {
     protected void joinGameButton() {
         String gameCode = gameCodeText.getText().toString();
         String nickname = nicknameText.getText().toString();
+        // Make sure game code is valid
+        if (!isValidGameCode(gameCode))
+            return;
         // Authenticate player
         authenticatePlayer(nickname);
         // Join game
@@ -158,10 +161,6 @@ public class MainActivity extends AppCompatActivity {
      * @param gameCode  The game code of the game to join.
      */
     private void joinGame(final String gameCode) {
-        // Make sure game code is valid
-        if (!isValidGameCode(gameCode))
-            return;
-
         // Find games with the game code
         Query queryRef = gamesRef.orderByChild("gameCode").equalTo(gameCode).limitToFirst(1);
         queryRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -272,9 +271,11 @@ public class MainActivity extends AppCompatActivity {
     private boolean isValidGameCode(String gameCode) {
         boolean valid = true;
         if (gameCode.isEmpty()) {
+            joinGameButton.setEnabled(false);
             gameCodeTextInputLayout.setError(getString(R.string.error_empty_game_code));
             valid = false;
         } else if (gameCode.length() > 0 && gameCode.length() < 4) {
+            joinGameButton.setEnabled(false);
             gameCodeTextInputLayout.setError(getString(R.string.error_short_game_code));
             valid = false;
         } else {
