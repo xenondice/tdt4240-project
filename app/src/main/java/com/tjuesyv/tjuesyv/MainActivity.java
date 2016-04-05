@@ -280,7 +280,6 @@ public class MainActivity extends AppCompatActivity {
             valid = false;
         } else {
             joinGameButton.setEnabled(true);
-            gameCodeTextInputLayout.setErrorEnabled(false);
             gameCodeTextInputLayout.setError(null);
         }
         return valid;
@@ -298,7 +297,6 @@ public class MainActivity extends AppCompatActivity {
             nicknameTextInputLayout.setError(getString(R.string.error_empty_nickname));
             valid = false;
         } else {
-            nicknameTextInputLayout.setErrorEnabled(false);
             nicknameTextInputLayout.setError(null);
         }
         return valid;

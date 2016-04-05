@@ -6,8 +6,6 @@
     <dimen name="btn_size_medium">15sp</dimen>
     <dimen name="btn_size_large">20sp</dimen>
 
-    <dimen name="text_size_medium">15sp</dimen>
-    <dimen name="text_size_large">25sp</dimen>
-
-    <dimen name="title_size">40sp</dimen>
+    <dimen name="text_size_medium">10sp</dimen>
+    <dimen name="text_size_large">20sp</dimen>
 </resources>

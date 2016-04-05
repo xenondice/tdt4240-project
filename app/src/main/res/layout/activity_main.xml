@@ -17,24 +17,30 @@
         android:id="@+id/linearLayoutInput"
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true">
 
         <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="170dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:id="@+id/imageView"
-            android:layout_gravity="center_horizontal"
             android:contentDescription="@string/logo_description"
             android:src="@drawable/logo"
-            android:layout_marginBottom="25dp" />
+            android:layout_weight="0.7"
+            android:adjustViewBounds="true"
+            android:baselineAlignBottom="false"
+            android:cropToPadding="false"
+            android:scaleType="fitCenter" />
 
         <android.support.design.widget.TextInputLayout
             android:id="@+id/nicknameTextInputLayout"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
-            app:errorTextAppearance="@color/colorAccentPrimary">
+            app:hintEnabled="true"
+            app:errorEnabled="true"
+            app:errorTextAppearance="@color/colorAccentPrimary"
+            android:layout_weight="0">
             <EditText
                 android:id="@+id/nicknameText"
                 android:layout_width="match_parent"
@@ -52,9 +58,12 @@
             android:id="@+id/gameCodeTextInputLayout"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
+            app:hintEnabled="true"
+            app:errorEnabled="true"
             app:counterEnabled="true"
             app:counterMaxLength="4"
-            app:errorTextAppearance="@color/colorAccentPrimary">
+            app:errorTextAppearance="@color/colorAccentPrimary"
+            android:layout_weight="1">
 
             <EditText
                 android:id="@+id/gameCodeText"
@@ -73,25 +82,26 @@
             android:id="@+id/createGameButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
             android:text="@string/btn_create_game"
-            android:textSize="@dimen/btn_size_large" />
+            android:textSize="@dimen/btn_size_large"
+            android:layout_weight="0" />
 
         <Button
             android:id="@+id/joinGameButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
             android:enabled="false"
             android:text="@string/btn_join_game"
-            android:textSize="@dimen/btn_size_large" />
+            android:textSize="@dimen/btn_size_large"
+            android:layout_weight="0" />
 
         <Button
             android:id="@+id/logoutButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/btn_logout"
-            android:textSize="@dimen/btn_size_medium" />
+            android:textSize="@dimen/btn_size_medium"
+            android:layout_weight="0" />
 
     </LinearLayout>
 
