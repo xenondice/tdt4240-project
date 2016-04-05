@@ -1,20 +1,33 @@
 package com.tjuesyv.tjuesyv.firebaseObjects;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class Player {
+    private String nickname;
+    private Map<String, Object> games = new HashMap<>();
 
-    private String name;
-
+    // Required default constructor for Firebase object mapping
+    @SuppressWarnings("unused")
     public Player() {}
 
-    public Player(String name) {
-        this.name = name;
+    public Player(String nickname) {
+        this.nickname = nickname;
     }
 
-    public String getName() {
-        return name;
+    public String getNickname() {
+        return nickname;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public Map<String, Object> getGames() {
+        return games;
+    }
+
+    public void addGame(String gameId) {
+        games.put(gameId, true);
     }
 }

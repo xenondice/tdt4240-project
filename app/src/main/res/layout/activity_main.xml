@@ -81,8 +81,17 @@
             android:id="@+id/joinGameButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:enabled="false"
             android:text="@string/btn_join_game"
             android:textSize="@dimen/btn_size_large" />
+
+        <Button
+            android:id="@+id/logoutButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_logout"
+            android:textSize="@dimen/btn_size_medium" />
 
     </LinearLayout>
 
