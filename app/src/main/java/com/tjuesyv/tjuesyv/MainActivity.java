@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ViewFlipper;
 
 import com.firebase.client.AuthData;
 import com.firebase.client.ChildEventListener;
@@ -29,6 +30,7 @@ import butterknife.OnTextChanged;
 
 public class MainActivity extends AppCompatActivity {
 
+    @Bind(R.id.viewFlipper) ViewFlipper viewFlipper;
     @Bind(R.id.createGameButton) Button createGameButton;
     @Bind(R.id.joinGameButton) Button joinGameButton;
     @Bind(R.id.logoutButton) Button logoutButton;
@@ -63,13 +65,13 @@ public class MainActivity extends AppCompatActivity {
             public void onAuthStateChanged(AuthData authData) {
                 if (authData != null) {
                     // User is logged in
-                    Snackbar.make(findViewById(R.id.rootView),
+                    Snackbar.make(findViewById(R.id.rootView1),
                             "Logged in as: " + authData.getUid(),
                             Snackbar.LENGTH_LONG).show();
 
                 } else {
                     // User is not logged in
-                    Snackbar.make(findViewById(R.id.rootView),
+                    Snackbar.make(findViewById(R.id.rootView1),
                             "No auth session found. Logging in...",
                             Snackbar.LENGTH_LONG).show();
                     authAnonymously();
@@ -108,13 +110,14 @@ public class MainActivity extends AppCompatActivity {
 
     @OnClick(R.id.createGameButton)
     protected void createGameButton() {
-        String nickname = nicknameText.getText().toString();
+        //String nickname = nicknameText.getText().toString();
         // Authenticate player
-        authenticatePlayer(nickname);
+        //authenticatePlayer(nickname);
         // Create a new game
-        String gameCode = createGame();
+        //String gameCode = createGame();
         // Join game
-        joinGame(gameCode);
+        //joinGame(gameCode);
+        viewFlipper.setDisplayedChild(1);
     }
 
     @OnClick(R.id.joinGameButton)
