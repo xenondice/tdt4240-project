@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/szeestraten/tdt4240-project.png?label=ready&title=Ready)](https://waffle.io/szeestraten/tdt4240-project)
 # tdt4240-project
 
 ## Coding conventions
