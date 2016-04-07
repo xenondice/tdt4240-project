@@ -6,6 +6,8 @@
     <string name="hint_nickname">Enter nickname</string>
     <string name="hint_game_code">Enter game code to join</string>
 
+    <string name="hint_answer">Enter answer you lying piece of shit</string>
+
     <string name="btn_create_game">Create Game</string>
     <string name="btn_join_game">Join Game</string>
     <string name="btn_start_game">Start Game</string>

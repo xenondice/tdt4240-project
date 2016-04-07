@@ -1,0 +1,52 @@
+Index: .idea/encodings.xml
+===================================================================
+--- .idea/encodings.xml	(revision 4c61935866e4955d7e98525291d77cedeaddb250)
++++ .idea/encodings.xml	(revision 4c61935866e4955d7e98525291d77cedeaddb250)
+@@ -1,6 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<project version="4">
+-  <component name="Encoding">
+-    <file url="PROJECT" charset="UTF-8" />
+-  </component>
+-</project>
+\ No newline at end of file
+Index: .idea/misc.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- .idea/misc.xml	(revision 4c61935866e4955d7e98525291d77cedeaddb250)
++++ .idea/misc.xml	(revision )
+@@ -43,4 +43,31 @@
+   <component name="ProjectType">
+     <option name="id" value="Android" />
+   </component>
++  <component name="masterDetails">
++    <states>
++      <state key="ProjectJDKs.UI">
++        <settings>
++          <last-edited>1.8</last-edited>
++          <splitter-proportions>
++            <option name="proportions">
++              <list>
++                <option value="0.2" />
++              </list>
++            </option>
++          </splitter-proportions>
++        </settings>
++      </state>
++      <state key="ScopeChooserConfigurable.UI">
++        <settings>
++          <splitter-proportions>
++            <option name="proportions">
++              <list>
++                <option value="0.2" />
++              </list>
++            </option>
++          </splitter-proportions>
++        </settings>
++      </state>
++    </states>
++  </component>
+ </project>
+\ No newline at end of file
