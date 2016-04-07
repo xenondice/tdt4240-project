@@ -188,8 +188,10 @@ public class MainActivity extends AppCompatActivity {
                     Boolean containsNick=false;
                     for (String key:game.getPlayers().keySet()){
                         if (!containsNick){
-                            containsNick=String.valueOf(snapshot.child("users").child(key).child("nickname").getValue())
-                                    .equalsIgnoreCase(String.valueOf(snapshot.child("users").child(authData.getUid()).child("nickname").getValue()));
+                            containsNick=
+                                    (String.valueOf(snapshot.child("users").child(key).child("nickname").getValue())
+                                    .equalsIgnoreCase(String.valueOf(snapshot.child("users").child(authData.getUid()).child("nickname").getValue()))
+                                    &&(!authData.getUid().equalsIgnoreCase(key)));
                         }
                     }
                     if(containsNick){
