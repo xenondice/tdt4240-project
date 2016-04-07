@@ -28,4 +28,5 @@
     <string name="error_empty_game_code">Game code cannot be empty when joining a game</string>
     <string name="error_short_game_code">Game codes are 4 characters long</string>
     <string name="error_empty_nickname">Nickname cannot be empty</string>
+    <string name="error_taken_nick">Nickname is already taken</string>
 </resources>
