@@ -7,6 +7,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.ViewFlipper;
 
 import com.firebase.client.AuthData;
 import com.firebase.client.ChildEventListener;
@@ -21,8 +22,9 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class GameLobby extends AppCompatActivity{
+public class GameActivity extends AppCompatActivity {
 
+    @Bind(R.id.rootFlipper) ViewFlipper rootFlipper;
     @Bind(R.id.gameCodeTextView) TextView gameCodeTextView;
     @Bind(R.id.startedTextView) TextView startedTextView;
     @Bind(R.id.activeTextView) TextView activeTextView;
@@ -41,7 +43,7 @@ public class GameLobby extends AppCompatActivity{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.game_lobby);
+        setContentView(R.layout.activity_game);
 
         // Setup ButterKnife
         ButterKnife.bind(this);
@@ -134,10 +136,7 @@ public class GameLobby extends AppCompatActivity{
      * Sets the started field of the current game to true.
      */
     private void startGame() {
-        Intent startGameIntent = new Intent(this, MainGame.class);
-        startGameIntent.putExtra("GAME_UID", gameUID);
-        startActivity(startGameIntent);
-        overridePendingTransition(0, 0);
+
     }
 
     @Override

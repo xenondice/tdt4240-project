@@ -24,11 +24,12 @@
 
     <string name="logo_description">logo</string>
 
-    <string name="error_game_not_found">Could not find game, please try another code.</string>
-    <string name="error_game_not_active">Could not join game, game is not active.</string>
-    <string name="error_game_is_full">Could not join game, game is full.</string>
-    <string name="error_empty_game_code">Game code cannot be empty when joining a game</string>
-    <string name="error_short_game_code">Game codes are 4 characters long</string>
-    <string name="error_empty_nickname">Nickname cannot be empty</string>
+    <string name="error_game_not_found">No game found</string>
+    <string name="error_game_not_active">Game is not active</string>
+    <string name="error_game_in_progress">Game is in progress</string>
+    <string name="error_game_is_full">Game is full</string>
+    <string name="error_empty_game_code">Please enter a game code</string>
+    <string name="error_short_game_code">Game codes are four characters long</string>
+    <string name="error_empty_nickname">Please enter a nickname</string>
     <string name="error_taken_nick">Nickname is already taken</string>
 </resources>

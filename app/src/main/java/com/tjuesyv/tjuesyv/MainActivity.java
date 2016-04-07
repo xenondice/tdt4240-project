@@ -159,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Joins an active game based on the game code as the currently authenticated player.
-     * Goes to the GameLobby activity if all goes well.
+     * Goes to the game activity if all goes well.
      * @param gameCode  The game code of the game to join.
      */
     private void joinGame(final String gameCode) {
@@ -282,12 +282,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Helper function for starting the GameLobby activity.
+     * Helper function for starting the game activity into the lobby.
      * Passes over the game UID.
      * @param gameUID   The UID of the game.
      */
     private void goToGameLobby(String gameUID) {
-        Intent intent = new Intent(this, GameLobby.class);
+        Intent intent = new Intent(this, GameActivity.class);
         intent.putExtra("GAME_UID", gameUID);
         startActivity(intent);
         overridePendingTransition(0, 0);
