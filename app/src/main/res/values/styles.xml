@@ -20,4 +20,12 @@
         <item name="android:windowBackground">@color/windowBackgroundSecondary</item>
     </style>
 
+    <style name="AppTheme.Game" parent="AppTheme">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorButtonNormal">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccentPrimary</item>
+        <item name="android:windowBackground">@color/windowBackgroundPrimary</item>
+    </style>
+
 </resources>

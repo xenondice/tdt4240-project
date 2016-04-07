@@ -134,7 +134,10 @@ public class GameLobby extends AppCompatActivity{
      * Sets the started field of the current game to true.
      */
     private void startGame() {
-        currentGameRef.child("started").setValue(true);
+        Intent startGameIntent = new Intent(this, MainGame.class);
+        startGameIntent.putExtra("GAME_UID", gameUID);
+        startActivity(startGameIntent);
+        overridePendingTransition(0, 0);
     }
 
     @Override
