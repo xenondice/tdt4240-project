@@ -5,6 +5,7 @@ import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -18,6 +19,7 @@ import com.firebase.client.ValueEventListener;
 import com.tjuesyv.tjuesyv.firebaseObjects.Game;
 
 import org.hashids.Hashids;
+
 
 import java.util.HashMap;
 import java.util.Map;
@@ -162,13 +164,13 @@ public class MainActivity extends AppCompatActivity {
      */
     private void joinGame(final String gameCode) {
         // Find games with the game code
-        Query queryRef = gamesRef.orderByChild("gameCode").equalTo(gameCode).limitToFirst(1);
+        Query queryRef = rootRef.child("games").orderByChild("gameCode").equalTo(gameCode).limitToFirst(1);
         queryRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
                 if (snapshot.exists()) {
                     // Get first snapshot from the query
-                    DataSnapshot gameSnapshot = snapshot.getChildren().iterator().next();
+                    final DataSnapshot gameSnapshot = snapshot.getChildren().iterator().next();
 
                     // Get the game object from Firebase
                     Game game = gameSnapshot.getValue(Game.class);
@@ -183,6 +185,35 @@ public class MainActivity extends AppCompatActivity {
                         gameCodeTextInputLayout.setError(getString(R.string.error_game_is_full));
                         return;
                     }
+                    Boolean containsNick=false;
+                    for (String key:game.getPlayers().keySet()){
+                        if (!containsNick){
+                            containsNick=
+                                    (String.valueOf(snapshot.child("users").child(key).child("nickname").getValue())
+                                    .equalsIgnoreCase(String.valueOf(snapshot.child("users").child(authData.getUid()).child("nickname").getValue()))
+                                    &&(!authData.getUid().equalsIgnoreCase(key)));
+                        }
+                    }
+                    if(containsNick){
+                        gameCodeTextInputLayout.setError(getString(R.string.error_taken_nick));
+                        return;
+                    }
+
+                    Firebase user= new Firebase(String.valueOf(usersRef));
+                    user.addListenerForSingleValueEvent(new ValueEventListener() {
+
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+
+
+                        }
+
+                        @Override
+                        public void onCancelled(FirebaseError firebaseError) {
+
+                        }
+                    });
+
 
                     // Add player UID to players list in game object and update Firebase
                     game.addPlayer(authData.getUid());

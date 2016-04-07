@@ -31,4 +31,5 @@
     <string name="error_empty_game_code">Please enter a game code</string>
     <string name="error_short_game_code">Game codes are four characters long</string>
     <string name="error_empty_nickname">Please enter a nickname</string>
+    <string name="error_taken_nick">Nickname is already taken</string>
 </resources>
