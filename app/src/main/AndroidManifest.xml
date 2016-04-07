@@ -24,24 +24,14 @@
         </activity>
 
         <activity
-            android:name=".GameLobby"
+            android:name=".GameActivity"
             android:parentActivityName=".MainActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.Lobby" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
-        </activity>
-
-        <activity
-            android:name=".MainGame"
-            android:parentActivityName=".GameLobby"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Game"
             android:windowSoftInputMode="adjustPan|stateHidden" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".GameLobby" />
+                android:value=".MainActivity" />
         </activity>
     </application>
 

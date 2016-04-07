@@ -5,14 +5,14 @@
     <color name="colorPrimaryDarker">#A20026</color>
     <color name="windowBackgroundPrimary">@color/colorPrimary</color>
     <color name="colorAccentPrimary">#FFFFFF</color>
+    <color name="abc_primary_text_material_dark">#ffffff</color>
+    <color name="abc_primary_text_material_light">#000000</color>
 
     <color name="colorSecondary">#2F9595</color>
     <color name="colorSecondaryDark">#178A8A</color>
     <color name="colorSecondaryDarker">#096D6D</color>
     <color name="windowBackgroundSecondary">@color/colorSecondary</color>
     <color name="colorAccentSecondary">#FFFFFF</color>
-    <color name="abc_primary_text_material_dark">#ffffff</color>
-    <color name="abc_primary_text_material_light">#000000</color>
     <color name="abc_secondary_text_material_dark">#96ffffff</color>
     <color name="abc_secondary_text_material_light">#96000000</color>
 </resources>
