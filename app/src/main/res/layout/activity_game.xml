@@ -11,7 +11,7 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     android:inAnimation="@anim/slide_in_from_right"
     android:outAnimation="@anim/slide_out_to_left"
-    android:animateFirstView="false">
+    android:animateFirstView="true">
 
     <include layout="@layout/view_lobby" />
     <include layout="@layout/view_create_player" />
