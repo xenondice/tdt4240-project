@@ -6,6 +6,7 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -170,7 +171,7 @@ public class MainActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot snapshot) {
                 if (snapshot.exists()) {
                     // Get first snapshot from the query
-                    final DataSnapshot gameSnapshot = snapshot.getChildren().iterator().next();
+                    DataSnapshot gameSnapshot = snapshot.getChildren().iterator().next();
 
                     // Get the game object from Firebase
                     Game game = gameSnapshot.getValue(Game.class);
@@ -185,36 +186,28 @@ public class MainActivity extends AppCompatActivity {
                         gameCodeTextInputLayout.setError(getString(R.string.error_game_is_full));
                         return;
                     }
-                    Boolean containsNick=false;
-                    for (String key:game.getPlayers().keySet()){
-                        if (!containsNick){
-                            containsNick=
-                                    (String.valueOf(snapshot.child("users").child(key).child("nickname").getValue())
+                    // Make sure nobody else in the game has the same nick
+                    /*pending being fixed in fix_unique_names
+                    for (String id:game.getPlayers().keySet()) {
+
+                        if (    String.valueOf(snapshot.child("users").child(id).child("nickname").getValue())
+                                .equalsIgnoreCase(String.valueOf(snapshot.child("users").child(authData.getUid()).child("nickname").getValue()))
+                                && (!authData.getUid().equalsIgnoreCase(id))
+                                )
+                        {
+
+                            Log.v("Nicktesting","Id 1: "+String.valueOf(id));
+                            Log.v("Nicktesting","Nick 1: "+String.valueOf(snapshot.child("users").child(id).child("nickname").getValue()));
+                            Log.v("Nicktesting","Id 2: "+String.valueOf(authData.getUid()));
+                            Log.v("Nicktesting","Nick 2: "+String.valueOf(snapshot.child("users").child(authData.getUid()).child("nickname").getValue()));
+                            Log.v("Nicktesting","Match between nicks: "+ String.valueOf(String.valueOf(snapshot.child("users").child(id).child("nickname").getValue())
                                     .equalsIgnoreCase(String.valueOf(snapshot.child("users").child(authData.getUid()).child("nickname").getValue()))
-                                    &&(!authData.getUid().equalsIgnoreCase(key)));
+                                    && (!authData.getUid().equalsIgnoreCase(id))));
+                            gameCodeTextInputLayout.setError(getString(R.string.error_taken_nick));
+                            return;
                         }
                     }
-                    if(containsNick){
-                        gameCodeTextInputLayout.setError(getString(R.string.error_taken_nick));
-                        return;
-                    }
-
-                    Firebase user= new Firebase(String.valueOf(usersRef));
-                    user.addListenerForSingleValueEvent(new ValueEventListener() {
-
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-
-
-                        }
-
-                        @Override
-                        public void onCancelled(FirebaseError firebaseError) {
-
-                        }
-                    });
-
-
+                    pending being fixed*/
                     // Add player UID to players list in game object and update Firebase
                     game.addPlayer(authData.getUid());
                     gamesRef.child(gameSnapshot.getKey()).setValue(game);
@@ -257,7 +250,9 @@ public class MainActivity extends AppCompatActivity {
                 authAnonymously();
             } else {
                 // Add player info to the authenticated player
+                Log.v("Nicktesting","Adding nick to player: "+nickname);
                 rootRef.child("users").child(authData.getUid()).child("nickname").setValue(nickname);
+                Log.v("Nicktesting","Player nick now; "+rootRef.child("users").child(authData.getUid()).child("nickname").toString());
             }
         }
     }
@@ -270,6 +265,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onAuthenticated(AuthData authData) {
                 setAuthenticatedUser(authData);
+                Log.v("Nicktesting", "Player nick aa; " + rootRef.child("users").child(authData.getUid()).child("nickname").toString());
+
             }
 
             @Override
@@ -349,6 +346,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void setAuthenticatedUser(AuthData authData) {
         this.authData = authData;
+        Log.v("Nicktesting", "Player nick sa; " + rootRef.child("users").child(this.authData.getUid()).child("nickname").toString());
     }
 
     /**
@@ -356,7 +354,9 @@ public class MainActivity extends AppCompatActivity {
      */
     private void logoutAuthenticatedUser() {
         if (authData != null) {
+
             rootRef.unauth();
+            Log.v("Nicktesting", "Player nick logout; " + rootRef.child("users").child(authData.getUid()).child("nickname").toString());
         }
     }
 }
