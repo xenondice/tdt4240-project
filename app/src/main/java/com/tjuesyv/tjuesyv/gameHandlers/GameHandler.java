@@ -11,6 +11,7 @@ import com.tjuesyv.tjuesyv.R;
 import com.tjuesyv.tjuesyv.states.LobbyState;
 
 import butterknife.Bind;
+import butterknife.ButterKnife;
 
 /**
  * Created by RayTM on 08.04.2016.
@@ -33,11 +34,18 @@ public class GameHandler {
     public AuthData authData;
 
     public GameHandler(GameActivity activityReference, GameMode gameMode) {
+
+        // Assign variables
         this.gameMode = gameMode;
-        gameMode.bindHandler(this);
         currentState = 0;
         currentRound = 0;
         this.activityReference = activityReference;
+
+        // Bind handler
+        gameMode.bindHandler(this);
+
+        // Setup ButterKnife
+        ButterKnife.bind(this, activityReference);
 
         // Get ID
         Intent activityIntent = activityReference.getIntent();
@@ -86,8 +94,8 @@ public class GameHandler {
             rootFlipper.setDisplayedChild(gameMode.getLobby().getViewId());
             gameMode.getLobby().onEnter();
         } else {
-            rootFlipper.setDisplayedChild(gameMode.getStates()[currentState].getViewId());
-            gameMode.getStates()[currentState].onEnter();
+            rootFlipper.setDisplayedChild(gameMode.getStates()[currentState-1].getViewId());
+            gameMode.getStates()[currentState-1].onEnter();
         }
     }
 

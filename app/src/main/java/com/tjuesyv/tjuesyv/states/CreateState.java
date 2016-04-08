@@ -1,6 +1,13 @@
 package com.tjuesyv.tjuesyv.states;
 
+import android.widget.Button;
+
+import com.tjuesyv.tjuesyv.R;
 import com.tjuesyv.tjuesyv.gameHandlers.GameState;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 /**
  * Created by RayTM on 08.04.2016.
@@ -12,6 +19,9 @@ import com.tjuesyv.tjuesyv.gameHandlers.GameState;
  * After finishing, the host can press next
  */
 public class CreateState extends GameState {
+
+    @Bind(R.id.createContinueButton) Button createContinueButton;
+
     private  static final int PLAYER_VIEW = 1;
     private  static final int GAME_MASTER_VIEW = 2;
 
@@ -22,6 +32,12 @@ public class CreateState extends GameState {
 
     @Override
     public void onEnter() {
+        // Setup ButterKnife
+        ButterKnife.bind(this, handler.getActivityReference());
+    }
 
+    @OnClick(R.id.createContinueButton)
+    protected void goToChoose() {
+        nextState();
     }
 }

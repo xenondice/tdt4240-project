@@ -38,7 +38,6 @@ public class LobbyState extends GameState {
     @Override
     public void onEnter() {
 
-        System.out.println(handler);
         // Setup ButterKnife
         ButterKnife.bind(this, handler.getActivityReference());
 

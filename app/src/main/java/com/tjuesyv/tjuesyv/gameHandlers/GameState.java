@@ -32,7 +32,6 @@ public abstract class GameState {
      * @param handler
      */
     void bindHandler(GameHandler handler) {
-        System.out.println(this.getViewId());
         this.handler = handler;
     }
 

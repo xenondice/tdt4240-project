@@ -1,6 +1,13 @@
 package com.tjuesyv.tjuesyv.states;
 
+import android.widget.Button;
+
+import com.tjuesyv.tjuesyv.R;
 import com.tjuesyv.tjuesyv.gameHandlers.GameState;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 /**
  * Created by RayTM on 08.04.2016.
@@ -10,6 +17,9 @@ import com.tjuesyv.tjuesyv.gameHandlers.GameState;
  * This stage should be timed
  */
 public class ChooseState extends GameState {
+
+    @Bind(R.id.chooseContinueButton) Button chooseContinueButton;
+
     private static final int MAIN_VIEW = 3;
     private static final int WAITING_VIEW = 4;
 
@@ -20,6 +30,12 @@ public class ChooseState extends GameState {
 
     @Override
     public void onEnter() {
+        // Setup ButterKnife
+        ButterKnife.bind(this, handler.getActivityReference());
+    }
 
+    @OnClick(R.id.chooseContinueButton)
+    protected void goToScore() {
+        nextState();
     }
 }
