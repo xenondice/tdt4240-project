@@ -14,6 +14,7 @@ import com.tjuesyv.tjuesyv.R;
 import com.tjuesyv.tjuesyv.firebaseObjects.Game;
 
 import butterknife.Bind;
+import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 /**
@@ -21,13 +22,13 @@ import butterknife.OnClick;
  */
 public class LobbyState extends GameState {
 
-    private static final int MAIN_VIEW = 0;
-
     @Bind(R.id.gameCodeTextView) TextView gameCodeTextView;
     @Bind(R.id.startedTextView) TextView startedTextView;
     @Bind(R.id.activeTextView) TextView activeTextView;
     @Bind(R.id.startGameButton) Button startGameButton;
     @Bind(R.id.playerListView) ListView playersListView;
+
+    private static final int MAIN_VIEW = 0;
 
     @Override
     public int getViewId() {
@@ -36,6 +37,11 @@ public class LobbyState extends GameState {
 
     @Override
     public void onEnter() {
+
+        System.out.println(handler);
+        // Setup ButterKnife
+        ButterKnife.bind(this, handler.getActivityReference());
+
         // Displays game info
         setGameInfo();
 
@@ -52,7 +58,7 @@ public class LobbyState extends GameState {
      * Populates game info textViews.
      */
     private void setGameInfo() {
-        currentGameRef.addValueEventListener(new ValueEventListener() {
+        handler.currentGameRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Game game = dataSnapshot.getValue(Game.class);
@@ -73,16 +79,16 @@ public class LobbyState extends GameState {
     private void setPlayerList() {
         // Create a new Adapter
         final ArrayAdapter<String> adapter = new ArrayAdapter<>
-                (this, android.R.layout.simple_list_item_1, android.R.id.text1);
+                (handler.getActivityReference(), android.R.layout.simple_list_item_1, android.R.id.text1);
         // Assign adapter to ListView
         playersListView.setAdapter(adapter);
 
         // Set child listener for the current games players
-        currentGameRef.child("players").addChildEventListener(new ChildEventListener() {
+        handler.currentGameRef.child("players").addChildEventListener(new ChildEventListener() {
             // If player is added
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                usersRef.child(dataSnapshot.getKey()).child("nickname").addListenerForSingleValueEvent(new ValueEventListener() {
+                handler.usersRef.child(dataSnapshot.getKey()).child("nickname").addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         adapter.add(dataSnapshot.getValue().toString());
@@ -97,7 +103,7 @@ public class LobbyState extends GameState {
             // If player is removed
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
-                usersRef.child(dataSnapshot.getKey()).child("nickname").addListenerForSingleValueEvent(new ValueEventListener() {
+                handler.usersRef.child(dataSnapshot.getKey()).child("nickname").addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         adapter.remove(dataSnapshot.getValue().toString());

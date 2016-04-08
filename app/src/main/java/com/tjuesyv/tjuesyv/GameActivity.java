@@ -4,6 +4,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
+import android.widget.Button;
+import android.widget.ListView;
+import android.widget.TextView;
 
 import com.firebase.client.AuthData;
 import com.firebase.client.Firebase;
@@ -11,18 +14,10 @@ import com.tjuesyv.tjuesyv.gameHandlers.GameHandler;
 import com.tjuesyv.tjuesyv.gameModes.DefaultMode;
 import com.tjuesyv.tjuesyv.ui.Prompter;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
 
 public class GameActivity extends AppCompatActivity {
-
-    private String gameUID;
-
-    private Firebase rootRef;
-    private Firebase gamesRef;
-    private Firebase usersRef;
-    private Firebase currentGameRef;
-    private Firebase currentUserRef;
-    private AuthData authData;
 
     private GameHandler gameHandler;
 
@@ -30,37 +25,13 @@ public class GameActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Setup activity
-        init();
+        setContentView(R.layout.activity_game);
+
+        // Setup game
+        gameHandler = new GameHandler(this, new DefaultMode());
 
         // Start game
         gameHandler.startGame();
-    }
-
-    private void init() {
-        setContentView(R.layout.activity_game);
-
-        // Setup ButterKnife
-        ButterKnife.bind(this);
-
-        // Get intent
-        Intent intent = getIntent();
-        gameUID = intent.getStringExtra("GAME_UID");
-
-        // Create main Firebase ref
-        rootRef = new Firebase(getResources().getString(R.string.firebase_url));
-
-        // Get Firebase authentication
-        authData = rootRef.getAuth();
-
-        // Setup other Firebase references
-        gamesRef = rootRef.child("games");
-        usersRef = rootRef.child("users");
-        currentGameRef = gamesRef.child(gameUID);
-        currentUserRef = usersRef.child(authData.getUid());
-
-        // Setup game
-        gameHandler = new GameHandler(new DefaultMode(), this);
     }
 
     @Override

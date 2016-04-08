@@ -12,7 +12,7 @@ public class ScoreState extends GameState {
 
     @Override
     public int getViewId() {
-        return 3;
+        return MAIN_VIEW;
     }
 
     @Override

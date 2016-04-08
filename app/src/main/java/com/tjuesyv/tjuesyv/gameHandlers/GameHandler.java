@@ -1,8 +1,12 @@
 package com.tjuesyv.tjuesyv.gameHandlers;
 
 import android.content.Context;
+import android.content.Intent;
 import android.widget.ViewFlipper;
 
+import com.firebase.client.AuthData;
+import com.firebase.client.Firebase;
+import com.tjuesyv.tjuesyv.GameActivity;
 import com.tjuesyv.tjuesyv.R;
 import com.tjuesyv.tjuesyv.states.LobbyState;
 
@@ -16,18 +20,48 @@ public class GameHandler {
     @Bind(R.id.rootFlipper) ViewFlipper rootFlipper;
 
     private GameMode gameMode;
-    private GameState lobby;
-    private Context context;
+    private GameActivity activityReference;
     private int currentState;
     private int currentRound;
 
-    public GameHandler(GameMode gameMode, Context context) {
+    public String gameUID;
+    public Firebase rootRef;
+    public Firebase gamesRef;
+    public Firebase usersRef;
+    public Firebase currentGameRef;
+    public Firebase currentUserRef;
+    public AuthData authData;
+
+    public GameHandler(GameActivity activityReference, GameMode gameMode) {
         this.gameMode = gameMode;
         gameMode.bindHandler(this);
-        lobby = new LobbyState();
         currentState = 0;
         currentRound = 0;
-        this.context = context;
+        this.activityReference = activityReference;
+
+        // Get ID
+        Intent activityIntent = activityReference.getIntent();
+        gameUID = activityIntent.getStringExtra("GAME_UID");
+
+        // Create main Firebase ref
+        rootRef = new Firebase(activityReference.getResources().getString(R.string.firebase_url));
+
+        // Get Firebase authentication
+        authData = rootRef.getAuth();
+
+        // Setup other Firebase references
+        gamesRef = rootRef.child("games");
+        usersRef = rootRef.child("users");
+        currentGameRef = gamesRef.child(gameUID);
+        currentUserRef = usersRef.child(authData.getUid());
+    }
+
+    /**
+     * Get the calling activity
+     * @return
+     */
+    public GameActivity getActivityReference() {
+        return activityReference;
     }
 
     /**
@@ -49,11 +83,11 @@ public class GameHandler {
         }
 
         if (currentState == 0) {
-            rootFlipper.setDisplayedChild(lobby.getViewId());
-            lobby.onEnter();
+            rootFlipper.setDisplayedChild(gameMode.getLobby().getViewId());
+            gameMode.getLobby().onEnter();
         } else {
-            rootFlipper.setDisplayedChild(gameMode.getStates()[currentState-1].getViewId());
-            gameMode.getStates()[currentState-1].onEnter();
+            rootFlipper.setDisplayedChild(gameMode.getStates()[currentState].getViewId());
+            gameMode.getStates()[currentState].onEnter();
         }
     }
 
@@ -61,6 +95,6 @@ public class GameHandler {
      * Start the game
      */
     public void startGame() {
-        lobby.onEnter();
+        gameMode.getLobby().onEnter();
     }
 }

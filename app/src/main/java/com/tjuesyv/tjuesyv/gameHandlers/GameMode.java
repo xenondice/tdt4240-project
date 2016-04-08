@@ -37,5 +37,6 @@ public abstract class GameMode {
         for (GameState state : getStates()) {
             state.bindHandler(handler);
         }
+        getLobby().bindHandler(handler);
     }
 }

@@ -1,5 +1,7 @@
 package com.tjuesyv.tjuesyv.gameHandlers;
 
+import butterknife.ButterKnife;
+
 /**
  * Created by RayTM on 08.04.2016.
  */
@@ -30,6 +32,7 @@ public abstract class GameState {
      * @param handler
      */
     void bindHandler(GameHandler handler) {
+        System.out.println(this.getViewId());
         this.handler = handler;
     }
 
