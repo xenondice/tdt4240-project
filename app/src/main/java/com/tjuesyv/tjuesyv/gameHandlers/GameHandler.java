@@ -86,12 +86,14 @@ public class GameHandler {
                 // Game finished
                 currentState = 0;
                 currentRound = 0;
+                currentGameRef.child("started").setValue(false);
             } else {
                 currentState = 1;
             }
         }
 
         if (currentState == 0) {
+            currentGameRef.child("started").setValue(true);
             rootFlipper.setDisplayedChild(gameMode.getLobby().getViewId());
             gameMode.getLobby().onEnter();
         } else {
@@ -104,6 +106,7 @@ public class GameHandler {
      * Start the game
      */
     public void startGame() {
+        currentGameRef.child("started").setValue(true);
         gameMode.getLobby().onEnter();
     }
 
