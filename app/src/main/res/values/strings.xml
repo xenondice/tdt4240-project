@@ -21,6 +21,9 @@
     <string name="text_started">Started</string>
     <string name="text_active">Active</string>
     <string name="text_players_in_lobby">Players in lobby</string>
+    <string name="prompt_positive">Yes</string>
+    <string name="prompt_negative">No</string>
+    <string name="prompt_exit">Really quit?</string>
 
     <string name="logo_description">logo</string>
 

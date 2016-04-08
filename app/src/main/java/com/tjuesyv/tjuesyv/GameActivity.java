@@ -1,8 +1,11 @@
 package com.tjuesyv.tjuesyv;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.KeyEvent;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
@@ -32,6 +35,7 @@ public class GameActivity extends AppCompatActivity {
     @Bind(R.id.playerListView) ListView playersListView;
 
     private String gameUID;
+    //private StateHandler
 
     private Firebase rootRef;
     private Firebase gamesRef;
@@ -43,6 +47,20 @@ public class GameActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Setup action
+        init();
+
+        //while ()
+
+        // Displays game info
+        setGameInfo();
+
+        // Displays players in a listView
+        setPlayerList();
+    }
+
+    private void init() {
         setContentView(R.layout.activity_game);
 
         // Setup ButterKnife
@@ -54,19 +72,15 @@ public class GameActivity extends AppCompatActivity {
 
         // Create main Firebase ref
         rootRef = new Firebase(getResources().getString(R.string.firebase_url));
+
         // Get Firebase authentication
         authData = rootRef.getAuth();
+
         // Setup other Firebase references
         gamesRef = rootRef.child("games");
         usersRef = rootRef.child("users");
         currentGameRef = gamesRef.child(gameUID);
         currentUserRef = usersRef.child(authData.getUid());
-
-        // Displays game info
-        setGameInfo();
-
-        // Displays players in a listView
-        setPlayerList();
     }
 
     @OnClick(R.id.startGameButton)
@@ -87,7 +101,9 @@ public class GameActivity extends AppCompatActivity {
                 activeTextView.setText("Active: " + game.getActive());
             }
 
-            @Override public void onCancelled(FirebaseError firebaseError) {}
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+            }
         });
     }
 
@@ -111,24 +127,39 @@ public class GameActivity extends AppCompatActivity {
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         adapter.add(dataSnapshot.getValue().toString());
                     }
-                    @Override public void onCancelled(FirebaseError firebaseError) {}
+
+                    @Override
+                    public void onCancelled(FirebaseError firebaseError) {
+                    }
                 });
             }
 
             // If player is removed
-            @Override public void onChildRemoved(DataSnapshot dataSnapshot) {
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
                 usersRef.child(dataSnapshot.getKey()).child("nickname").addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         adapter.remove(dataSnapshot.getValue().toString());
                     }
-                    @Override public void onCancelled(FirebaseError firebaseError) {}
+
+                    @Override
+                    public void onCancelled(FirebaseError firebaseError) {
+                    }
                 });
             }
 
-            @Override public void onChildChanged(DataSnapshot dataSnapshot, String s) {}
-            @Override public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
-            @Override public void onCancelled(FirebaseError firebaseError) {}
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+            }
         });
     }
 
@@ -137,6 +168,23 @@ public class GameActivity extends AppCompatActivity {
      */
     private void startGame() {
 
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if(keyCode == KeyEvent.KEYCODE_BACK) {
+            reallyExit();
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    private void reallyExit() {
+        new Prompter(getText(R.string.prompt_exit), this) {
+            @Override
+            public void callBack(boolean answer) {
+                if (answer) finish();
+            }
+        }.ask();
     }
 
     @Override
