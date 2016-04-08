@@ -11,20 +11,6 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     android:animateFirstView="false">
 
-    <FrameLayout
-        android:id="@+id/layoutLoading"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <ProgressBar
-            style="?android:attr/progressBarStyleLarge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/progressBar"
-            android:layout_gravity="center"
-            android:indeterminate="true" />
-    </FrameLayout>
-
     <RelativeLayout
         android:id="@+id/layoutLobby"
         android:layout_width="match_parent"
@@ -119,5 +105,19 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
     </LinearLayout>
+    
+    <FrameLayout
+        android:id="@+id/layoutLoading"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ProgressBar
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/progressBar"
+            android:layout_gravity="center"
+            android:indeterminate="true" />
+    </FrameLayout>
 
 </ViewFlipper>
