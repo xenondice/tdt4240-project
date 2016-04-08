@@ -25,6 +25,7 @@ public class GameActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // This multi-view layout starts with the lobby view
         setContentView(R.layout.activity_game);
 
         // Setup game

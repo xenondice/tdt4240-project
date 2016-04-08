@@ -57,7 +57,7 @@ public class LobbyState extends GameState {
      * Populates game info textViews.
      */
     private void setGameInfo() {
-        handler.currentGameRef.addValueEventListener(new ValueEventListener() {
+        handler.getFirebaseGameReference().addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Game game = dataSnapshot.getValue(Game.class);
@@ -83,11 +83,11 @@ public class LobbyState extends GameState {
         playersListView.setAdapter(adapter);
 
         // Set child listener for the current games players
-        handler.currentGameRef.child("players").addChildEventListener(new ChildEventListener() {
+        handler.getFirebaseGameReference().child("players").addChildEventListener(new ChildEventListener() {
             // If player is added
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                handler.usersRef.child(dataSnapshot.getKey()).child("nickname").addListenerForSingleValueEvent(new ValueEventListener() {
+                handler.getFirebaseUsersReference().child(dataSnapshot.getKey()).child("nickname").addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         adapter.add(dataSnapshot.getValue().toString());
@@ -102,7 +102,7 @@ public class LobbyState extends GameState {
             // If player is removed
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
-                handler.usersRef.child(dataSnapshot.getKey()).child("nickname").addListenerForSingleValueEvent(new ValueEventListener() {
+                handler.getFirebaseUsersReference().child(dataSnapshot.getKey()).child("nickname").addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         adapter.remove(dataSnapshot.getValue().toString());

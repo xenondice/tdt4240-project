@@ -14,6 +14,12 @@ public abstract class Prompter {
     AlertDialog.Builder builder;
     DialogInterface.OnClickListener listener;
 
+    /**
+     * Create a yes or no prompt
+     * Remeber to implement the callback function in the form of a anonymous function
+     * @param prompt
+     * @param context
+     */
     public Prompter(CharSequence prompt, Context context) {
         listener = new DialogInterface.OnClickListener() {
             @Override
@@ -35,9 +41,17 @@ public abstract class Prompter {
                 .setNegativeButton(context.getText(R.string.prompt_negative), listener);
     }
 
+    /**
+     * Show the prompt to the user now
+     */
     public void ask() {
         builder.show();
     }
 
+    /**
+     * This function is called once the user has answered something
+     * The asnwer boolean is true if yes was pressed, and false otherwise
+     * @param answer
+     */
     public abstract void callBack(boolean answer);
 }

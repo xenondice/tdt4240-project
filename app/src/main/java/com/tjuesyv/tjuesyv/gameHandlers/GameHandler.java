@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.widget.ViewFlipper;
 
 import com.firebase.client.AuthData;
+import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.tjuesyv.tjuesyv.GameActivity;
 import com.tjuesyv.tjuesyv.R;
@@ -25,13 +26,13 @@ public class GameHandler {
     private int currentState;
     private int currentRound;
 
-    public String gameUID;
-    public Firebase rootRef;
-    public Firebase gamesRef;
-    public Firebase usersRef;
-    public Firebase currentGameRef;
-    public Firebase currentUserRef;
-    public AuthData authData;
+    private String gameUID;
+    private Firebase rootRef;
+    private Firebase gamesRef;
+    private Firebase usersRef;
+    private Firebase currentGameRef;
+    private Firebase currentUserRef;
+    private AuthData authData;
 
     public GameHandler(GameActivity activityReference, GameMode gameMode) {
 
@@ -104,5 +105,21 @@ public class GameHandler {
      */
     public void startGame() {
         gameMode.getLobby().onEnter();
+    }
+
+    /**
+     * Get the firebase reference to the current game
+     * @return
+     */
+    public Firebase getFirebaseGameReference() {
+        return currentGameRef;
+    }
+
+    /**
+     * Get the firebase reference to the active users
+     * @return
+     */
+    public Firebase getFirebaseUsersReference() {
+        return usersRef;
     }
 }
