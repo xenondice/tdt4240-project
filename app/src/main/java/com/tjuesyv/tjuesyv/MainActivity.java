@@ -208,6 +208,11 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                     pending being fixed*/
+                    //Check if game is already started
+                    if (game.getStarted()) {
+                        gameCodeTextInputLayout.setError(getString(R.string.error_game_is_started));
+                        return;
+                    }
                     // Add player UID to players list in game object and update Firebase
                     game.addPlayer(authData.getUid());
                     gamesRef.child(gameSnapshot.getKey()).setValue(game);
@@ -252,7 +257,7 @@ public class MainActivity extends AppCompatActivity {
                 // Add player info to the authenticated player
                 Log.v("Nicktesting","Adding nick to player: "+nickname);
                 rootRef.child("users").child(authData.getUid()).child("nickname").setValue(nickname);
-                Log.v("Nicktesting","Player nick now; "+rootRef.child("users").child(authData.getUid()).child("nickname").toString());
+                Log.v("Nicktesting", "Player nick now; " + rootRef.child("users").child(authData.getUid()).child("nickname").toString());
             }
         }
     }

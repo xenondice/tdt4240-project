@@ -167,7 +167,7 @@ public class GameActivity extends AppCompatActivity {
      * Sets the started field of the current game to true.
      */
     private void startGame() {
-
+        currentGameRef.child("started").setValue(true);
     }
 
     @Override

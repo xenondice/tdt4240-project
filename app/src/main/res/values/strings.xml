@@ -6,7 +6,7 @@
     <string name="hint_nickname">Enter nickname</string>
     <string name="hint_game_code">Enter game code to join</string>
 
-    <string name="hint_answer">Enter answer you lying piece of shit</string>
+    <string name="hint_answer">Enter answer</string>
 
     <string name="btn_create_game">Create Game</string>
     <string name="btn_join_game">Join Game</string>
@@ -35,4 +35,6 @@
     <string name="error_short_game_code">Game codes are four characters long</string>
     <string name="error_empty_nickname">Please enter a nickname</string>
     <string name="error_taken_nick">Nickname is already taken</string>
+    <string name="error_game_is_started">Game is already started</string>
+
 </resources>
