@@ -112,6 +112,9 @@ public class MainActivity extends AppCompatActivity {
     @OnClick(R.id.createGameButton)
     protected void createGameButton() {
         String nickname = nicknameText.getText().toString();
+        // Make sure nickname is valid
+        if (!isValidNickname(nickname))
+            return;
         // Authenticate player
         authenticatePlayer(nickname);
         // Create a new game
@@ -124,6 +127,9 @@ public class MainActivity extends AppCompatActivity {
     protected void joinGameButton() {
         String gameCode = gameCodeText.getText().toString();
         String nickname = nicknameText.getText().toString();
+        // Make sure nickname is valid
+        if (!isValidNickname(nickname))
+            return;
         // Make sure game code is valid
         if (!isValidGameCode(gameCode))
             return;
@@ -250,15 +256,13 @@ public class MainActivity extends AppCompatActivity {
      * @param nickname  The nickname to be set for the player entry
      */
     private void authenticatePlayer(String nickname) {
-        if (isValidNickname(nickname)) {
-            if (authData == null) {
-                authAnonymously();
-            } else {
-                // Add player info to the authenticated player
-                Log.v("Nicktesting","Adding nick to player: "+nickname);
-                rootRef.child("users").child(authData.getUid()).child("nickname").setValue(nickname);
-                Log.v("Nicktesting", "Player nick now; " + rootRef.child("users").child(authData.getUid()).child("nickname").toString());
-            }
+        if (authData == null) {
+            authAnonymously();
+        } else {
+            // Add player info to the authenticated player
+            Log.v("Nicktesting","Adding nick to player: "+nickname);
+            rootRef.child("users").child(authData.getUid()).child("nickname").setValue(nickname);
+            Log.v("Nicktesting","Player nick now; "+rootRef.child("users").child(authData.getUid()).child("nickname").toString());
         }
     }
 
