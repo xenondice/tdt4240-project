@@ -12,7 +12,9 @@
     android:animateFirstView="false">
 
     <include layout="@layout/view_lobby" />
-    <include layout="@layout/view_player" />
-    <include layout="@layout/view_game_master" />
+    <include layout="@layout/view_create_player" />
+    <include layout="@layout/view_create_game_master" />
+    <include layout="@layout/view_choose" />
+    <include layout="@layout/view_choose_waiting" />
     <include layout="@layout/view_score" />
 </ViewFlipper>

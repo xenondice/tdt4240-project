@@ -1,8 +1,10 @@
-package com.tjuesyv.tjuesyv;
+package com.tjuesyv.tjuesyv.ui;
 
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+
+import com.tjuesyv.tjuesyv.R;
 
 /**
  * Created by RayTM on 08.04.2016.
