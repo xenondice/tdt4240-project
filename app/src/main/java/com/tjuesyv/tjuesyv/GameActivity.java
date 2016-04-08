@@ -167,7 +167,18 @@ public class GameActivity extends AppCompatActivity {
      * Sets the started field of the current game to true.
      */
     private void startGame() {
-        currentGameRef.child("started").setValue(true);
+        currentGameRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Game game = dataSnapshot.getValue(Game.class);
+                if (game.getGameHost().equals(authData.getUid()))
+                    currentGameRef.child("started").setValue(true);
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+            }
+        });
     }
 
     @Override
