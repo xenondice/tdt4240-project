@@ -8,6 +8,7 @@ import java.util.Map;
 
 public class Game {
     private String gameCode;
+    private String gameHost;
     private Boolean active;
     private Boolean started;
     private int round;
@@ -19,8 +20,9 @@ public class Game {
     @SuppressWarnings("unused")
     public Game() {}
 
-    public Game(String gameCode) {
+    public Game(String gameCode, String gameHost) {
         this.gameCode = gameCode;
+        this.gameHost = gameHost;
         active = true;
         started = false;
         round = 1;
@@ -32,6 +34,8 @@ public class Game {
     public Map<String, String> getCreatedAt() {
         return createdAt;
     }
+
+    public String getGameHost() { return gameHost; }
 
     public Boolean getStarted() {
         return started;
