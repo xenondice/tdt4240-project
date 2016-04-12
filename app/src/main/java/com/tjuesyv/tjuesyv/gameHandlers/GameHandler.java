@@ -1,5 +1,6 @@
 package com.tjuesyv.tjuesyv.gameHandlers;
 
+import android.app.usage.NetworkStats;
 import android.content.Context;
 import android.content.Intent;
 import android.widget.ViewFlipper;
@@ -7,8 +8,11 @@ import android.widget.ViewFlipper;
 import com.firebase.client.AuthData;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
 import com.tjuesyv.tjuesyv.GameActivity;
 import com.tjuesyv.tjuesyv.R;
+import com.tjuesyv.tjuesyv.firebaseObjects.Game;
 import com.tjuesyv.tjuesyv.states.LobbyState;
 
 import butterknife.Bind;
@@ -107,6 +111,18 @@ public class GameHandler {
      */
     public void startGame() {
         currentGameRef.child("started").setValue(true);
+        currentGameRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Game game = dataSnapshot.getValue(Game.class);
+                if (game.getGameHost().equals(authData.getUid()))
+                    currentGameRef.child("started").setValue(true);
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+            }
+        });
         gameMode.getLobby().onEnter();
     }
 
@@ -124,5 +140,9 @@ public class GameHandler {
      */
     public Firebase getFirebaseUsersReference() {
         return usersRef;
+    }
+
+    public AuthData getFirebaseAuthenticationData() {
+        return authData;
     }
 }

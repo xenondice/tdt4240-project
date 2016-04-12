@@ -56,6 +56,9 @@ public class LobbyState extends GameState {
     /**
      * Populates game info textViews.
      */
+    /**
+     * Populates game info textViews.
+     */
     private void setGameInfo() {
         handler.getFirebaseGameReference().addValueEventListener(new ValueEventListener() {
             @Override
@@ -64,6 +67,12 @@ public class LobbyState extends GameState {
                 gameCodeTextView.setText("Game code: " + game.getGameCode());
                 startedTextView.setText("Started: " + game.getStarted());
                 activeTextView.setText("Active: " + game.getActive());
+
+                // If we are not the game host, disable start button and change text
+                if (!game.getGameHost().equals(handler.getFirebaseAuthenticationData().getUid())) {
+                    startGameButton.setText("Waiting on host to start game...");
+                    startGameButton.setEnabled(false);
+                }
             }
 
             @Override
