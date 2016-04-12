@@ -1,4 +1,6 @@
 # Lyv Lyv, Tjuesyv
+![](https://img.shields.io/badge/platform-android-green.svg)
+![](https://img.shields.io/badge/Min%20SDK-16-green.svg)
 [![Build Status](https://travis-ci.org/szeestraten/tdt4240-project.svg?branch=master)](https://travis-ci.org/szeestraten/tdt4240-project)
 
 ## Coding conventions
