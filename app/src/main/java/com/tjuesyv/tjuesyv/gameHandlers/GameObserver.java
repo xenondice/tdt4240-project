@@ -21,7 +21,7 @@ import butterknife.ButterKnife;
 /**
  * Created by RayTM on 08.04.2016.
  */
-public class GameHandler {
+public class GameObserver {
 
     @Bind(R.id.rootFlipper) ViewFlipper rootFlipper;
 
@@ -39,7 +39,7 @@ public class GameHandler {
     private AuthData authData;
     private boolean isHost;
 
-    public GameHandler(GameActivity activityReference, GameMode gameMode) {
+    public GameObserver(GameActivity activityReference, GameMode gameMode) {
 
         // Assign variables
         isHost = false;

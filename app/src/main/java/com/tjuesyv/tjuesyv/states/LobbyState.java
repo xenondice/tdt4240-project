@@ -58,6 +58,7 @@ public class LobbyState extends GameState {
         handler.getFirebaseGameReference().addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                System.out.println("changed");
                 Game game = dataSnapshot.getValue(Game.class);
                 if (game.getStarted()) nextState();
             }

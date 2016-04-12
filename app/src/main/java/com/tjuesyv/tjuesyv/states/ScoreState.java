@@ -1,6 +1,7 @@
 package com.tjuesyv.tjuesyv.states;
 
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.tjuesyv.tjuesyv.R;
 import com.tjuesyv.tjuesyv.gameHandlers.GameState;
@@ -17,6 +18,7 @@ import butterknife.OnClick;
 public class ScoreState extends GameState {
 
     @Bind(R.id.scoreContinueButton) Button scoreContinueButton;
+    @Bind(R.id.roundTextField) TextView roundTextField;
 
     private static final int MAIN_VIEW = 5;
 
@@ -29,6 +31,8 @@ public class ScoreState extends GameState {
     public void onEnter() {
         // Setup ButterKnife
         ButterKnife.bind(this, handler.getActivityReference());
+
+        roundTextField.setText(handler.getCurrentRound()+1+" of "+handler.getNumberOfRounds());
     }
 
     @OnClick(R.id.scoreContinueButton)

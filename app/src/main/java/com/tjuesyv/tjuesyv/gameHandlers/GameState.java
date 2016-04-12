@@ -1,7 +1,5 @@
 package com.tjuesyv.tjuesyv.gameHandlers;
 
-import butterknife.ButterKnife;
-
 /**
  * Created by RayTM on 08.04.2016.
  */
@@ -11,7 +9,7 @@ public abstract class GameState {
      * Use this to progress in the game
      * this is set before the game starts
      */
-    protected GameHandler handler;
+    protected GameObserver handler;
 
     /**
      * Return the layout id from the activity game xml file,
@@ -31,7 +29,7 @@ public abstract class GameState {
      * Called internally by GameMode before starting the game
      * @param handler
      */
-    void bindHandler(GameHandler handler) {
+    void bindHandler(GameObserver handler) {
         this.handler = handler;
     }
 

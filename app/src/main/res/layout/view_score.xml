@@ -13,6 +13,22 @@
         android:id="@+id/textView3"
         android:layout_gravity="center_horizontal" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Done with round"
+        android:id="@+id/textView4"
+        android:layout_gravity="center_horizontal" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text=""
+        android:id="@+id/roundTextField"
+        android:layout_gravity="center_horizontal" />
+
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
