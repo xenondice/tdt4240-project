@@ -6,6 +6,7 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -187,7 +188,9 @@ public class MainActivity extends AppCompatActivity {
                     }
                     //TODO: For som reason a lot of stuff returns null after using the logout button
                     Boolean containsNick=false;
+                    Log.d("", "Name of player: "+snapshot.child("users").child(authData.getUid()).child("nickname").getValue());
                     for (String key:game.getPlayers().keySet()){
+                        Log.d("Debug","Name in list: "+key);
                         if (!containsNick){
                             containsNick=
                                     (String.valueOf(snapshot.child("users").child(key).child("nickname").getValue())
@@ -199,21 +202,6 @@ public class MainActivity extends AppCompatActivity {
                         gameCodeTextInputLayout.setError(getString(R.string.error_taken_nick));
                         return;
                     }
-
-                    Firebase user= new Firebase(String.valueOf(usersRef));
-                    user.addListenerForSingleValueEvent(new ValueEventListener() {
-
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-
-
-                        }
-
-                        @Override
-                        public void onCancelled(FirebaseError firebaseError) {
-
-                        }
-                    });
 
 
                     // Add player UID to players list in game object and update Firebase
