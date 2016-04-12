@@ -33,6 +33,8 @@ public class ScoreState extends GameState {
 
     @OnClick(R.id.scoreContinueButton)
     protected void goToNextRound() {
+        if (handler.getCurrentRound() + 1 == handler.getNumberOfRounds())
+            if (handler.isHost()) handler.getFirebaseGameReference().child("started").setValue(false);
         nextState();
     }
 }

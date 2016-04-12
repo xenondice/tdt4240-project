@@ -32,9 +32,6 @@ public class GameActivity extends AppCompatActivity {
 
         // Setup game
         gameHandler = new GameHandler(this, new DefaultMode());
-
-        // Start game
-        gameHandler.startGame();
     }
 
     @Override
