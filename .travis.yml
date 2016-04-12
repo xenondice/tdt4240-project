@@ -9,7 +9,7 @@ android:
     # Build tools version used to build
     - build-tools-23.0.2
     # Android SDK version used to compile
-    - android-16
+    - android-23
     # Additional commponents needed for designcompat etc
     - extra-android-m2repository
     - extra-android-support
