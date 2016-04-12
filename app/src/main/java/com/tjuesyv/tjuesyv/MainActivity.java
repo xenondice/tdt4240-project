@@ -185,6 +185,7 @@ public class MainActivity extends AppCompatActivity {
                         gameCodeTextInputLayout.setError(getString(R.string.error_game_is_full));
                         return;
                     }
+                    //TODO: For som reason a lot of stuff returns null after using the logout button
                     Boolean containsNick=false;
                     for (String key:game.getPlayers().keySet()){
                         if (!containsNick){
