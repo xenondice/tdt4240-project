@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/viewScore"
+    android:id="@+id/viewCreatePlayer"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -9,14 +9,14 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Admire score"
-        android:id="@+id/textView3"
+        android:text="Create lies"
+        android:id="@+id/textView2"
         android:layout_gravity="center_horizontal" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Continue"
-        android:id="@+id/scoreContinueButton"
+        android:id="@+id/createContinueButton"
         android:layout_gravity="center_horizontal" />
 </LinearLayout>

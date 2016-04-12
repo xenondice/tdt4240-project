@@ -9,10 +9,14 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    android:animateFirstView="false">
+    android:inAnimation="@anim/slide_in_from_right"
+    android:outAnimation="@anim/slide_out_to_left"
+    android:animateFirstView="true">
 
     <include layout="@layout/view_lobby" />
-    <include layout="@layout/view_player" />
-    <include layout="@layout/view_game_master" />
+    <include layout="@layout/view_create_player" />
+    <include layout="@layout/view_create_game_master" />
+    <include layout="@layout/view_choose" />
+    <include layout="@layout/view_choose_waiting" />
     <include layout="@layout/view_score" />
 </ViewFlipper>
