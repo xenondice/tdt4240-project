@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -47,22 +48,17 @@ public class GameActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_game);
 
-        // Setup action
+        // Initialize ButterKnife and Firebase and gets the intent
         init();
-
-        //while ()
-
-        // Displays game info
+        // Displays game room info and changes start game button if not game host
         setGameInfo();
-
         // Displays players in a listView
         setPlayerList();
     }
 
     private void init() {
-        setContentView(R.layout.activity_game);
-
         // Setup ButterKnife
         ButterKnife.bind(this);
 
@@ -99,6 +95,12 @@ public class GameActivity extends AppCompatActivity {
                 gameCodeTextView.setText("Game code: " + game.getGameCode());
                 startedTextView.setText("Started: " + game.getStarted());
                 activeTextView.setText("Active: " + game.getActive());
+
+                // If we are not the game host, disable start button and change text
+                if (!game.getGameHost().equals(authData.getUid())) {
+                    startGameButton.setText("Waiting on host to start game...");
+                    startGameButton.setEnabled(false);
+                }
             }
 
             @Override
