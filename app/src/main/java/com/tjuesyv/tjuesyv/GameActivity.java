@@ -1,11 +1,8 @@
 package com.tjuesyv.tjuesyv;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -18,7 +15,6 @@ import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
-import com.firebase.client.Query;
 import com.firebase.client.ValueEventListener;
 import com.tjuesyv.tjuesyv.firebaseObjects.Game;
 
@@ -35,6 +31,9 @@ public class GameActivity extends AppCompatActivity {
     @Bind(R.id.startGameButton) Button startGameButton;
     @Bind(R.id.playerListView) ListView playersListView;
 
+    // Debug flags
+    private Boolean DEBUG_DESTROY_GAME_ON_EXIT = false;
+
     private String gameUID;
     //private StateHandler
 
@@ -44,6 +43,7 @@ public class GameActivity extends AppCompatActivity {
     private Firebase currentGameRef;
     private Firebase currentUserRef;
     private AuthData authData;
+    private ValueEventListener gameInfoValueEventListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,25 +88,29 @@ public class GameActivity extends AppCompatActivity {
      * Populates game info textViews.
      */
     private void setGameInfo() {
-        currentGameRef.addValueEventListener(new ValueEventListener() {
+        gameInfoValueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Game game = dataSnapshot.getValue(Game.class);
-                gameCodeTextView.setText("Game code: " + game.getGameCode());
-                startedTextView.setText("Started: " + game.getStarted());
-                activeTextView.setText("Active: " + game.getActive());
+                if (dataSnapshot.exists()) {
+                    Game game = dataSnapshot.getValue(Game.class);
+                    gameCodeTextView.setText("Game code: " + game.getGameCode());
+                    startedTextView.setText("Started: " + game.getStarted());
+                    activeTextView.setText("Active: " + game.getActive());
 
-                // If we are not the game host, disable start button and change text
-                if (!game.getGameHost().equals(authData.getUid())) {
-                    startGameButton.setText("Waiting on host to start game...");
-                    startGameButton.setEnabled(false);
+                    // If we are not the game host, disable start button and change text
+                    if (!game.getGameHost().equals(authData.getUid())) {
+                        startGameButton.setText("Waiting on host to start game...");
+                        startGameButton.setEnabled(false);
+                    }
                 }
             }
 
             @Override
             public void onCancelled(FirebaseError firebaseError) {
             }
-        });
+        };
+
+        currentGameRef.addValueEventListener(gameInfoValueEventListener);
     }
 
     /**
@@ -191,6 +195,9 @@ public class GameActivity extends AppCompatActivity {
         return super.onKeyDown(keyCode, event);
     }
 
+    /**
+     * Helper method to display a prompt to exit this activity
+     */
     private void reallyExit() {
         new Prompter(getText(R.string.prompt_exit), this) {
             @Override
@@ -200,9 +207,37 @@ public class GameActivity extends AppCompatActivity {
         }.ask();
     }
 
+    /**
+     * Helper method to remove the current game object in Firebase if we are the game host
+     */
+    private void removeFirebaseGame() {
+        currentGameRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Game game = dataSnapshot.getValue(Game.class);
+                if (game.getGameHost().equals(authData.getUid()))
+                    currentGameRef.child("active").setValue(false);
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+            }
+        });
+    }
+
     @Override
     public void onPause() {
         super.onPause();
         overridePendingTransition(0, 0);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        // Remove listeners to current game object in Firebase
+        currentGameRef.removeEventListener(gameInfoValueEventListener);
+        // Remove game from Firebase if game host
+        if (DEBUG_DESTROY_GAME_ON_EXIT)
+            removeFirebaseGame();
     }
 }
