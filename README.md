@@ -1,7 +1,5 @@
 # Lyv Lyv, Tjuesyv
 [![Build Status](https://travis-ci.org/szeestraten/tdt4240-project.svg?branch=master)](https://travis-ci.org/szeestraten/tdt4240-project)
-[![Stories in Ready](https://badge.waffle.io/szeestraten/tdt4240-project.png?label=ready&title=Ready)](https://waffle.io/szeestraten/tdt4240-project)
-
 
 ## Coding conventions
 #### Branch naming
