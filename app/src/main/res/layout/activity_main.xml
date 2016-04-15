@@ -46,6 +46,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/hint_nickname"
+                android:imeOptions="actionDone"
                 android:textSize="@dimen/text_size_large"
                 android:inputType="textNoSuggestions|textCapSentences"
                 android:digits="@string/edit_valid_nickname"
@@ -99,6 +100,7 @@
             android:id="@+id/logoutButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:visibility="gone"
             android:text="@string/btn_logout"
             android:textSize="@dimen/btn_size_medium"
             android:layout_weight="0" />
