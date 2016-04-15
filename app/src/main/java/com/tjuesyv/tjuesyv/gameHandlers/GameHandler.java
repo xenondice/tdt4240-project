@@ -142,6 +142,8 @@ public class GameHandler {
         return usersRef;
     }
 
+    public Firebase getFirebaseRootReference(){return rootRef;};
+
     public AuthData getFirebaseAuthenticationData() {
         return authData;
     }
