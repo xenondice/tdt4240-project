@@ -46,11 +46,32 @@ public class LobbyState extends GameState {
 
         // Displays players in a listView
         setPlayerList();
+
+        // Set startbutton if host
+        setStartButton();
+
+        // Listen for game start
+        setStartListener();
+    }
+
+    private void setStartListener() {
+        handler.getFirebaseGameReference().child("started").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if ((boolean) dataSnapshot.getValue()) nextState();
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+            }
+        });
     }
 
     @OnClick(R.id.startGameButton)
     protected void startGameButton() {
-        nextState();
+        if (handler.isHost()) {
+            handler.getFirebaseGameReference().child("started").setValue(true);
+        }
     }
 
     /**
@@ -67,18 +88,20 @@ public class LobbyState extends GameState {
                 gameCodeTextView.setText("Game code: " + game.getGameCode());
                 startedTextView.setText("Started: " + game.getStarted());
                 activeTextView.setText("Active: " + game.getActive());
-
-                // If we are not the game host, disable start button and change text
-                if (!game.getGameHost().equals(handler.getFirebaseAuthenticationData().getUid())) {
-                    startGameButton.setText("Waiting on host to start game...");
-                    startGameButton.setEnabled(false);
-                }
             }
 
             @Override
             public void onCancelled(FirebaseError firebaseError) {
             }
         });
+    }
+
+    private void setStartButton() {
+        // If we are not the game host, disable start button and change text
+        if (!handler.isHost()) {
+            startGameButton.setText("Waiting on host to start game...");
+            startGameButton.setEnabled(false);
+        }
     }
 
     /**

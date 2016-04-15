@@ -3,6 +3,7 @@ package com.tjuesyv.tjuesyv.states;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.ListView;
 
 import com.firebase.client.DataSnapshot;
@@ -25,6 +26,7 @@ import butterknife.OnClick;
 public class ScoreState extends GameState {
 
     @Bind(R.id.scoreContinueButton) Button scoreContinueButton;
+    @Bind(R.id.roundTextField) TextView roundTextField;
     @Bind(R.id.scoresListView) ListView scoresListView;
 
     private static final int MAIN_VIEW = 5;
@@ -38,11 +40,14 @@ public class ScoreState extends GameState {
     public void onEnter() {
         // Setup ButterKnife
         ButterKnife.bind(this, handler.getActivityReference());
+        roundTextField.setText(handler.getCurrentRound()+1+" of "+handler.getNumberOfRounds());
         setScoresListView();
     }
 
     @OnClick(R.id.scoreContinueButton)
     protected void goToNextRound() {
+        if (handler.getCurrentRound() + 1 == handler.getNumberOfRounds())
+            if (handler.isHost()) handler.getFirebaseGameReference().child("started").setValue(false);
         nextState();
     }
 

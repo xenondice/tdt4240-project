@@ -21,7 +21,7 @@ public class DefaultMode extends GameMode {
 
     @Override
     public int getNumberOfRounds() {
-        return 8;
+        return 2;
     }
 
     @Override

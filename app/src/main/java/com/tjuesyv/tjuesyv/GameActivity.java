@@ -1,26 +1,16 @@
 package com.tjuesyv.tjuesyv;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.KeyEvent;
-import android.widget.Button;
-import android.widget.ListView;
-import android.widget.TextView;
 
-import com.firebase.client.AuthData;
-import com.firebase.client.Firebase;
-import com.tjuesyv.tjuesyv.gameHandlers.GameHandler;
+import com.tjuesyv.tjuesyv.gameHandlers.GameObserver;
 import com.tjuesyv.tjuesyv.gameModes.DefaultMode;
 import com.tjuesyv.tjuesyv.ui.Prompter;
 
-import butterknife.Bind;
-import butterknife.ButterKnife;
-
 public class GameActivity extends AppCompatActivity {
 
-    private GameHandler gameHandler;
+    private GameObserver gameHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,10 +21,9 @@ public class GameActivity extends AppCompatActivity {
         setContentView(R.layout.activity_game);
 
         // Setup game
-        gameHandler = new GameHandler(this, new DefaultMode());
+        gameHandler = new GameObserver(this, new DefaultMode());
 
-        // Start game
-        gameHandler.startGame();
+
     }
 
     @Override

@@ -21,7 +21,7 @@ import butterknife.ButterKnife;
 /**
  * Created by RayTM on 08.04.2016.
  */
-public class GameHandler {
+public class GameObserver {
 
     @Bind(R.id.rootFlipper) ViewFlipper rootFlipper;
 
@@ -37,10 +37,12 @@ public class GameHandler {
     private Firebase currentGameRef;
     private Firebase currentUserRef;
     private AuthData authData;
+    private boolean isHost;
 
-    public GameHandler(GameActivity activityReference, GameMode gameMode) {
+    public GameObserver(GameActivity activityReference, GameMode gameMode) {
 
         // Assign variables
+        isHost = false;
         this.gameMode = gameMode;
         currentState = 0;
         currentRound = 0;
@@ -67,6 +69,31 @@ public class GameHandler {
         usersRef = rootRef.child("users");
         currentGameRef = gamesRef.child(gameUID);
         currentUserRef = usersRef.child(authData.getUid());
+
+        // Check if host
+        setGameHost();
+    }
+
+    /**
+     * Check whether the player is the host
+     */
+    private void setGameHost() {
+        getFirebaseGameReference().addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    Game game = dataSnapshot.getValue(Game.class);
+                    isHost = game.getGameHost().equals(authData.getUid());
+                    //TODO: Prettify (Make resource loader function)
+                    enterLobby();
+                }
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
     }
 
     /**
@@ -77,11 +104,15 @@ public class GameHandler {
         return activityReference;
     }
 
+    public int getCurrentRound() {
+        return currentRound;
+    }
+
     /**
      * Progress in the game
      */
     public void nextState() {
-
+        //TODO: Prettify (enums?)
         // State 0 is lobby, rest is the states in gamemode
         currentState++;
         if (currentState - 1 >= gameMode.getStates().length) {
@@ -90,14 +121,12 @@ public class GameHandler {
                 // Game finished
                 currentState = 0;
                 currentRound = 0;
-                currentGameRef.child("started").setValue(false);
             } else {
                 currentState = 1;
             }
         }
 
         if (currentState == 0) {
-            currentGameRef.child("started").setValue(true);
             rootFlipper.setDisplayedChild(gameMode.getLobby().getViewId());
             gameMode.getLobby().onEnter();
         } else {
@@ -107,23 +136,18 @@ public class GameHandler {
     }
 
     /**
-     * Start the game
+     * Enter lobby view
      */
-    public void startGame() {
-        currentGameRef.child("started").setValue(true);
-        currentGameRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Game game = dataSnapshot.getValue(Game.class);
-                if (game.getGameHost().equals(authData.getUid()))
-                    currentGameRef.child("started").setValue(true);
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-            }
-        });
+    public void enterLobby() {
         gameMode.getLobby().onEnter();
+    }
+
+    /**
+     * Get if current player is the host
+     * @return
+     */
+    public boolean isHost() {
+        return isHost;
     }
 
     /**
@@ -146,5 +170,9 @@ public class GameHandler {
 
     public AuthData getFirebaseAuthenticationData() {
         return authData;
+    }
+
+    public int getNumberOfRounds() {
+        return gameMode.getNumberOfRounds();
     }
 }

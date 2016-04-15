@@ -12,12 +12,29 @@
         android:text="Admire score"
         android:id="@+id/textView3"
         android:layout_gravity="center_horizontal" />
-    <ListView
+
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/scoresListView"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Done with round"
+        android:id="@+id/textView4"
+        android:layout_gravity="center_horizontal" />
 
-        />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text=""
+        android:id="@+id/roundTextField"
+        android:layout_gravity="center_horizontal" />
+
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/scoresListView"
+        android:layout_weight="1" />
+
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
