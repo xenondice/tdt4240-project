@@ -193,7 +193,11 @@ public class MainActivity extends AppCompatActivity {
 
                     // Add game UID to players games list and update Firebase
                     Map<String, Object> games = new HashMap<String, Object>();
-                    games.put(gameSnapshot.getKey(), true);
+                    // Check if we are the game host or not
+                    if (game.getGameHost().equals(authData.getUid()))
+                        games.put(gameSnapshot.getKey(), true);
+                    else
+                        games.put(gameSnapshot.getKey(), false);
                     usersRef.child(authData.getUid()).child("games").updateChildren(games);
 
                     // Join game lobby as player
