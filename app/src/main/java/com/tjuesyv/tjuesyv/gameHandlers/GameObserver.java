@@ -38,10 +38,15 @@ public class GameObserver {
     private Firebase currentUserRef;
     private AuthData authData;
     private boolean isHost;
+    private Game gameInfo;
+    private boolean startRequested;
+    private boolean infoLoaded;
 
     public GameObserver(GameActivity activityReference, GameMode gameMode) {
 
         // Assign variables
+        startRequested = false;
+        infoLoaded = false;
         isHost = false;
         this.gameMode = gameMode;
         currentState = 0;
@@ -70,30 +75,36 @@ public class GameObserver {
         currentGameRef = gamesRef.child(gameUID);
         currentUserRef = usersRef.child(authData.getUid());
 
-        // Check if host
-        setGameHost();
-    }
-
-    /**
-     * Check whether the player is the host
-     */
-    private void setGameHost() {
-        getFirebaseGameReference().addValueEventListener(new ValueEventListener() {
+        // Get initial information about the game
+        getFirebaseGameReference().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
-                    Game game = dataSnapshot.getValue(Game.class);
-                    isHost = game.getGameHost().equals(authData.getUid());
-                    //TODO: Prettify (Make resource loader function)
-                    enterLobby();
+                    gameInfo = dataSnapshot.getValue(Game.class);
+                    setStaticVariables();
+                    infoLoaded = true;
+                    if (startRequested) enterLobby();
                 }
             }
-
             @Override
             public void onCancelled(FirebaseError firebaseError) {
-
             }
         });
+    }
+
+    /**
+     * Query the start of the game
+     */
+    public void startGame() {
+        if (infoLoaded) enterLobby();
+        else startRequested = true;
+    }
+
+    /**
+     * Set variables that will not change during the game
+     */
+    private void setStaticVariables() {
+        isHost = gameInfo.getGameHost() == authData.getUid();
     }
 
     /**
