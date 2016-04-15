@@ -18,6 +18,7 @@ import com.firebase.client.FirebaseError;
 import com.firebase.client.Query;
 import com.firebase.client.ValueEventListener;
 import com.tjuesyv.tjuesyv.firebaseObjects.Game;
+import com.tjuesyv.tjuesyv.firebaseObjects.Score;
 
 import org.hashids.Hashids;
 
@@ -222,6 +223,8 @@ public class MainActivity extends AppCompatActivity {
                     // Add player UID to players list in game object and update Firebase
                     game.addPlayer(authData.getUid());
                     gamesRef.child(gameSnapshot.getKey()).setValue(game);
+                    Score score= new Score(gameSnapshot.getKey(),authData.getUid());
+                    rootRef.child("scores").child(gameSnapshot.getKey()).child(authData.getUid()).setValue(score);
 
                     // Add game UID to players games list and update Firebase
                     Map<String, Object> games = new HashMap<String, Object>();
