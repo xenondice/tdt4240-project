@@ -1,23 +1,23 @@
 package com.tjuesyv.tjuesyv;
 
 import android.content.Intent;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
-import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.firebase.client.AuthData;
-import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.Query;
 import com.firebase.client.ValueEventListener;
 import com.tjuesyv.tjuesyv.firebaseObjects.Game;
+import com.tjuesyv.tjuesyv.firebaseObjects.Score;
 
 import org.hashids.Hashids;
 
@@ -32,6 +32,7 @@ import butterknife.OnTextChanged;
 
 public class MainActivity extends AppCompatActivity {
 
+    // ButterKnife bindings
     @Bind(R.id.createGameButton) Button createGameButton;
     @Bind(R.id.joinGameButton) Button joinGameButton;
     @Bind(R.id.logoutButton) Button logoutButton;
@@ -40,46 +41,29 @@ public class MainActivity extends AppCompatActivity {
     @Bind(R.id.nicknameTextInputLayout) TextInputLayout nicknameTextInputLayout;
     @Bind(R.id.gameCodeTextInputLayout) TextInputLayout gameCodeTextInputLayout;
 
+    // Firebase fields
     private Firebase rootRef;
     private Firebase gamesRef;
     private Firebase usersRef;
     private AuthData authData;
     private Firebase.AuthStateListener authStateListener;
 
+    // DEBUG FLAG FOR SHOWING LOGOUT
+    private boolean DEBUG_FLAG = true;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         // Setup ButterKnife
         ButterKnife.bind(this);
-
-        // Create main Firebase ref
-        rootRef = new Firebase(getResources().getString(R.string.firebase_url));
-        gamesRef = rootRef.child("games");
-        usersRef = rootRef.child("users");
-
-        // Get Firebase authentication
-        authData = rootRef.getAuth();
-        authStateListener = new Firebase.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(AuthData authData) {
-                if (authData != null) {
-                    // User is logged in
-                    Snackbar.make(findViewById(R.id.rootView),
-                            "Logged in as: " + authData.getUid(),
-                            Snackbar.LENGTH_LONG).show();
-
-                } else {
-                    // User is not logged in
-                    Snackbar.make(findViewById(R.id.rootView),
-                            "No auth session found. Logging in...",
-                            Snackbar.LENGTH_LONG).show();
-                    authAnonymously();
-                }
-            }
-        };
-        rootRef.addAuthStateListener(authStateListener);
+        // Initialize Firebase References
+        initFirebaseRefs();
+        // Initialize authentication with Firebase
+        initFirebaseAuthentication();
+        // Show debug logout button
+        if (DEBUG_FLAG)
+            logoutButton.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -109,6 +93,9 @@ public class MainActivity extends AppCompatActivity {
         isValidNickname(input.toString());
     }
 
+    /**
+     * Creates a game when clicking on the create game button
+     */
     @OnClick(R.id.createGameButton)
     protected void createGameButton() {
         String nickname = nicknameText.getText().toString();
@@ -123,6 +110,9 @@ public class MainActivity extends AppCompatActivity {
         joinGame(gameCode);
     }
 
+    /**
+     * Joins a game when clicking on the join game button
+     */
     @OnClick(R.id.joinGameButton)
     protected void joinGameButton() {
         String gameCode = gameCodeText.getText().toString();
@@ -161,6 +151,7 @@ public class MainActivity extends AppCompatActivity {
         Game newGame = new Game(gameCode, authData.getUid());
         // Populate the game entry in Firebase with the game object
         newGameRef.setValue(newGame);
+        // Return the game code of the new game
         return gameCode;
     }
 
@@ -192,28 +183,6 @@ public class MainActivity extends AppCompatActivity {
                         gameCodeTextInputLayout.setError(getString(R.string.error_game_is_full));
                         return;
                     }
-                    // Make sure nobody else in the game has the same nick
-                    /*pending being fixed in fix_unique_names
-                    for (String id:game.getPlayers().keySet()) {
-
-                        if (    String.valueOf(snapshot.child("users").child(id).child("nickname").getValue())
-                                .equalsIgnoreCase(String.valueOf(snapshot.child("users").child(authData.getUid()).child("nickname").getValue()))
-                                && (!authData.getUid().equalsIgnoreCase(id))
-                                )
-                        {
-
-                            Log.v("Nicktesting","Id 1: "+String.valueOf(id));
-                            Log.v("Nicktesting","Nick 1: "+String.valueOf(snapshot.child("users").child(id).child("nickname").getValue()));
-                            Log.v("Nicktesting","Id 2: "+String.valueOf(authData.getUid()));
-                            Log.v("Nicktesting","Nick 2: "+String.valueOf(snapshot.child("users").child(authData.getUid()).child("nickname").getValue()));
-                            Log.v("Nicktesting","Match between nicks: "+ String.valueOf(String.valueOf(snapshot.child("users").child(id).child("nickname").getValue())
-                                    .equalsIgnoreCase(String.valueOf(snapshot.child("users").child(authData.getUid()).child("nickname").getValue()))
-                                    && (!authData.getUid().equalsIgnoreCase(id))));
-                            gameCodeTextInputLayout.setError(getString(R.string.error_taken_nick));
-                            return;
-                        }
-                    }
-                    pending being fixed*/
                     //Check if game is already started
                     if (game.getStarted()) {
                         gameCodeTextInputLayout.setError(getString(R.string.error_game_is_started));
@@ -222,6 +191,8 @@ public class MainActivity extends AppCompatActivity {
                     // Add player UID to players list in game object and update Firebase
                     game.addPlayer(authData.getUid());
                     gamesRef.child(gameSnapshot.getKey()).setValue(game);
+                    Score score= new Score(gameSnapshot.getKey(),authData.getUid());
+                    rootRef.child("scores").child(gameSnapshot.getKey()).child(authData.getUid()).setValue(score);
 
                     // Add game UID to players games list and update Firebase
                     Map<String, Object> games = new HashMap<String, Object>();
@@ -242,12 +213,11 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(FirebaseError firebaseError) {
-                Snackbar.make(findViewById(R.id.rootView),
+                Toast.makeText(MainActivity.this,
                         "Error joining game: " + gameCode + ". Error: " + firebaseError.toString(),
-                        Snackbar.LENGTH_LONG).show();
+                        Toast.LENGTH_SHORT).show();
             }
         });
-
     }
 
     /**
@@ -260,9 +230,7 @@ public class MainActivity extends AppCompatActivity {
             authAnonymously();
         } else {
             // Add player info to the authenticated player
-            Log.v("Nicktesting","Adding nick to player: "+nickname);
-            rootRef.child("users").child(authData.getUid()).child("nickname").setValue(nickname);
-            Log.v("Nicktesting","Player nick now; "+rootRef.child("users").child(authData.getUid()).child("nickname").toString());
+            usersRef.child(authData.getUid()).child("nickname").setValue(nickname);
         }
     }
 
@@ -274,15 +242,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onAuthenticated(AuthData authData) {
                 setAuthenticatedUser(authData);
-                Log.v("Nicktesting", "Player nick aa; " + rootRef.child("users").child(authData.getUid()).child("nickname").toString());
-
             }
 
             @Override
             public void onAuthenticationError(FirebaseError firebaseError) {
-                Snackbar.make(findViewById(R.id.rootView),
-                        "Error signing in player: " + firebaseError.toString(),
-                        Snackbar.LENGTH_LONG).show();
+                Toast.makeText(MainActivity.this,
+                        "Error signing in user: " + firebaseError.toString(),
+                        Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -350,12 +316,48 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
+     * Helper method that initializes the Firebase references used
+     */
+    private void initFirebaseRefs() {
+        // Create main Firebase ref
+        rootRef = new Firebase(getResources().getString(R.string.firebase_url));
+        gamesRef = rootRef.child("games");
+        usersRef = rootRef.child("users");
+    }
+
+    /**
+     * Helper method that gets the current auth data and sets up an listener that listens to auth state changes
+     */
+    private void initFirebaseAuthentication() {
+        // Get Firebase authentication
+        authData = rootRef.getAuth();
+        // Create a new auth state listener that lets us know when auth state has changed
+        authStateListener = new Firebase.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(AuthData authData) {
+                if (authData != null) {
+                    // User is logged in
+                    if (DEBUG_FLAG)
+                        Toast.makeText(MainActivity.this, "Logged in: " + authData.getUid(), Toast.LENGTH_LONG).show();
+                } else {
+                    // User is not logged in
+                    if (DEBUG_FLAG)
+                        Toast.makeText(MainActivity.this, "No auth session. Logging in...", Toast.LENGTH_SHORT).show();
+                    // Authenticate anonymously
+                    authAnonymously();
+                }
+            }
+        };
+        // Set the auth state listener to the root Firebase ref
+        rootRef.addAuthStateListener(authStateListener);
+    }
+
+    /**
      * Setter for authentication data.
      * @param authData  the authentication data to be set.
      */
     private void setAuthenticatedUser(AuthData authData) {
         this.authData = authData;
-        Log.v("Nicktesting", "Player nick sa; " + rootRef.child("users").child(this.authData.getUid()).child("nickname").toString());
     }
 
     /**
@@ -363,9 +365,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void logoutAuthenticatedUser() {
         if (authData != null) {
-
             rootRef.unauth();
-            Log.v("Nicktesting", "Player nick logout; " + rootRef.child("users").child(authData.getUid()).child("nickname").toString());
         }
     }
 }
