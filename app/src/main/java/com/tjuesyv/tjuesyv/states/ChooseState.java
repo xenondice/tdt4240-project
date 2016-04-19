@@ -5,7 +5,11 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 
+import com.firebase.client.DataSnapshot;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
 import com.tjuesyv.tjuesyv.R;
+import com.tjuesyv.tjuesyv.firebaseObjects.Game;
 import com.tjuesyv.tjuesyv.gameHandlers.GameState;
 
 import java.util.ArrayList;
@@ -43,18 +47,49 @@ public class ChooseState extends GameState {
     }
 
     private void setAnswersListView() {
-        ArrayList<String>answersList=new ArrayList<String>();
+        final ArrayList<String>answersList=new ArrayList<String>();
         answersList.add("Astronaut");
         answersList.add("Muck farmer");
         answersList.add("Eat the rich");
+
+        answerListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         //TODO: fill array with answer data from ???
         //TODO: give points to the player with the selected answer
-        answersList.toArray();
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(handler.getActivityReference(),android.R.layout.simple_list_item_single_choice,answersList.toArray(new String[0]));
+
         answerListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 
-        answerListView.setAdapter(adapter);
+        final ArrayAdapter<String> adapter = new ArrayAdapter<>(handler.getActivityReference(),android.R.layout.simple_list_item_single_choice,answersList);
 
+
+        handler.getFirebaseGameReference().addValueEventListener(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                final Game game=dataSnapshot.getValue(Game.class);
+                handler.getFirebaseUsersReference().addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        for (String key:game.getPlayers().keySet()
+                                ) {
+
+                            adapter.add(String.valueOf(dataSnapshot.child(key).child("nickname").getValue()));
+
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(FirebaseError firebaseError) {
+
+                    }
+                });
+                answerListView.setAdapter(adapter);
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
 
 
 
@@ -69,6 +104,6 @@ public class ChooseState extends GameState {
 
     private void processAnswer(int selectionPos) {
         //TODO: more processing of answers here
-        Log.d("Answers",String.valueOf(answerListView.getAdapter().getItem(selectionPos)));
+        Log.d("Answers", String.valueOf(answerListView.getAdapter().getItem(selectionPos)));
     }
 }
