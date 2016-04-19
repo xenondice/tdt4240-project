@@ -1,8 +1,5 @@
 package com.tjuesyv.tjuesyv.states;
 
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
@@ -30,7 +27,6 @@ public class LobbyState extends GameState {
 
     @Bind(R.id.gameCodeTextView) TextView gameCodeTextView;
     @Bind(R.id.startedTextView) TextView startedTextView;
-    @Bind(R.id.activeTextView) TextView activeTextView;
     @Bind(R.id.startGameButton) Button startGameButton;
     @Bind(R.id.playerListView) ListView playersListView;
 
@@ -76,6 +72,7 @@ public class LobbyState extends GameState {
     @OnClick(R.id.startGameButton)
     protected void startGameButton() {
         if (handler.isHost()) {
+            // Only start the game if we are the host
             handler.getFirebaseGameReference().child("started").setValue(true);
         }
     }
@@ -88,9 +85,11 @@ public class LobbyState extends GameState {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Game game = dataSnapshot.getValue(Game.class);
-                gameCodeTextView.setText("Game code: " + game.getGameCode());
-                startedTextView.setText("Started: " + game.getStarted());
-                activeTextView.setText("Active: " + game.getActive());
+                gameCodeTextView.setText("Game Code: " + game.getGameCode());
+                if (game.getStarted())
+                    startedTextView.setText(R.string.text_game_has_started);
+                else
+                    startedTextView.setText(R.string.text_game_not_started);
             }
 
             @Override
@@ -101,9 +100,10 @@ public class LobbyState extends GameState {
 
     private void setStartButton() {
         // If we are not the game host, disable start button and change text
-        if (!handler.isHost()) {
-            startGameButton.setText("Waiting on host to start game...");
-            startGameButton.setEnabled(false);
+        if (handler.isHost()) {
+            startGameButton.setEnabled(true);
+        } else {
+            startGameButton.setText(handler.getActivityReference().getString(R.string.btn_waiting_on_start));
         }
     }
 
@@ -140,13 +140,13 @@ public class LobbyState extends GameState {
                         // Update role
                         if (playerSnapshot.getKey().equals(handler.getFirebaseAuthenticationData().getUid()) && player.isGameHostInGame(handler.getFirebaseGameReference().getKey())){
                             // Player is us and we are the game host
-                            playerItem.put("role", "You are the game host");
+                            playerItem.put("role", "You are the Game Host");
                         } else if (playerSnapshot.getKey().equals(handler.getFirebaseAuthenticationData().getUid())) {
                             // Player is us
                             playerItem.put("role", "You");
                         } else if (player.isGameHostInGame(handler.getFirebaseGameReference().getKey())) {
                             // Other player is game host
-                            playerItem.put("role", "Game host");
+                            playerItem.put("role", "Game Host");
                         }
 
                         // Add player to players list and notify

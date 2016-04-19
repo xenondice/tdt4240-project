@@ -11,16 +11,18 @@
     <string name="btn_create_game">Create Game</string>
     <string name="btn_join_game">Join Game</string>
     <string name="btn_start_game">Start Game</string>
+    <string name="btn_waiting_on_start">Waiting on the Game Host to start game...</string>
     <string name="btn_logout">Logout</string>
 
     <string name="edit_valid_game_codes">ABCDEFGHIJKLMNOPQRSTUVWXYZ</string>
     <string name="edit_valid_nickname">abcdefghijklmnopqrstuvwxyzæøå ABCDEFGHIJKLMNOPQRSTUVWXYZÆØÅ0123456789</string>
 
-    <string name="text_game_info">Game info</string>
-    <string name="text_game_code">Game code</string>
+    <string name="text_lobby_title">Welcome to the lobby!</string>
+    <string name="text_game_code">Game Code: "ABCD"</string>
     <string name="text_started">Started</string>
-    <string name="text_active">Active</string>
-    <string name="text_players_in_lobby">Players in lobby</string>
+    <string name="text_players_in_lobby">Players in the lobby</string>
+    <string name="text_game_has_started">The game has started.</string>
+    <string name="text_game_not_started">The game has not started yet.</string>
     <string name="prompt_positive">Yes</string>
     <string name="prompt_negative">No</string>
     <string name="prompt_exit">Really quit?</string>
