@@ -4,7 +4,6 @@
 [![Build Status](https://travis-ci.org/szeestraten/tdt4240-project.svg?branch=master)](https://travis-ci.org/szeestraten/tdt4240-project)
 
 ## Data structure in Firebase
-Here is how the data is structured in Firebase.
 
 * `games/`
     * `<game-id>`
