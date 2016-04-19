@@ -11,56 +11,65 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/textGameInfo"
-        android:text="@string/text_game_info"
-        android:textSize="@dimen/text_size_large"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/textLobbyTitle"
+        android:text="@string/text_lobby_title"
+        android:textSize="@dimen/text_size_extralarge"
+        android:textStyle="bold"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/gameCodeTextView"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="@string/text_game_code"
-        android:layout_below="@+id/textGameInfo"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
         android:id="@+id/startedTextView"
-        android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="@string/text_started"
-        android:layout_below="@+id/gameCodeTextView"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/activeTextView"
+        android:textSize="@dimen/text_size_large"
+        android:textStyle="italic"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="@string/text_active"
-        android:layout_below="@+id/startedTextView"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_below="@+id/textLobbyTitle"
+        />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/startedTextView"
+        android:layout_marginTop="20dp"
+        android:id="@+id/gameCodeTextView"
+        android:text="@string/text_game_code"
+        android:textSize="@dimen/text_size_verylarge"
+        android:textStyle="bold"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/gameCodeTextView"
+        android:id="@+id/gameCodeTextHint"
+        android:text="Invite others with the code above!"
+        android:textSize="@dimen/text_size_large"
+        android:textStyle="italic"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
         android:id="@+id/playersInLobbyTextView"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="@string/text_players_in_lobby"
-        android:layout_below="@+id/activeTextView"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:textStyle="bold"
+        android:layout_below="@+id/gameCodeTextHint" />
 
     <ListView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/playerListView"
         android:layout_centerHorizontal="true"
+        android:id="@+id/playerListView"
         android:layout_above="@+id/startGameButton"
         android:layout_below="@+id/playersInLobbyTextView" />
 
@@ -68,6 +77,7 @@
         android:id="@+id/startGameButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:enabled="false"
         android:text="@string/btn_start_game"
         android:textSize="@dimen/btn_size_large"
         android:layout_alignParentBottom="true"

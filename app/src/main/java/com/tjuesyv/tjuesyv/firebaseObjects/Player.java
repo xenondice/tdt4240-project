@@ -5,7 +5,7 @@ import java.util.Map;
 
 public class Player {
     private String nickname;
-    private Map<String, Object> games = new HashMap<>();
+    private Map<String, Boolean> games = new HashMap<>();
 
     // Required default constructor for Firebase object mapping
     @SuppressWarnings("unused")
@@ -23,11 +23,15 @@ public class Player {
         this.nickname = nickname;
     }
 
-    public Map<String, Object> getGames() {
+    public Map<String, Boolean> getGames() {
         return games;
     }
 
     public void addGame(String gameId) {
         games.put(gameId, true);
+    }
+
+    public boolean isGameHostInGame(String gameId) {
+        return (games.containsKey(gameId) && games.get(gameId) == true);
     }
 }
