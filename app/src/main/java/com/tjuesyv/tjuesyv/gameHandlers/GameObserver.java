@@ -34,6 +34,7 @@ public class GameObserver {
     private Firebase rootRef;
     private Firebase gamesRef;
     private Firebase usersRef;
+    private Firebase scoresRef;
     private Firebase currentGameRef;
     private Firebase currentUserRef;
     private AuthData authData;
@@ -67,6 +68,7 @@ public class GameObserver {
         // Setup other Firebase references
         gamesRef = rootRef.child("games");
         usersRef = rootRef.child("users");
+        scoresRef = rootRef.child("scores");
         currentGameRef = gamesRef.child(gameUID);
         currentUserRef = usersRef.child(authData.getUid());
 
@@ -164,6 +166,14 @@ public class GameObserver {
      */
     public Firebase getFirebaseUsersReference() {
         return usersRef;
+    }
+
+    /**
+     * Get the firebase reference to the scores
+     * @return
+     */
+    public Firebase getFirebaseScoresReference() {
+        return scoresRef;
     }
 
     public Firebase getFirebaseRootReference(){return rootRef;};

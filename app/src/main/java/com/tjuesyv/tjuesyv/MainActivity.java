@@ -44,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
     // Firebase fields
     private Firebase rootRef;
     private Firebase gamesRef;
+    private Firebase scoresRef;
     private Firebase usersRef;
     private AuthData authData;
     private Firebase.AuthStateListener authStateListener;
@@ -188,11 +189,13 @@ public class MainActivity extends AppCompatActivity {
                         gameCodeTextInputLayout.setError(getString(R.string.error_game_is_started));
                         return;
                     }
+
                     // Add player UID to players list in game object and update Firebase
                     game.addPlayer(authData.getUid());
                     gamesRef.child(gameSnapshot.getKey()).setValue(game);
-                    Score score= new Score(gameSnapshot.getKey(),authData.getUid());
-                    rootRef.child("scores").child(gameSnapshot.getKey()).child(authData.getUid()).setValue(score);
+
+                    // Add new score object to the scores
+                    scoresRef.child(gameSnapshot.getKey()).child(authData.getUid()).setValue(new Score());
 
                     // Add game UID to players games list and update Firebase
                     Map<String, Object> games = new HashMap<String, Object>();
@@ -327,6 +330,7 @@ public class MainActivity extends AppCompatActivity {
         rootRef = new Firebase(getResources().getString(R.string.firebase_url));
         gamesRef = rootRef.child("games");
         usersRef = rootRef.child("users");
+        scoresRef = rootRef.child("scores");
     }
 
     /**
