@@ -12,14 +12,15 @@ import com.firebase.client.ValueEventListener;
 import com.tjuesyv.tjuesyv.R;
 import com.tjuesyv.tjuesyv.firebaseObjects.Game;
 import com.tjuesyv.tjuesyv.firebaseObjects.Score;
+import com.tjuesyv.tjuesyv.gameHandlers.GameObserver;
 import com.tjuesyv.tjuesyv.gameHandlers.GameState;
+import com.tjuesyv.tjuesyv.gameModes.DefaultMode;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 /**
- * Created by RayTM on 08.04.2016.
  * Here all players are faced with a fancy and exciting representation of the score so far into the game
  * Should also show a slightly different view if it's the final game
  */
@@ -31,23 +32,28 @@ public class ScoreState extends GameState {
 
     private static final int MAIN_VIEW = 5;
 
+    /**
+     * Called once the state is entered
+     *
+     * @param observer
+     */
+    public ScoreState(GameObserver observer) {
+        super(observer);
+
+        // Setup ButterKnife
+        ButterKnife.bind(this, observer.getActivityReference());
+        roundTextField.setText(observer.getCurrentRound()+" of "+ DefaultMode.NUMBER_OF_ROUNDS);
+        setScoresListView();
+
+    }
+
     @Override
     public int getViewId() {
         return MAIN_VIEW;
     }
 
-    @Override
-    public void onEnter() {
-        // Setup ButterKnife
-        ButterKnife.bind(this, observer.getActivityReference());
-        roundTextField.setText(observer.getCurrentRound()+1+" of "+ observer.getNumberOfRounds());
-        setScoresListView();
-    }
-
     @OnClick(R.id.scoreContinueButton)
     protected void goToNextRound() {
-        if (observer.getCurrentRound() + 1 == observer.getNumberOfRounds())
-            if (observer.isHost()) observer.getFirebaseGameReference().child("started").setValue(false);
         nextState();
     }
 

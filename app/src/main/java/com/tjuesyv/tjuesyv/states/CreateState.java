@@ -3,6 +3,7 @@ package com.tjuesyv.tjuesyv.states;
 import android.widget.Button;
 
 import com.tjuesyv.tjuesyv.R;
+import com.tjuesyv.tjuesyv.gameHandlers.GameObserver;
 import com.tjuesyv.tjuesyv.gameHandlers.GameState;
 
 import butterknife.Bind;
@@ -10,7 +11,6 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 /**
- * Created by RayTM on 08.04.2016.
  * In this stage, the players get the statement/question and get some time to write a lie
  * After finishing, they press submit and is faced with a waiting screen
  * The game master also has the statement/question on top, but also a list of answers from
@@ -25,15 +25,21 @@ public class CreateState extends GameState {
     private  static final int PLAYER_VIEW = 1;
     private  static final int GAME_MASTER_VIEW = 2;
 
-    @Override
-    public int getViewId() {
-        return PLAYER_VIEW;
+    /**
+     * Called once the state is entered
+     *
+     * @param observer
+     */
+    public CreateState(GameObserver observer) {
+        super(observer);
+
+        // Setup ButterKnife
+        ButterKnife.bind(this, observer.getActivityReference());
     }
 
     @Override
-    public void onEnter() {
-        // Setup ButterKnife
-        ButterKnife.bind(this, observer.getActivityReference());
+    public int getViewId() {
+        return PLAYER_VIEW;
     }
 
     @OnClick(R.id.createContinueButton)

@@ -17,7 +17,7 @@ import java.util.List;
  */
 public class DefaultMode extends GameMode {
 
-    private static final int NUMBER_OF_ROUNDS = 2;
+    public static final int NUMBER_OF_ROUNDS = 2;
 
     @Override
     public boolean isGameOver(Game game) {

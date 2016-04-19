@@ -99,10 +99,12 @@ public class GameObserver implements Closeable {
                     if (gameInfo == null) {
                         gameInfo = newGameInfo;
                         //startListeners();
+                        System.out.println("================0 Start game");
                         enterLobbyClient();
                     } else {
                         handleNewData(newGameInfo);
                         gameInfo = newGameInfo;
+                        System.out.println("================0 New data");
                     }
                 }
             }
@@ -121,7 +123,7 @@ public class GameObserver implements Closeable {
     private void handleNewData(Game newGameInfo) {
         if (gameInfo.getStateId() != newGameInfo.getStateId()) {
             if (newGameInfo.getStateId() == 0) enterLobbyClient();
-            else setActiveState(gameMode.getStates().get(newGameInfo.getStateId()));
+            else setActiveState(gameMode.getStates().get(newGameInfo.getStateId()-1));
         }
 
         if (gameInfo.getGameModeId() != newGameInfo.getGameModeId()) {
@@ -263,7 +265,7 @@ public class GameObserver implements Closeable {
      * Get if current player is the host
      */
     public boolean isHost() {
-        return gameInfo.getGameHost() == authData.getUid();
+        return gameInfo.getGameHost().equals(authData.getUid());
     }
 
     /**
