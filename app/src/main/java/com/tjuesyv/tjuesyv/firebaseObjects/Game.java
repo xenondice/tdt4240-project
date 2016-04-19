@@ -10,6 +10,7 @@ import java.util.Map;
 public class Game {
     private String gameCode;
     private String gameHost;
+    private String gameMaster;
     private Boolean active;
     private Boolean started;
     private int round;
@@ -26,6 +27,7 @@ public class Game {
     public Game(String gameCode, String gameHost) {
         this.gameCode = gameCode;
         this.gameHost = gameHost;
+        gameMaster = gameHost;
         active = true;
         started = false;
         round = 0;
@@ -41,6 +43,8 @@ public class Game {
     }
 
     public String getGameHost() { return gameHost; }
+
+    public String getGameMaster() { return gameMaster; }
 
     public int getGameModeId() { return gameModeId; }
 

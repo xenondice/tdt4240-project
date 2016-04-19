@@ -99,19 +99,17 @@ public class GameObserver implements Closeable {
                     if (gameInfo == null) {
                         gameInfo = newGameInfo;
                         //startListeners();
-                        System.out.println("================0 Start game");
                         enterLobbyClient();
                     } else {
                         handleNewData(newGameInfo);
                         gameInfo = newGameInfo;
-                        System.out.println("================0 New data");
                     }
                 }
             }
 
             @Override
             public void onCancelled(FirebaseError firebaseError) {
-                throw new IllegalStateException("Couldn't get initial data!");
+                throw new IllegalStateException("Couldn't get data!");
             }
         };
         getFirebaseGameReference().addValueEventListener(serverListener);
