@@ -11,6 +11,7 @@ import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
+import com.tjuesyv.tjuesyv.gameHandlers.GameObserver;
 import com.tjuesyv.tjuesyv.firebaseObjects.Player;
 import com.tjuesyv.tjuesyv.gameHandlers.GameState;
 import com.tjuesyv.tjuesyv.R;
@@ -41,10 +42,11 @@ public class LobbyState extends GameState {
         return MAIN_VIEW;
     }
 
-    @Override
-    public void onEnter() {
+    public LobbyState(GameObserver observer) {
+        super(observer);
+
         // Setup ButterKnife
-        ButterKnife.bind(this, handler.getActivityReference());
+        ButterKnife.bind(this, this.observer.getActivityReference());
 
         // Displays game info
         setGameInfo();
@@ -54,48 +56,25 @@ public class LobbyState extends GameState {
 
         // Set startbutton if host
         setStartButton();
-
-        // Listen for game start
-        setStartListener();
-    }
-
-    /**
-     * Listen for the game to start
-     */
-    private void setStartListener() {
-        handler.getFirebaseGameReference().child("started").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                // If the game is started, go to the next state
-                if ((boolean) dataSnapshot.getValue()) nextState();
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-            }
-        });
     }
 
     @OnClick(R.id.startGameButton)
     protected void startGameButton() {
-        // Only start the game if we are the host
-        if (handler.isHost()) {
-            handler.getFirebaseGameReference().child("started").setValue(true);
-        }
+        if (observer.isHost()) nextState();
     }
 
     @OnItemLongClick(R.id.playerListView)
     protected boolean onPlayerLongClick(final int position) {
         // Make sure that you can only kick someone else when you are the game host
-        if (handler.isHost() && !playersList.get(position).get("id").equals(handler.getFirebaseAuthenticationData().getUid())) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(handler.getActivityReference())
+        if (observer.isHost() && !playersList.get(position).get("id").equals(observer.getFirebaseAuthenticationData().getUid())) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(observer.getActivityReference())
                     .setTitle("Kick player?")
                     .setMessage("Would you like to kick: " + playersList.get(position).get("nickname") + "?")
                     .setCancelable(true)
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            handler.getFirebaseGameReference()
+                            observer.getFirebaseGameReference()
                                     .child("players")
                                     .child(playersList.get(position).get("id"))
                                     .removeValue();
@@ -119,7 +98,7 @@ public class LobbyState extends GameState {
      * Populates game info textViews.
      */
     private void setGameInfo() {
-        handler.getFirebaseGameReference().addValueEventListener(new ValueEventListener() {
+        observer.getFirebaseGameReference().addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Game game = dataSnapshot.getValue(Game.class);
@@ -140,12 +119,12 @@ public class LobbyState extends GameState {
      * Enables the start button if we are the game host, otherwise disable it for other players
      */
     private void setStartButton() {
-        if (handler.isHost()) {
+        if (observer.isHost()) {
             // Set start button to enabled if we are the game host
             startGameButton.setEnabled(true);
         } else {
             // If we are not the game host, disable start button and change text
-            startGameButton.setText(handler.getActivityReference().getString(R.string.btn_waiting_on_start));
+            startGameButton.setText(observer.getActivityReference().getString(R.string.btn_waiting_on_start));
         }
     }
 
@@ -154,7 +133,7 @@ public class LobbyState extends GameState {
      */
     private void setPlayerListListener() {
         // Create an adapter to represent the playersList
-        final SimpleAdapter simpleAdapter = new SimpleAdapter(handler.getActivityReference(),
+        final SimpleAdapter simpleAdapter = new SimpleAdapter(observer.getActivityReference(),
                 playersList,
                 android.R.layout.simple_list_item_2,
                 new String[] {"nickname", "role"},
@@ -163,12 +142,12 @@ public class LobbyState extends GameState {
         playersListView.setAdapter(simpleAdapter);
 
         // Create a child event listener on the game object in Firebase to listen for changes in the players list
-        handler.getFirebaseGameReference().child("players").addChildEventListener(new ChildEventListener() {
+        observer.getFirebaseGameReference().child("players").addChildEventListener(new ChildEventListener() {
             // If player has joined
             @Override
             public void onChildAdded(final DataSnapshot playerInGameSnapshot, String s) {
                 // Look up player in users reference
-                handler.getFirebaseUsersReference().child(playerInGameSnapshot.getKey()).addListenerForSingleValueEvent(new ValueEventListener() {
+                observer.getFirebaseUsersReference().child(playerInGameSnapshot.getKey()).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot playerSnapshot) {
                         // Get the player object
@@ -180,13 +159,13 @@ public class LobbyState extends GameState {
                         playerItem.put("nickname", player.getNickname());
 
                         // Put the specific role of the player
-                        if (playerSnapshot.getKey().equals(handler.getFirebaseAuthenticationData().getUid()) && player.isGameHostInGame(handler.getFirebaseGameReference().getKey())) {
+                        if (playerSnapshot.getKey().equals(observer.getFirebaseAuthenticationData().getUid()) && player.isGameHostInGame(observer.getFirebaseGameReference().getKey())) {
                             // Player is us and we are the game host
                             playerItem.put("role", "You are the Game Host");
-                        } else if (playerSnapshot.getKey().equals(handler.getFirebaseAuthenticationData().getUid())) {
+                        } else if (playerSnapshot.getKey().equals(observer.getFirebaseAuthenticationData().getUid())) {
                             // Player is us
                             playerItem.put("role", "You");
-                        } else if (player.isGameHostInGame(handler.getFirebaseGameReference().getKey())) {
+                        } else if (player.isGameHostInGame(observer.getFirebaseGameReference().getKey())) {
                             // Other player is game host
                             playerItem.put("role", "Game Host");
                         }
@@ -205,7 +184,7 @@ public class LobbyState extends GameState {
             // If player is removed
             @Override
             public void onChildRemoved(final DataSnapshot playerInGameSnapshot) {
-                handler.getFirebaseUsersReference().child(playerInGameSnapshot.getKey()).addListenerForSingleValueEvent(new ValueEventListener() {
+                observer.getFirebaseUsersReference().child(playerInGameSnapshot.getKey()).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot playerSnapshot) {
                         // Find player with the correct player Id to remove from the players list

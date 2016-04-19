@@ -1,15 +1,16 @@
 package com.tjuesyv.tjuesyv.gameHandlers;
 
-/**
- * Created by RayTM on 08.04.2016.
- */
 public abstract class GameState {
 
+    protected GameObserver observer;
+
     /**
-     * Use this to progress in the game
-     * this is set before the game starts
+     * Called once the state is entered
+     * @param observer
      */
-    protected GameObserver handler;
+    public GameState(GameObserver observer) {
+        this.observer = observer;
+    }
 
     /**
      * Return the layout id from the activity game xml file,
@@ -21,22 +22,9 @@ public abstract class GameState {
     public abstract int getViewId();
 
     /**
-     * This is called once the state is entered
-     */
-    public abstract void onEnter();
-
-    /**
-     * Called internally by GameMode before starting the game
-     * @param handler
-     */
-    void bindHandler(GameObserver handler) {
-        this.handler = handler;
-    }
-
-    /**
      * Continue the game to the nest state
      */
     public void nextState() {
-        handler.nextState();
+        observer.progressServer();
     }
 }

@@ -13,7 +13,9 @@ import com.tjuesyv.tjuesyv.R;
 import com.tjuesyv.tjuesyv.firebaseObjects.Game;
 import com.tjuesyv.tjuesyv.firebaseObjects.Player;
 import com.tjuesyv.tjuesyv.firebaseObjects.Score;
+import com.tjuesyv.tjuesyv.gameHandlers.GameObserver;
 import com.tjuesyv.tjuesyv.gameHandlers.GameState;
+import com.tjuesyv.tjuesyv.gameModes.DefaultMode;
 
 import java.util.Map;
 
@@ -33,26 +35,30 @@ public class ScoreState extends GameState {
 
     private static final int MAIN_VIEW = 5;
 
-    @Override
-    public int getViewId() {
-        return MAIN_VIEW;
-    }
+    /**
+     * Called once the state is entered
+     *
+     * @param observer
+     */
+    public ScoreState(GameObserver observer) {
+        super(observer);
 
-    @Override
-    public void onEnter() {
         // Setup ButterKnife
-        ButterKnife.bind(this, handler.getActivityReference());
+        ButterKnife.bind(this, observer.getActivityReference());
 
-        roundTextField.setText(handler.getCurrentRound()+1+" of "+handler.getNumberOfRounds());
+        roundTextField.setText(observer.getCurrentRound() + " of " + DefaultMode.NUMBER_OF_ROUNDS);
 
         // Sets a listener for the scores of the players
         setScoreListListener();
     }
 
+    @Override
+    public int getViewId() {
+        return MAIN_VIEW;
+    }
+
     @OnClick(R.id.scoreContinueButton)
     protected void goToNextRound() {
-        if (handler.getCurrentRound() + 1 == handler.getNumberOfRounds())
-            if (handler.isHost()) handler.getFirebaseGameReference().child("started").setValue(false);
         nextState();
     }
 
@@ -61,7 +67,7 @@ public class ScoreState extends GameState {
      */
     private void setScoreListListener(){
         // Create an adapter for the list of players scores
-        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(handler.getActivityReference(),
+        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(observer.getActivityReference(),
                 android.R.layout.simple_list_item_1,
                 android.R.id.text1);
         // Assign adapter to the ListView
@@ -69,7 +75,7 @@ public class ScoreState extends GameState {
 
         // Need to lookup players in game, the nicknames of the players and their scores
         // Get the players that are in the current game
-        handler.getFirebaseGameReference().child("players").addListenerForSingleValueEvent(new ValueEventListener() {
+        observer.getFirebaseGameReference().child("players").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot playerIdSnapshot) {
                 // We get a list of players as a Map
@@ -77,14 +83,14 @@ public class ScoreState extends GameState {
                 // Iterate over the players in the game
                 for (final String playerId : playerIds.keySet()) {
                     // Lookup players by their playerId
-                    handler.getFirebaseUsersReference().child(playerId).addListenerForSingleValueEvent(new ValueEventListener() {
+                    observer.getFirebaseUsersReference().child(playerId).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(final DataSnapshot playerSnapshot) {
                             // Get the Player object
                             final Player player = playerSnapshot.getValue(Player.class);
 
                             // Find scores of player
-                            handler.getFirebaseScoresReference().child(handler.getFirebaseGameReference().getKey()).child(playerSnapshot.getKey()).addListenerForSingleValueEvent(new ValueEventListener() {
+                            observer.getFirebaseScoresReference().child(observer.getFirebaseGameReference().getKey()).child(playerSnapshot.getKey()).addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot scoreSnapshot) {
                                     // Get the Score object
