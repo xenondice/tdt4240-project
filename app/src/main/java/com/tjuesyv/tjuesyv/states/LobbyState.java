@@ -1,8 +1,7 @@
 package com.tjuesyv.tjuesyv.states;
 
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.content.DialogInterface;
+import android.support.v7.app.AlertDialog;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
@@ -25,16 +24,17 @@ import java.util.Map;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.OnItemLongClick;
 
 public class LobbyState extends GameState {
 
     @Bind(R.id.gameCodeTextView) TextView gameCodeTextView;
     @Bind(R.id.startedTextView) TextView startedTextView;
-    @Bind(R.id.activeTextView) TextView activeTextView;
     @Bind(R.id.startGameButton) Button startGameButton;
     @Bind(R.id.playerListView) ListView playersListView;
 
     private static final int MAIN_VIEW = 0;
+    private final List<Map<String, String>> playersList = new ArrayList<Map<String, String>>();
 
     @Override
     public int getViewId() {
@@ -43,15 +43,14 @@ public class LobbyState extends GameState {
 
     @Override
     public void onEnter() {
-
         // Setup ButterKnife
         ButterKnife.bind(this, handler.getActivityReference());
 
         // Displays game info
         setGameInfo();
 
-        // Displays players in a listView
-        setPlayerList();
+        // Displays playersList in a listView
+        setPlayerListListener();
 
         // Set startbutton if host
         setStartButton();
@@ -60,10 +59,14 @@ public class LobbyState extends GameState {
         setStartListener();
     }
 
+    /**
+     * Listen for the game to start
+     */
     private void setStartListener() {
-        handler.getFirebaseGameReference().child("started").addListenerForSingleValueEvent(new ValueEventListener() {
+        handler.getFirebaseGameReference().child("started").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                // If the game is started, go to the next state
                 if ((boolean) dataSnapshot.getValue()) nextState();
             }
 
@@ -75,9 +78,41 @@ public class LobbyState extends GameState {
 
     @OnClick(R.id.startGameButton)
     protected void startGameButton() {
+        // Only start the game if we are the host
         if (handler.isHost()) {
             handler.getFirebaseGameReference().child("started").setValue(true);
         }
+    }
+
+    @OnItemLongClick(R.id.playerListView)
+    protected boolean onPlayerLongClick(final int position) {
+        // Make sure that you can only kick someone else when you are the game host
+        if (handler.isHost() && !playersList.get(position).get("id").equals(handler.getFirebaseAuthenticationData().getUid())) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(handler.getActivityReference())
+                    .setTitle("Kick player?")
+                    .setMessage("Would you like to kick: " + playersList.get(position).get("nickname") + "?")
+                    .setCancelable(true)
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            handler.getFirebaseGameReference()
+                                    .child("players")
+                                    .child(playersList.get(position).get("id"))
+                                    .removeValue();
+                            dialog.cancel();
+                        }
+                    })
+                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    });
+            AlertDialog dialog = builder.show();
+        }
+
+        // Need to return something due to ButterKnife
+        return true;
     }
 
     /**
@@ -88,9 +123,11 @@ public class LobbyState extends GameState {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Game game = dataSnapshot.getValue(Game.class);
-                gameCodeTextView.setText("Game code: " + game.getGameCode());
-                startedTextView.setText("Started: " + game.getStarted());
-                activeTextView.setText("Active: " + game.getActive());
+                gameCodeTextView.setText("Game Code: " + game.getGameCode());
+                if (game.getStarted())
+                    startedTextView.setText(R.string.text_game_has_started);
+                else
+                    startedTextView.setText(R.string.text_game_not_started);
             }
 
             @Override
@@ -99,31 +136,33 @@ public class LobbyState extends GameState {
         });
     }
 
+    /**
+     * Enables the start button if we are the game host, otherwise disable it for other players
+     */
     private void setStartButton() {
-        // If we are not the game host, disable start button and change text
-        if (!handler.isHost()) {
-            startGameButton.setText("Waiting on host to start game...");
-            startGameButton.setEnabled(false);
+        if (handler.isHost()) {
+            // Set start button to enabled if we are the game host
+            startGameButton.setEnabled(true);
+        } else {
+            // If we are not the game host, disable start button and change text
+            startGameButton.setText(handler.getActivityReference().getString(R.string.btn_waiting_on_start));
         }
     }
 
     /**
-     * Updates player list when players are added or removed.
+     * Updates player list when players join or leave the game.
      */
-    private void setPlayerList() {
-        // Initialize list of players
-        final List<Map<String, String>> players = new ArrayList<Map<String, String>>();
-
-        // Create a new simple adapter to represent the players in the list view
+    private void setPlayerListListener() {
+        // Create an adapter to represent the playersList
         final SimpleAdapter simpleAdapter = new SimpleAdapter(handler.getActivityReference(),
-                players,
+                playersList,
                 android.R.layout.simple_list_item_2,
                 new String[] {"nickname", "role"},
                 new int[] {android.R.id.text1, android.R.id.text2});
-        // Assign adapter to ListView
+        // Assign adapter to the ListView
         playersListView.setAdapter(simpleAdapter);
 
-        // Get the players of the current game
+        // Create a child event listener on the game object in Firebase to listen for changes in the players list
         handler.getFirebaseGameReference().child("players").addChildEventListener(new ChildEventListener() {
             // If player has joined
             @Override
@@ -132,25 +171,28 @@ public class LobbyState extends GameState {
                 handler.getFirebaseUsersReference().child(playerInGameSnapshot.getKey()).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot playerSnapshot) {
+                        // Get the player object
                         Player player = playerSnapshot.getValue(Player.class);
 
                         // Create Map to represent player in the list
-                        Map<String, String> playerItem = new HashMap<String, String>(2);
+                        Map<String, String> playerItem = new HashMap<String, String>(3);
+                        playerItem.put("id", playerSnapshot.getKey());
                         playerItem.put("nickname", player.getNickname());
-                        // Update role
-                        if (playerSnapshot.getKey().equals(handler.getFirebaseAuthenticationData().getUid()) && player.isGameHostInGame(handler.getFirebaseGameReference().getKey())){
+
+                        // Put the specific role of the player
+                        if (playerSnapshot.getKey().equals(handler.getFirebaseAuthenticationData().getUid()) && player.isGameHostInGame(handler.getFirebaseGameReference().getKey())) {
                             // Player is us and we are the game host
-                            playerItem.put("role", "You are the game host");
+                            playerItem.put("role", "You are the Game Host");
                         } else if (playerSnapshot.getKey().equals(handler.getFirebaseAuthenticationData().getUid())) {
                             // Player is us
                             playerItem.put("role", "You");
                         } else if (player.isGameHostInGame(handler.getFirebaseGameReference().getKey())) {
                             // Other player is game host
-                            playerItem.put("role", "Game host");
+                            playerItem.put("role", "Game Host");
                         }
 
-                        // Add player to players list and notify
-                        players.add(playerItem);
+                        // Add player to playersList list and notify
+                        playersList.add(playerItem);
                         simpleAdapter.notifyDataSetChanged();
                     }
 
@@ -162,16 +204,15 @@ public class LobbyState extends GameState {
 
             // If player is removed
             @Override
-            public void onChildRemoved(DataSnapshot playerInGameSnapshot) {
+            public void onChildRemoved(final DataSnapshot playerInGameSnapshot) {
                 handler.getFirebaseUsersReference().child(playerInGameSnapshot.getKey()).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot playerSnapshot) {
-                        Player player = playerSnapshot.getValue(Player.class);
-                        // Create a KV to lookup in the players list
-                        Map<String, String> playerItem = new HashMap<String, String>(2);
-                        playerItem.put("nickname", player.getNickname());
-                        // Remove the player from players list and notify
-                        players.remove(players.indexOf(playerItem));
+                        // Find player with the correct player Id to remove from the players list
+                        for (int i = 0; i < playersList.toArray().length; i++) {
+                            if (playersList.get(i).get("id").equals(playerSnapshot.getKey()))
+                                playersList.remove(i);
+                        }
                         simpleAdapter.notifyDataSetChanged();
                     }
 

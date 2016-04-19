@@ -5,7 +5,14 @@
 
     <dimen name="btn_size_medium">15sp</dimen>
     <dimen name="btn_size_large">20sp</dimen>
+    <dimen name="btn_size_verylarge">25sp</dimen>
+
+    <dimen name="btn_height_medium">15dp</dimen>
+    <dimen name="btn_height_large">20dp</dimen>
+    <dimen name="btn_height_verylarge">25dp</dimen>
 
     <dimen name="text_size_medium">10sp</dimen>
     <dimen name="text_size_large">20sp</dimen>
+    <dimen name="text_size_verylarge">25sp</dimen>
+    <dimen name="text_size_extralarge">30sp</dimen>
 </resources>
