@@ -8,8 +8,8 @@ Here is how the data is structured in Firebase.
 
 * `games/`
     * `<game-id>`
-        * `active` -> `true` - A boolean value indicating the state of the game.
-        * `gameCode` -> `ABCD` - A string for the game code used for players to identify the game.
+        * `active` > `true` - A boolean value indicating the state of the game.
+        * `gameCode` - `ABCD` - A string for the game code used for players to identify the game.
         * `gameHost` -> `<user-id>` - A string with the user ID of the game host.
         * `maxPlayers` -> `8` - An integer value of the max allowed players in this game.
         * `players` -> `[<player-id>, <player-id>, ...]` - A list of player IDs who are in this game.
