@@ -104,6 +104,6 @@ public class ChooseState extends GameState {
 
     private void processAnswer(int selectionPos) {
         //TODO: more processing of answers here
-        Log.d("Answers", String.valueOf(answerListView.getAdapter().getItem(selectionPos)));
+
     }
 }
