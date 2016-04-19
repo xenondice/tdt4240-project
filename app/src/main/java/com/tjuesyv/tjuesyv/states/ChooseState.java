@@ -48,18 +48,12 @@ public class ChooseState extends GameState {
 
     private void setAnswersListView() {
         final ArrayList<String>answersList=new ArrayList<String>();
-        answersList.add("Astronaut");
-        answersList.add("Muck farmer");
-        answersList.add("Eat the rich");
 
         answerListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         //TODO: fill array with answer data from ???
         //TODO: give points to the player with the selected answer
 
-        answerListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-
         final ArrayAdapter<String> adapter = new ArrayAdapter<>(handler.getActivityReference(),android.R.layout.simple_list_item_single_choice,answersList);
-
 
         handler.getFirebaseGameReference().addValueEventListener(new ValueEventListener() {
 
