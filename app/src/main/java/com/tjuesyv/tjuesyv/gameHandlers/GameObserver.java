@@ -37,6 +37,7 @@ public class GameObserver implements Closeable {
 
     private Firebase rootRef;
     private Firebase usersRef;
+    private Firebase scoresRef;
     private Firebase currentGameRef;
     private Firebase currentUserRef;
     private AuthData authData;
@@ -86,6 +87,7 @@ public class GameObserver implements Closeable {
         // Setup other Firebase references
         Firebase gamesRef = rootRef.child("games");
         usersRef = rootRef.child("users");
+        scoresRef = rootRef.child("scores");
         currentGameRef = gamesRef.child(gameUID);
         currentUserRef = usersRef.child(authData.getUid());
 
@@ -278,6 +280,14 @@ public class GameObserver implements Closeable {
      */
     public Firebase getFirebaseUsersReference() {
         return usersRef;
+    }
+
+    /**
+     * Get the firebase reference to the scores
+     * @return
+     */
+    public Firebase getFirebaseScoresReference() {
+        return scoresRef;
     }
 
     /**

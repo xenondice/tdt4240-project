@@ -11,10 +11,13 @@ import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
 import com.tjuesyv.tjuesyv.R;
 import com.tjuesyv.tjuesyv.firebaseObjects.Game;
+import com.tjuesyv.tjuesyv.firebaseObjects.Player;
 import com.tjuesyv.tjuesyv.firebaseObjects.Score;
 import com.tjuesyv.tjuesyv.gameHandlers.GameObserver;
 import com.tjuesyv.tjuesyv.gameHandlers.GameState;
 import com.tjuesyv.tjuesyv.gameModes.DefaultMode;
+
+import java.util.Map;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -42,9 +45,11 @@ public class ScoreState extends GameState {
 
         // Setup ButterKnife
         ButterKnife.bind(this, observer.getActivityReference());
-        roundTextField.setText(observer.getCurrentRound()+" of "+ DefaultMode.NUMBER_OF_ROUNDS);
-        setScoresListView();
 
+        roundTextField.setText(observer.getCurrentRound() + " of " + DefaultMode.NUMBER_OF_ROUNDS);
+
+        // Sets a listener for the scores of the players
+        setScoreListListener();
     }
 
     @Override
@@ -57,53 +62,61 @@ public class ScoreState extends GameState {
         nextState();
     }
 
-    private void setScoresListView(){
-        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(observer.getActivityReference(),android.R.layout.simple_list_item_1, android.R.id.text1);
-
+    /**
+     * Populates the scores of the players
+     */
+    private void setScoreListListener(){
+        // Create an adapter for the list of players scores
+        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(observer.getActivityReference(),
+                android.R.layout.simple_list_item_1,
+                android.R.id.text1);
+        // Assign adapter to the ListView
         scoresListView.setAdapter(adapter);
 
-        observer.getFirebaseGameReference().addValueEventListener(new ValueEventListener() {
+        // Need to lookup players in game, the nicknames of the players and their scores
+        // Get the players that are in the current game
+        observer.getFirebaseGameReference().child("players").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-               final Game game = dataSnapshot.getValue(Game.class);
-                final Score score= dataSnapshot.getValue(Score.class);
+            public void onDataChange(DataSnapshot playerIdSnapshot) {
+                // We get a list of players as a Map
+                Map<String, Boolean> playerIds = (Map) playerIdSnapshot.getValue();
+                // Iterate over the players in the game
+                for (final String playerId : playerIds.keySet()) {
+                    // Lookup players by their playerId
+                    observer.getFirebaseUsersReference().child(playerId).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(final DataSnapshot playerSnapshot) {
+                            // Get the Player object
+                            final Player player = playerSnapshot.getValue(Player.class);
 
-                observer.getFirebaseUsersReference().addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
+                            // Find scores of player
+                            observer.getFirebaseScoresReference().child(observer.getFirebaseGameReference().getKey()).child(playerSnapshot.getKey()).addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot scoreSnapshot) {
+                                    // Get the Score object
+                                    Score score = scoreSnapshot.getValue(Score.class);
 
-                        for (String key : game.getPlayers().keySet()
-                                ) {
-                            String temp = "";
-                            Log.d("Scores", key);
-                            Log.d("Scores", String.valueOf(score.getScore()));
+                                    // Add player and their score to adapter
+                                    adapter.add(player.getNickname() + " - " + score.getScore());
+                                }
 
-                            temp += String.valueOf(dataSnapshot.child(key).child("nickname").getValue());
-                            Log.d("Scores", temp);
-                            temp += " : ";
-                            temp += String.valueOf(score.getScore());
-                            Log.d("Scores", temp);
-                            adapter.add(temp);
-
+                                @Override
+                                public void onCancelled(FirebaseError firebaseError) {
+                                }
+                            });
                         }
-                    }
 
-                    @Override
-                    public void onCancelled(FirebaseError firebaseError) {
+                        @Override
+                        public void onCancelled(FirebaseError firebaseError) {
+                        }
+                    });
 
-                    }
-                });
-
-
-
+                }
             }
 
             @Override
             public void onCancelled(FirebaseError firebaseError) {
-
             }
         });
-        //adapter.add("Vegar : 6");
-
     }
 }

@@ -1,10 +1,19 @@
 package com.tjuesyv.tjuesyv.states;
 
+import android.util.Log;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 
+import com.firebase.client.DataSnapshot;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
 import com.tjuesyv.tjuesyv.R;
 import com.tjuesyv.tjuesyv.gameHandlers.GameObserver;
+import com.tjuesyv.tjuesyv.firebaseObjects.Game;
 import com.tjuesyv.tjuesyv.gameHandlers.GameState;
+
+import java.util.ArrayList;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -19,6 +28,8 @@ import butterknife.OnClick;
 public class ChooseState extends GameState {
 
     @Bind(R.id.chooseContinueButton) Button chooseContinueButton;
+    @Bind(R.id.answersView) ListView answerListView;
+
 
     private static final int MAIN_VIEW = 3;
     private static final int WAITING_VIEW = 4;
@@ -34,6 +45,7 @@ public class ChooseState extends GameState {
         // Setup ButterKnife
         ButterKnife.bind(this, observer.getActivityReference());
 
+        setAnswersListView();
     }
 
     @Override
@@ -41,8 +53,55 @@ public class ChooseState extends GameState {
         return MAIN_VIEW;
     }
 
+    private void setAnswersListView() {
+        final ArrayList<String>answersList=new ArrayList<String>();
+
+        answerListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+        //TODO: fill array with answer data from ???
+        //TODO: give points to the player with the selected answer
+
+        final ArrayAdapter<String> adapter = new ArrayAdapter<>(observer.getActivityReference(),android.R.layout.simple_list_item_single_choice,answersList);
+
+        observer.getFirebaseGameReference().addValueEventListener(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                final Game game=dataSnapshot.getValue(Game.class);
+                observer.getFirebaseUsersReference().addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        for (String key:game.getPlayers().keySet()
+                                ) {
+
+                            adapter.add(String.valueOf(dataSnapshot.child(key).child("nickname").getValue()));
+
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(FirebaseError firebaseError) {
+
+                    }
+                });
+                answerListView.setAdapter(adapter);
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+    }
+
     @OnClick(R.id.chooseContinueButton)
     protected void goToScore() {
+        processAnswer(answerListView.getCheckedItemPosition());
+
         nextState();
+    }
+
+    private void processAnswer(int selectionPos) {
+        //TODO: more processing of answers here
+
     }
 }
