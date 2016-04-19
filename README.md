@@ -12,16 +12,17 @@
         * `gameHost` - `<user-id>` - A string with the user ID of the game host.
         * `maxPlayers` - `8` - An integer value of the max allowed players in this game.
         * `players` - A list of players who are in this game.
-            * `<player-id>` - `True` - A boolean value indicating if the player is the game master or not  
+            * `<user-id>` - `True` - A boolean value indicating if the player is the game master or not  
         * `round` - `1` - An integer value of the current round.
         * `started` - `false` - A boolean value indicating if the game has started.
 * `questions/`
     * `<question-number>` - `Who is God?` - A string with a question 
 * `scores/`
     * `<game-id>`
-        * `gameId` - `<game-id>` - A string with the ID of the game.
-        * `playerId`- `<user-id>` - A string with the ID of the player.
-        * `score` -  `0` - An integer with the score of the player
+        * `<user-id>`
+            * `gameId` - `<game-id>` - A string with the ID of the game.
+            * `playerId`- `<user-id>` - A string with the ID of the player.
+            * `score` -  `0` - An integer with the score of the player
 * `users/`
     * `<user-id`>
         * `nickname` - `Bob Kaare` - A string with the nickname of the user.
