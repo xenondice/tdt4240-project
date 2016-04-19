@@ -13,7 +13,13 @@ import com.firebase.client.ValueEventListener;
 import com.tjuesyv.tjuesyv.GameActivity;
 import com.tjuesyv.tjuesyv.R;
 import com.tjuesyv.tjuesyv.firebaseObjects.Game;
+import com.tjuesyv.tjuesyv.gameModes.DefaultMode;
 import com.tjuesyv.tjuesyv.states.LobbyState;
+
+import java.io.Closeable;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -21,47 +27,55 @@ import butterknife.ButterKnife;
 /**
  * Created by RayTM on 08.04.2016.
  */
-public class GameObserver {
+public class GameObserver implements Closeable {
 
     @Bind(R.id.rootFlipper) ViewFlipper rootFlipper;
 
     private GameMode gameMode;
     private GameActivity activityReference;
-    private int currentState;
-    private int currentRound;
+    private GameState currentState;
 
-    private String gameUID;
     private Firebase rootRef;
-    private Firebase gamesRef;
     private Firebase usersRef;
     private Firebase currentGameRef;
     private Firebase currentUserRef;
     private AuthData authData;
-    private boolean isHost;
+
+    private ValueEventListener serverListener;
     private Game gameInfo;
-    private boolean startRequested;
-    private boolean infoLoaded;
+    private boolean startedListening;
 
     public GameObserver(GameActivity activityReference, GameMode gameMode) {
 
         // Assign variables
-        startRequested = false;
-        infoLoaded = false;
-        isHost = false;
+        startedListening = false;
         this.gameMode = gameMode;
-        currentState = 0;
-        currentRound = 0;
+        currentState = null;
         this.activityReference = activityReference;
-
-        // Bind handler
-        gameMode.bindHandler(this);
 
         // Setup ButterKnife
         ButterKnife.bind(this, activityReference);
+    }
+
+    /**
+     * Make new observer with the default gamemode
+     */
+    public GameObserver(GameActivity activityReference) {
+        this(activityReference, new DefaultMode());
+    }
+
+    /**
+     * Start observing the game
+     */
+    public void activate() {
+
+        // Don't activate more than once
+        if (startedListening) return;
+        startedListening = true;
 
         // Get ID
         Intent activityIntent = activityReference.getIntent();
-        gameUID = activityIntent.getStringExtra("GAME_UID");
+        String gameUID = activityIntent.getStringExtra("GAME_UID");
 
         // Create main Firebase ref
         rootRef = new Firebase(activityReference.getResources().getString(R.string.firebase_url));
@@ -70,100 +84,190 @@ public class GameObserver {
         authData = rootRef.getAuth();
 
         // Setup other Firebase references
-        gamesRef = rootRef.child("games");
+        Firebase gamesRef = rootRef.child("games");
         usersRef = rootRef.child("users");
         currentGameRef = gamesRef.child(gameUID);
         currentUserRef = usersRef.child(authData.getUid());
 
-        // Get initial information about the game
-        getFirebaseGameReference().addListenerForSingleValueEvent(new ValueEventListener() {
+        // Start listening for changes from the server
+        serverListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
-                    gameInfo = dataSnapshot.getValue(Game.class);
-                    setStaticVariables();
-                    infoLoaded = true;
-                    if (startRequested) enterLobby();
+                    Game newGameInfo = dataSnapshot.getValue(Game.class);
+
+                    if (gameInfo == null) {
+                        gameInfo = newGameInfo;
+                        //startListeners();
+                        enterLobbyClient();
+                    } else {
+                        handleNewData(newGameInfo);
+                        gameInfo = newGameInfo;
+                    }
                 }
             }
+
             @Override
             public void onCancelled(FirebaseError firebaseError) {
+                throw new IllegalStateException("Couldn't get initial data!");
+            }
+        };
+        getFirebaseGameReference().addValueEventListener(serverListener);
+    }
+
+    /**
+     * See what is new and do something
+     */
+    private void handleNewData(Game newGameInfo) {
+        if (gameInfo.getStateId() != newGameInfo.getStateId()) {
+            if (newGameInfo.getStateId() == 0) enterLobbyClient();
+            else setActiveState(gameMode.getStates().get(newGameInfo.getStateId()));
+        }
+
+        if (gameInfo.getGameModeId() != newGameInfo.getGameModeId()) {
+            changeGamemodeClient(newGameInfo.getGameModeId());
+        }
+    }
+
+    /**
+     * Start listeners for necessary values
+     * After one is added here, make a funciton in GameState, which you can then overrride
+     * Also check if the value was actually changed to a new value, or if it the same
+     */
+    private void startListeners() {
+        getFirebaseGameReference().child("stateId").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
             }
         });
     }
 
     /**
-     * Query the start of the game
+     * Create a new instance of the class and set the correct view for the local player
      */
-    public void startGame() {
-        if (infoLoaded) enterLobby();
-        else startRequested = true;
+    private void setActiveState(Class<? extends GameState> state) {
+        try {
+            currentState = state.getConstructor(this.getClass()).newInstance(this);
+            rootFlipper.setDisplayedChild(currentState.getViewId());
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+            System.exit(-1);
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+            System.exit(-1);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+            System.exit(-1);
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+            System.exit(-1);
+        }
     }
 
     /**
-     * Set variables that will not change during the game
+     * Change server to a new gamemode if in lobby
+     * Only the host can call this function since it changes for everyone
      */
-    private void setStaticVariables() {
-        isHost = gameInfo.getGameHost() == authData.getUid();
+    public void changeGamemodeServer(int firebaseGameModeId) {
+        if (!isInLobby() || !isHost()) return;
+        getFirebaseGameReference().child("gameModeId").setValue(firebaseGameModeId);
+    }
+
+    private void changeGamemodeClient(int firebaseGameModeId) {
+        gameMode = GameMode.getGameModeFromId(firebaseGameModeId);
+        if (gameMode == null) throw new IllegalStateException("Server switched to an invalid gamemode!");
+        enterLobbyClient();
+    }
+
+    private void enterLobbyClient() {
+        setActiveState(gameMode.getLobby());
     }
 
     /**
      * Get the calling activity
-     * @return
      */
     public GameActivity getActivityReference() {
         return activityReference;
     }
 
     public int getCurrentRound() {
-        return currentRound;
+        return gameInfo.getRound();
     }
 
     /**
-     * Progress in the game
+     * Progress server in the game
+     * Only one player should be able to call this function since it changes for everyone
      */
-    public void nextState() {
-        //TODO: Prettify (enums?)
-        // State 0 is lobby, rest is the states in gamemode
-        currentState++;
-        if (currentState - 1 >= gameMode.getStates().length) {
-            currentRound++;
-            if (currentRound >= gameMode.getNumberOfRounds()) {
-                // Game finished
-                currentState = 0;
-                currentRound = 0;
+    public void progressServer() { //TODO: listen for change in stage/round in firebase and change current stage/round
+        //TODO: Make observer, have functions called in gamemode instead of having access to observer
+        //TODO: Change functions under to only change server, remove stateIndex and currentRound, move them to gameInfo
+        //TODO: Could make a new gamemode for each round and have the gamemode store the states?
+        if (isInLobby()) {
+            startNewRoundServer();
+        } else {
+            if (onLastState()) {
+                if (gameMode.isGameOver(gameInfo)) enterLobbyServer();
+                else startNewRoundServer();
             } else {
-                currentState = 1;
+                nextStateServer();
             }
         }
-
-        if (currentState == 0) {
-            rootFlipper.setDisplayedChild(gameMode.getLobby().getViewId());
-            gameMode.getLobby().onEnter();
-        } else {
-            rootFlipper.setDisplayedChild(gameMode.getStates()[currentState-1].getViewId());
-            gameMode.getStates()[currentState-1].onEnter();
-        }
     }
 
     /**
-     * Enter lobby view
+     * Move server to next state
      */
-    public void enterLobby() {
-        gameMode.getLobby().onEnter();
+    private void nextStateServer() {
+        getFirebaseGameReference().child("stateId").setValue(gameInfo.getStateId() + 1);
+    }
+
+    /**
+     * Get whether server is on the gamemode's last state
+     */
+    private boolean onLastState() {
+        return gameInfo.getStateId() >= gameMode.getStates().size();
+    }
+
+    /**
+     * Make server start new round
+     */
+    private void startNewRoundServer() {
+        getFirebaseGameReference().child("started").setValue(true);
+        getFirebaseGameReference().child("stateId").setValue(1);
+        getFirebaseGameReference().child("round").setValue(gameInfo.getRound() + 1);
+    }
+
+    /**
+     * See if the server is in the lobby state
+     */
+    private boolean isInLobby() {
+        return gameInfo.getStateId() == 0;
+    }
+
+    /**
+     * Make server enter lobby view
+     */
+    private void enterLobbyServer() {
+        getFirebaseGameReference().child("started").setValue(false);
+        getFirebaseGameReference().child("stateId").setValue(0);
+        getFirebaseGameReference().child("round").setValue(0);
     }
 
     /**
      * Get if current player is the host
-     * @return
      */
     public boolean isHost() {
-        return isHost;
+        return gameInfo.getGameHost() == authData.getUid();
     }
 
     /**
      * Get the firebase reference to the current game
-     * @return
      */
     public Firebase getFirebaseGameReference() {
         return currentGameRef;
@@ -171,19 +275,24 @@ public class GameObserver {
 
     /**
      * Get the firebase reference to the active users
-     * @return
      */
     public Firebase getFirebaseUsersReference() {
         return usersRef;
     }
 
+    /**
+     * Get the root firebase object
+     */
     public Firebase getFirebaseRootReference(){return rootRef;};
 
+    /**
+     * Get the firebase authentication object
+     */
     public AuthData getFirebaseAuthenticationData() {
         return authData;
     }
 
-    public int getNumberOfRounds() {
-        return gameMode.getNumberOfRounds();
+    public void close() {
+        getFirebaseGameReference().removeEventListener(serverListener);
     }
 }

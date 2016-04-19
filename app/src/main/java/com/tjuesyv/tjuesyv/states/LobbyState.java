@@ -9,6 +9,7 @@ import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
+import com.tjuesyv.tjuesyv.gameHandlers.GameObserver;
 import com.tjuesyv.tjuesyv.gameHandlers.GameState;
 import com.tjuesyv.tjuesyv.R;
 import com.tjuesyv.tjuesyv.firebaseObjects.Game;
@@ -35,11 +36,11 @@ public class LobbyState extends GameState {
         return MAIN_VIEW;
     }
 
-    @Override
-    public void onEnter() {
+    public LobbyState(GameObserver observer) {
+        super(observer);
 
         // Setup ButterKnife
-        ButterKnife.bind(this, handler.getActivityReference());
+        ButterKnife.bind(this, this.observer.getActivityReference());
 
         // Displays game info
         setGameInfo();
@@ -49,39 +50,18 @@ public class LobbyState extends GameState {
 
         // Set startbutton if host
         setStartButton();
-
-        // Listen for game start
-        setStartListener();
-    }
-
-    private void setStartListener() {
-        handler.getFirebaseGameReference().child("started").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if ((boolean) dataSnapshot.getValue()) nextState();
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-            }
-        });
     }
 
     @OnClick(R.id.startGameButton)
     protected void startGameButton() {
-        if (handler.isHost()) {
-            handler.getFirebaseGameReference().child("started").setValue(true);
-        }
+        nextState();
     }
 
     /**
      * Populates game info textViews.
      */
-    /**
-     * Populates game info textViews.
-     */
     private void setGameInfo() {
-        handler.getFirebaseGameReference().addValueEventListener(new ValueEventListener() {
+        observer.getFirebaseGameReference().addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Game game = dataSnapshot.getValue(Game.class);
@@ -98,7 +78,7 @@ public class LobbyState extends GameState {
 
     private void setStartButton() {
         // If we are not the game host, disable start button and change text
-        if (!handler.isHost()) {
+        if (!observer.isHost()) {
             startGameButton.setText("Waiting on host to start game...");
             startGameButton.setEnabled(false);
         }
@@ -110,16 +90,16 @@ public class LobbyState extends GameState {
     private void setPlayerList() {
         // Create a new Adapter
         final ArrayAdapter<String> adapter = new ArrayAdapter<>
-                (handler.getActivityReference(), android.R.layout.simple_list_item_1, android.R.id.text1);
+                (observer.getActivityReference(), android.R.layout.simple_list_item_1, android.R.id.text1);
         // Assign adapter to ListView
         playersListView.setAdapter(adapter);
 
         // Set child listener for the current games players
-        handler.getFirebaseGameReference().child("players").addChildEventListener(new ChildEventListener() {
+        observer.getFirebaseGameReference().child("players").addChildEventListener(new ChildEventListener() {
             // If player is added
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                handler.getFirebaseUsersReference().child(dataSnapshot.getKey()).child("nickname").addListenerForSingleValueEvent(new ValueEventListener() {
+                observer.getFirebaseUsersReference().child(dataSnapshot.getKey()).child("nickname").addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         adapter.add(dataSnapshot.getValue().toString());
@@ -134,7 +114,7 @@ public class LobbyState extends GameState {
             // If player is removed
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
-                handler.getFirebaseUsersReference().child(dataSnapshot.getKey()).child("nickname").addListenerForSingleValueEvent(new ValueEventListener() {
+                observer.getFirebaseUsersReference().child(dataSnapshot.getKey()).child("nickname").addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         adapter.remove(dataSnapshot.getValue().toString());

@@ -5,25 +5,22 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 
 import com.tjuesyv.tjuesyv.gameHandlers.GameObserver;
-import com.tjuesyv.tjuesyv.gameModes.DefaultMode;
 import com.tjuesyv.tjuesyv.ui.Prompter;
 
 public class GameActivity extends AppCompatActivity {
 
-    private GameObserver gameHandler;
+    private GameObserver gameObserver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_game);
 
         // This multi-view layout starts with the lobby view
         setContentView(R.layout.activity_game);
 
         // Setup game
-        gameHandler = new GameObserver(this, new DefaultMode());
-
-
+        gameObserver = new GameObserver(this);
+        gameObserver.activate();
     }
 
     @Override
@@ -52,6 +49,7 @@ public class GameActivity extends AppCompatActivity {
     @Override
     public void finish() {
         super.finish();
+        gameObserver.close();
         // Exit server if host
         // Logout if user
     }

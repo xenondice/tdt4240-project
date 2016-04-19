@@ -39,30 +39,30 @@ public class ScoreState extends GameState {
     @Override
     public void onEnter() {
         // Setup ButterKnife
-        ButterKnife.bind(this, handler.getActivityReference());
-        roundTextField.setText(handler.getCurrentRound()+1+" of "+handler.getNumberOfRounds());
+        ButterKnife.bind(this, observer.getActivityReference());
+        roundTextField.setText(observer.getCurrentRound()+1+" of "+ observer.getNumberOfRounds());
         setScoresListView();
     }
 
     @OnClick(R.id.scoreContinueButton)
     protected void goToNextRound() {
-        if (handler.getCurrentRound() + 1 == handler.getNumberOfRounds())
-            if (handler.isHost()) handler.getFirebaseGameReference().child("started").setValue(false);
+        if (observer.getCurrentRound() + 1 == observer.getNumberOfRounds())
+            if (observer.isHost()) observer.getFirebaseGameReference().child("started").setValue(false);
         nextState();
     }
 
     private void setScoresListView(){
-        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(handler.getActivityReference(),android.R.layout.simple_list_item_1, android.R.id.text1);
+        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(observer.getActivityReference(),android.R.layout.simple_list_item_1, android.R.id.text1);
 
         scoresListView.setAdapter(adapter);
 
-        handler.getFirebaseGameReference().addValueEventListener(new ValueEventListener() {
+        observer.getFirebaseGameReference().addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                final Game game = dataSnapshot.getValue(Game.class);
                 final Score score= dataSnapshot.getValue(Score.class);
 
-                handler.getFirebaseUsersReference().addListenerForSingleValueEvent(new ValueEventListener() {
+                observer.getFirebaseUsersReference().addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
 

@@ -2,6 +2,7 @@ package com.tjuesyv.tjuesyv.firebaseObjects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.firebase.client.ServerValue;
+import com.tjuesyv.tjuesyv.gameHandlers.GameMode;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,6 +13,8 @@ public class Game {
     private Boolean active;
     private Boolean started;
     private int round;
+    private int stateId;
+    private int gameModeId;
     private int maxPlayers;
     private Map<String, String> createdAt;
     private Map<String, Object> players = new HashMap<String, Object>();
@@ -25,10 +28,12 @@ public class Game {
         this.gameHost = gameHost;
         active = true;
         started = false;
-        round = 1;
+        round = 0;
         maxPlayers = 8;
         createdAt = ServerValue.TIMESTAMP;
-    };
+        stateId = 0;
+        gameModeId = GameMode.DEFAULT_MODE_ID;
+    }
 
     @JsonIgnore
     public Map<String, String> getCreatedAt() {
@@ -36,6 +41,10 @@ public class Game {
     }
 
     public String getGameHost() { return gameHost; }
+
+    public int getGameModeId() { return gameModeId; }
+
+    public int getStateId() { return stateId; }
 
     public Boolean getStarted() {
         return started;

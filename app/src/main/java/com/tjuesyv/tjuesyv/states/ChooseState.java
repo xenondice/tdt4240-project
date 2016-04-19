@@ -31,7 +31,7 @@ public class ChooseState extends GameState {
     @Override
     public void onEnter() {
         // Setup ButterKnife
-        ButterKnife.bind(this, handler.getActivityReference());
+        ButterKnife.bind(this, observer.getActivityReference());
     }
 
     @OnClick(R.id.chooseContinueButton)
