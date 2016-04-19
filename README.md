@@ -26,6 +26,7 @@ Here is how the data is structured in Firebase.
     * `<user-id`>
         * `nickname` - `Bob Kaare` - A string with the nickname of the user.
         * `games` - `[<game-id>, <game-id>, ...]` - A list of games with ID that the user is in.
+            * Test 
 
 
 ## Coding conventions
