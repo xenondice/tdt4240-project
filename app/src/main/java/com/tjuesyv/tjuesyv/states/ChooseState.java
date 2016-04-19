@@ -1,9 +1,14 @@
 package com.tjuesyv.tjuesyv.states;
 
+import android.util.Log;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 
 import com.tjuesyv.tjuesyv.R;
 import com.tjuesyv.tjuesyv.gameHandlers.GameState;
+
+import java.util.ArrayList;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -19,6 +24,8 @@ import butterknife.OnClick;
 public class ChooseState extends GameState {
 
     @Bind(R.id.chooseContinueButton) Button chooseContinueButton;
+    @Bind(R.id.answersView) ListView answerListView;
+
 
     private static final int MAIN_VIEW = 3;
     private static final int WAITING_VIEW = 4;
@@ -32,10 +39,36 @@ public class ChooseState extends GameState {
     public void onEnter() {
         // Setup ButterKnife
         ButterKnife.bind(this, handler.getActivityReference());
+        setAnswersListView();
+    }
+
+    private void setAnswersListView() {
+        ArrayList<String>answersList=new ArrayList<String>();
+        answersList.add("Astronaut");
+        answersList.add("Muck farmer");
+        answersList.add("Eat the rich");
+        //TODO: fill array with answer data from ???
+        //TODO: give points to the player with the selected answer
+        answersList.toArray();
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(handler.getActivityReference(),android.R.layout.simple_list_item_single_choice,answersList.toArray(new String[0]));
+        answerListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+
+        answerListView.setAdapter(adapter);
+
+
+
+
     }
 
     @OnClick(R.id.chooseContinueButton)
     protected void goToScore() {
+        processAnswer(answerListView.getCheckedItemPosition());
+
         nextState();
+    }
+
+    private void processAnswer(int selectionPos) {
+        //TODO: more processing of answers here
+        Log.d("Answers",String.valueOf(answerListView.getAdapter().getItem(selectionPos)));
     }
 }
