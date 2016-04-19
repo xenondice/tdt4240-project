@@ -11,7 +11,7 @@
     <string name="btn_create_game">Create Game</string>
     <string name="btn_join_game">Join Game</string>
     <string name="btn_start_game">Start Game</string>
-    <string name="btn_waiting_on_start">Waiting on the Game Host to start game...</string>
+    <string name="btn_waiting_on_start">Waiting on Game Host to start game...</string>
     <string name="btn_logout">Logout</string>
 
     <string name="edit_valid_game_codes">ABCDEFGHIJKLMNOPQRSTUVWXYZ</string>

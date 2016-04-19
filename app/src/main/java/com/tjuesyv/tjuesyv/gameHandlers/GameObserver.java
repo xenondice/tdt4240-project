@@ -78,7 +78,7 @@ public class GameObserver {
      * Check whether the player is the host
      */
     private void setGameHost() {
-        getFirebaseGameReference().addValueEventListener(new ValueEventListener() {
+        getFirebaseGameReference().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
