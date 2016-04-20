@@ -8,6 +8,7 @@ import android.widget.ListView;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
+import com.tjuesyv.tjuesyv.GameActivity;
 import com.tjuesyv.tjuesyv.R;
 import com.tjuesyv.tjuesyv.gameHandlers.GameObserver;
 import com.tjuesyv.tjuesyv.firebaseObjects.Game;
@@ -44,8 +45,19 @@ public class ChooseState extends GameState {
 
         // Setup ButterKnife
         ButterKnife.bind(this, observer.getActivityReference());
+        if(observer.isHost()){
+            setHostListView();
+        }else {
+            setAnswersListView();
+        }
 
-        setAnswersListView();
+    }
+
+    private void setHostListView() {
+        final ArrayList<String> answersList= new ArrayList<>();
+        //Notice the use of simple list item layout
+        final HostArrayAdapter<String> adapter = new HostArrayAdapter(observer.getActivityReference(),android.R.layout.simple_list_item_1,answersList);
+        setList(adapter);
     }
 
     @Override
@@ -62,6 +74,10 @@ public class ChooseState extends GameState {
 
         final ArrayAdapter<String> adapter = new ArrayAdapter<>(observer.getActivityReference(),android.R.layout.simple_list_item_single_choice,answersList);
 
+        setList(adapter);
+    }
+
+    private void setList(final ArrayAdapter<String> adapter) {
         observer.getFirebaseGameReference().addValueEventListener(new ValueEventListener() {
 
             @Override
@@ -103,5 +119,16 @@ public class ChooseState extends GameState {
     private void processAnswer(int selectionPos) {
         //TODO: more processing of answers here
 
+    }
+
+    private class HostArrayAdapter<T> extends ArrayAdapter {
+        public HostArrayAdapter(GameActivity activityReference, int simple_list_item_single_choice, ArrayList<String> answersList) {
+            super(activityReference,simple_list_item_single_choice,answersList);
+        }
+        @Override
+        public boolean isEnabled(int position) {
+            //Ensures that the elements are not clickable
+            return false;
+        }
     }
 }
