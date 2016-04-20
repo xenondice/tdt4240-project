@@ -8,6 +8,7 @@ import android.widget.ListView;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
+import com.tjuesyv.tjuesyv.GameActivity;
 import com.tjuesyv.tjuesyv.R;
 import com.tjuesyv.tjuesyv.gameHandlers.GameObserver;
 import com.tjuesyv.tjuesyv.firebaseObjects.Game;
@@ -44,8 +45,46 @@ public class ChooseState extends GameState {
 
         // Setup ButterKnife
         ButterKnife.bind(this, observer.getActivityReference());
+        if(observer.isHost()){
+            setHostListView();
+        }else {
+            setAnswersListView();
+        }
 
-        setAnswersListView();
+    }
+
+    private void setHostListView() {
+        final ArrayList<String> answersList= new ArrayList<>();
+        final HostArrayAdapter<String> adapter = new HostArrayAdapter(observer.getActivityReference(),android.R.layout.simple_list_item_1,answersList);
+        observer.getFirebaseGameReference().addValueEventListener(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                final Game game=dataSnapshot.getValue(Game.class);
+                observer.getFirebaseUsersReference().addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        for (String key:game.getPlayers().keySet()
+                                ) {
+
+                            adapter.add(String.valueOf(dataSnapshot.child(key).child("nickname").getValue()));
+
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(FirebaseError firebaseError) {
+
+                    }
+                });
+                answerListView.setAdapter(adapter);
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
     }
 
     @Override
@@ -103,5 +142,15 @@ public class ChooseState extends GameState {
     private void processAnswer(int selectionPos) {
         //TODO: more processing of answers here
 
+    }
+
+    private class HostArrayAdapter<T> extends ArrayAdapter {
+        public HostArrayAdapter(GameActivity activityReference, int simple_list_item_single_choice, ArrayList<String> answersList) {
+            super(activityReference,simple_list_item_single_choice,answersList);
+        }
+        @Override
+        public boolean isEnabled(int position) {
+            return false;
+        }
     }
 }
