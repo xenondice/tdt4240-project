@@ -57,35 +57,7 @@ public class ChooseState extends GameState {
         final ArrayList<String> answersList= new ArrayList<>();
         //Notice the use of simple list item layout
         final HostArrayAdapter<String> adapter = new HostArrayAdapter(observer.getActivityReference(),android.R.layout.simple_list_item_1,answersList);
-        observer.getFirebaseGameReference().addValueEventListener(new ValueEventListener() {
-
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                final Game game=dataSnapshot.getValue(Game.class);
-                observer.getFirebaseUsersReference().addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        for (String key:game.getPlayers().keySet()
-                                ) {
-
-                            adapter.add(String.valueOf(dataSnapshot.child(key).child("nickname").getValue()));
-
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(FirebaseError firebaseError) {
-
-                    }
-                });
-                answerListView.setAdapter(adapter);
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-
-            }
-        });
+        setList(adapter);
     }
 
     @Override
@@ -102,6 +74,10 @@ public class ChooseState extends GameState {
 
         final ArrayAdapter<String> adapter = new ArrayAdapter<>(observer.getActivityReference(),android.R.layout.simple_list_item_single_choice,answersList);
 
+        setList(adapter);
+    }
+
+    private void setList(final ArrayAdapter<String> adapter) {
         observer.getFirebaseGameReference().addValueEventListener(new ValueEventListener() {
 
             @Override
