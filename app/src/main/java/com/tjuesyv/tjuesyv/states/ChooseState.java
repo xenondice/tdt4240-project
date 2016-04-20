@@ -55,6 +55,7 @@ public class ChooseState extends GameState {
 
     private void setHostListView() {
         final ArrayList<String> answersList= new ArrayList<>();
+        //Notice the use of simple list item layout
         final HostArrayAdapter<String> adapter = new HostArrayAdapter(observer.getActivityReference(),android.R.layout.simple_list_item_1,answersList);
         observer.getFirebaseGameReference().addValueEventListener(new ValueEventListener() {
 
@@ -150,6 +151,7 @@ public class ChooseState extends GameState {
         }
         @Override
         public boolean isEnabled(int position) {
+            //Ensures that the elements are not clickable
             return false;
         }
     }
