@@ -1,4 +1,5 @@
-# Lyv Lyv, Tjuesyv
+![](https://www.dropbox.com/s/4dx0xv2r9ub6gdn/logoinverted.png?dl=1)
+
 ![](https://img.shields.io/badge/platform-android-green.svg)
 ![](https://img.shields.io/badge/Min%20SDK-16-green.svg)
 [![Build Status](https://travis-ci.org/szeestraten/tdt4240-project.svg?branch=master)](https://travis-ci.org/szeestraten/tdt4240-project)
