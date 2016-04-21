@@ -1,14 +1,22 @@
 package com.tjuesyv.tjuesyv.states;
 
+import android.support.design.widget.TextInputLayout;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 
+import com.firebase.client.DataSnapshot;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
 import com.tjuesyv.tjuesyv.R;
+import com.tjuesyv.tjuesyv.firebaseObjects.Question;
 import com.tjuesyv.tjuesyv.gameHandlers.GameObserver;
 import com.tjuesyv.tjuesyv.gameHandlers.GameState;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.OnTextChanged;
 
 /**
  * In this stage, the players get the statement/question and get some time to write a lie
@@ -20,7 +28,10 @@ import butterknife.OnClick;
  */
 public class CreateState extends GameState {
 
-    @Bind(R.id.createContinueButton) Button createContinueButton;
+    @Bind(R.id.createSubmitButton) Button createSubmitButton;
+    @Bind(R.id.questionTextView) TextView questionTextView;
+    @Bind(R.id.answerEditText) EditText answerEditText;
+    @Bind(R.id.answerTextInputLayout) TextInputLayout answerTextInputLayout;
 
     private  static final int PLAYER_VIEW = 1;
     private  static final int GAME_MASTER_VIEW = 2;
@@ -35,6 +46,9 @@ public class CreateState extends GameState {
 
         // Setup ButterKnife
         ButterKnife.bind(this, observer.getActivityReference());
+
+        // Get question
+        getQuestion();
     }
 
     @Override
@@ -42,8 +56,64 @@ public class CreateState extends GameState {
         return PLAYER_VIEW;
     }
 
-    @OnClick(R.id.createContinueButton)
-    protected void goToChoose() {
+    @OnTextChanged(R.id.answerEditText)
+    protected void validAnswer(CharSequence input) {
+        isValidAnswer(input.toString());
+    }
+
+    @OnClick(R.id.createSubmitButton)
+    protected void submitButton() {
+        String answer = answerEditText.getText().toString();
+        answerEditText.setText(null);
+        // TODO: Submit question
+
+        // Go to next state
         nextState();
     }
+
+    /**
+     * Gets the current question set in the Firebase game object
+     */
+    private void getQuestion() {
+        // Lookup the question ID
+        observer.getFirebaseGameReference().child("question").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // Get the current question ID in this game
+                String questionId = (String) dataSnapshot.getValue().toString();
+                // Lookup the actual question
+                observer.getFirebaseQuestionsReference().child(questionId).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot questionSnapshot) {
+                        // Get the question and print it
+                        Question question = questionSnapshot.getValue(Question.class);
+                        questionTextView.setText(question.getQuestion());
+                    }
+
+                    @Override
+                    public void onCancelled(FirebaseError firebaseError) {
+                    }
+                });
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+            }
+        });
+    }
+
+    /**
+     * Helper method that checks if the answer is not empty
+     * @param answer    The answer to be validated
+     */
+    private void isValidAnswer(String answer) {
+        if (answer.isEmpty()) {
+            answerTextInputLayout.setError("Please enter an answer");
+            createSubmitButton.setEnabled(false);
+        } else {
+            answerTextInputLayout.setError(null);
+            createSubmitButton.setEnabled(true);
+        }
+    }
+
 }
