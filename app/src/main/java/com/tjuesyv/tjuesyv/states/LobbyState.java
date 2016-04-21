@@ -147,13 +147,14 @@ public class LobbyState extends GameState {
             @Override
             public void onChildAdded(final DataSnapshot playerInGameSnapshot, String s) {
                 // Look up player in users reference
-                observer.getFirebaseUsersReference().child(playerInGameSnapshot.getKey()).addListenerForSingleValueEvent(new ValueEventListener() {
+                String playerId = (String) playerInGameSnapshot.getValue();
+                observer.getFirebaseUsersReference().child(playerId).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot playerSnapshot) {
                         // Get the player object
                         Player player = playerSnapshot.getValue(Player.class);
 
-                        // Create Map to represent player in the list
+                        // Create list to represent player in the list
                         Map<String, String> playerItem = new HashMap<String, String>(3);
                         playerItem.put("id", playerSnapshot.getKey());
                         playerItem.put("nickname", player.getNickname());

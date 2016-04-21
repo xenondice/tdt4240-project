@@ -180,7 +180,7 @@ public class MainActivity extends AppCompatActivity {
                         return;
                     }
                     // Make sure the game is not full
-                    if (game.getPlayers().entrySet().size() >= game.getMaxPlayers()) {
+                    if (game.getPlayers().size() >= game.getMaxPlayers()) {
                         gameCodeTextInputLayout.setError(getString(R.string.error_game_is_full));
                         return;
                     }
