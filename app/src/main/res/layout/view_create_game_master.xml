@@ -5,4 +5,81 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:id="@+id/createTitleGameMasterTextView"
+        android:text="@string/text_create_game_master_title"
+        android:textSize="@dimen/text_size_verylarge"
+        android:textStyle="bold"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_below="@+id/createTitleGameMasterTextView"
+        android:id="@+id/createTitleGameMasterHintTextView"
+        android:text="@string/text_create_game_master_title_hint"
+        android:textSize="@dimen/text_size_large"
+        android:textStyle="italic"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_below="@+id/createTitleGameMasterHintTextView"
+        android:layout_marginTop="10dp"
+        android:id="@+id/questionTitleTextView"
+        android:text="@string/text_create_question_title"
+        android:textSize="@dimen/text_size_verylarge"
+        android:textStyle="bold"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_below="@+id/questionTitleTextView"
+        android:gravity="center"
+        android:id="@+id/questionTextView"
+        android:text="@string/text_insert_question_here"
+        android:textSize="@dimen/text_size_large"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/questionTitleTextView"
+        android:id="@+id/answersTitleTextView"
+        android:text="@string/text_answered_list"
+        android:textSize="@dimen/text_size_large"
+        android:textStyle="bold"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        />
+
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/answersGameMasterListView"
+        android:layout_weight="1"
+        />
+
+    <Button
+        android:id="@+id/createContinueButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:enabled="false"
+        android:text="@string/btn_continue_to_choosing"
+        android:textSize="@dimen/btn_size_large"
+        android:layout_gravity="center_horizontal"
+        />
+
 </LinearLayout>

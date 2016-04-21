@@ -49,5 +49,6 @@
         android:layout_height="wrap_content"
         android:text="Continue"
         android:id="@+id/scoreContinueButton"
+        android:textSize="@dimen/btn_size_large"
         android:layout_gravity="center_horizontal" />
 </LinearLayout>
