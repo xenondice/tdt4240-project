@@ -3,6 +3,7 @@ package com.tjuesyv.tjuesyv.states;
 import android.support.design.widget.TextInputLayout;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.firebase.client.DataSnapshot;
@@ -29,9 +30,11 @@ import butterknife.OnTextChanged;
 public class CreateState extends GameState {
 
     @Bind(R.id.createSubmitButton) Button createSubmitButton;
+    @Bind(R.id.createContinueButton) Button createContinueButton;
     @Bind(R.id.questionTextView) TextView questionTextView;
     @Bind(R.id.answerEditText) EditText answerEditText;
     @Bind(R.id.answerTextInputLayout) TextInputLayout answerTextInputLayout;
+    @Bind(R.id.answersGameMasterListView) ListView answersGameListView;
 
     private  static final int PLAYER_VIEW = 1;
     private  static final int GAME_MASTER_VIEW = 2;
@@ -49,6 +52,7 @@ public class CreateState extends GameState {
 
         // Get question
         getQuestion();
+
     }
 
     @Override
