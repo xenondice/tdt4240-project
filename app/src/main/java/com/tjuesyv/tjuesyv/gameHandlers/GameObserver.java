@@ -19,7 +19,11 @@ import com.tjuesyv.tjuesyv.states.LobbyState;
 import java.io.Closeable;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -133,7 +137,7 @@ public class GameObserver implements Closeable {
 
     /**
      * Start listeners for necessary values
-     * After one is added here, make a funciton in GameState, which you can then overrride
+     * After one is added here, make a function in GameState, which you can then overrride
      * Also check if the value was actually changed to a new value, or if it the same
      */
     private void startListeners() {
@@ -206,10 +210,8 @@ public class GameObserver implements Closeable {
      * Progress server in the game
      * Only one player should be able to call this function since it changes for everyone
      */
-    public void progressServer() { //TODO: listen for change in stage/round in firebase and change current stage/round
+    public void progressServer() {
         //TODO: Make observer, have functions called in gamemode instead of having access to observer
-        //TODO: Change functions under to only change server, remove stateIndex and currentRound, move them to gameInfo
-        //TODO: Could make a new gamemode for each round and have the gamemode store the states?
         if (isInLobby()) {
             startNewRoundServer();
         } else {
@@ -240,9 +242,29 @@ public class GameObserver implements Closeable {
      * Make server start new round
      */
     private void startNewRoundServer() {
-        getFirebaseGameReference().child("started").setValue(true);
-        getFirebaseGameReference().child("stateId").setValue(1);
-        getFirebaseGameReference().child("round").setValue(gameInfo.getRound() + 1);
+        String tempGameMaster = null;
+
+        // Choose game master
+        for (int i = 0; i < gameInfo.getPlayers().size(); i++) {
+            String player = gameInfo.getPlayers().get(i);
+            if (gameInfo.getGameMaster().equals(player)) {
+                int newGmId = (i + 1) % gameInfo.getPlayers().size();
+                tempGameMaster = gameInfo.getPlayers().get(newGmId);
+                break;
+            }
+        }
+        if (tempGameMaster == null) {
+            System.out.println("No existing game master found, setting as host");
+            tempGameMaster = gameInfo.getGameHost();
+        }
+
+        // Set variables
+        Map<String, Object> data = new HashMap<>();
+        data.put("gameMaster", tempGameMaster);
+        data.put("started", true);
+        data.put("round", gameInfo.getRound() + 1);
+        data.put("stateId", 1);
+        getFirebaseGameReference().updateChildren(data);
     }
 
     /**
@@ -256,9 +278,11 @@ public class GameObserver implements Closeable {
      * Make server enter lobby view
      */
     private void enterLobbyServer() {
-        getFirebaseGameReference().child("started").setValue(false);
-        getFirebaseGameReference().child("stateId").setValue(0);
-        getFirebaseGameReference().child("round").setValue(0);
+        Map<String, Object> data = new HashMap<>();
+        data.put("started", false);
+        data.put("round", 0);
+        data.put("stateId", 0);
+        getFirebaseGameReference().updateChildren(data);
     }
 
     /**
@@ -266,6 +290,13 @@ public class GameObserver implements Closeable {
      */
     public boolean isHost() {
         return gameInfo.getGameHost().equals(authData.getUid());
+    }
+
+    /**
+     * Get if current player is the host
+     */
+    public boolean isGameMaster() {
+        return gameInfo.getGameMaster().equals(authData.getUid());
     }
 
     /**

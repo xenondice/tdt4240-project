@@ -17,6 +17,7 @@ import com.tjuesyv.tjuesyv.gameHandlers.GameObserver;
 import com.tjuesyv.tjuesyv.gameHandlers.GameState;
 import com.tjuesyv.tjuesyv.gameModes.DefaultMode;
 
+import java.util.List;
 import java.util.Map;
 
 import butterknife.Bind;
@@ -79,9 +80,9 @@ public class ScoreState extends GameState {
             @Override
             public void onDataChange(DataSnapshot playerIdSnapshot) {
                 // We get a list of players as a Map
-                Map<String, Boolean> playerIds = (Map) playerIdSnapshot.getValue();
+                List<String> playerIds = (List<String>) playerIdSnapshot.getValue();
                 // Iterate over the players in the game
-                for (final String playerId : playerIds.keySet()) {
+                for (final String playerId : playerIds) {
                     // Lookup players by their playerId
                     observer.getFirebaseUsersReference().child(playerId).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
