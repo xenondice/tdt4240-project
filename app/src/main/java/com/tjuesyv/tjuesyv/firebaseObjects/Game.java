@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.firebase.client.ServerValue;
 import com.tjuesyv.tjuesyv.gameHandlers.GameMode;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Game {
@@ -19,7 +21,7 @@ public class Game {
     private int gameModeId;
     private int maxPlayers;
     private Map<String, String> createdAt;
-    private Map<String, Object> players = new HashMap<String, Object>();
+    private List<String> players = new ArrayList<>();
 
     // Required default constructor for Firebase object mapping
     @SuppressWarnings("unused")
@@ -68,7 +70,7 @@ public class Game {
         return active;
     }
 
-    public Map<String, Object> getPlayers() {
+    public List<String> getPlayers() {
         return players;
     }
 
@@ -85,7 +87,7 @@ public class Game {
     }
 
     public void addPlayer(String playerId) {
-        players.put(playerId, true);
+        players.add(playerId);
     }
 
     public void setGameState(boolean state) {

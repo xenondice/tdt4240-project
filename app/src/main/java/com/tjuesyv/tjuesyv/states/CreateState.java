@@ -64,6 +64,9 @@ public class CreateState extends GameState {
     @OnClick(R.id.createSubmitButton)
     protected void submitButton() {
         String answer = answerEditText.getText().toString();
+        // Check if answer is valid
+        if (!isValidAnswer(answer)) return;
+
         answerEditText.setText(null);
         // TODO: Submit question
 
@@ -106,13 +109,16 @@ public class CreateState extends GameState {
      * Helper method that checks if the answer is not empty
      * @param answer    The answer to be validated
      */
-    private void isValidAnswer(String answer) {
+    private boolean isValidAnswer(String answer) {
         if (answer.isEmpty()) {
-            answerTextInputLayout.setError("Please enter an answer");
+            answerTextInputLayout.setError(observer.getActivityReference().getString(R.string.error_empty_answer));
             createSubmitButton.setEnabled(false);
+            return false;
         } else {
+            answerTextInputLayout.setErrorEnabled(false);
             answerTextInputLayout.setError(null);
             createSubmitButton.setEnabled(true);
+            return true;
         }
     }
 

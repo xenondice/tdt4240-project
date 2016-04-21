@@ -5,7 +5,6 @@
 
     <string name="hint_nickname">Enter nickname</string>
     <string name="hint_game_code">Enter game code to join</string>
-
     <string name="hint_answer">Enter answer</string>
 
     <string name="btn_create_game">Create Game</string>
@@ -13,6 +12,7 @@
     <string name="btn_start_game">Start Game</string>
     <string name="btn_waiting_on_start">Waiting on Game Host to start game...</string>
     <string name="btn_logout">Logout</string>
+    <string name="btn_submit_answer">Submit answer</string>
 
     <string name="edit_valid_game_codes">ABCDEFGHIJKLMNOPQRSTUVWXYZ</string>
     <string name="edit_valid_nickname">abcdefghijklmnopqrstuvwxyzæøå ABCDEFGHIJKLMNOPQRSTUVWXYZÆØÅ0123456789</string>
@@ -24,6 +24,12 @@
     <string name="text_game_has_started">The game has started.</string>
     <string name="text_game_not_started">The game has not started yet.</string>
     <string name="text_player_scores">Player scores</string>
+    <string name="text_create_title">Time to create lies</string>
+    <string name="text_create_title_hint">Hope you have a good pokerface!</string>
+    <string name="text_create_question_title">Question:</string>
+    <string name="text_enter_answer">Enter answer here</string>
+    <string name="text_insert_question_here">Insert question here</string>
+
     <string name="prompt_positive">Yes</string>
     <string name="prompt_negative">No</string>
     <string name="prompt_exit">Really quit?</string>
@@ -39,5 +45,6 @@
     <string name="error_empty_nickname">Please enter a nickname</string>
     <string name="error_taken_nick">Nickname is already taken</string>
     <string name="error_game_is_started">Game is already started</string>
+    <string name="error_empty_answer">Please enter an answer</string>
 
 </resources>

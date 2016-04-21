@@ -45,7 +45,7 @@ public class ChooseState extends GameState {
 
         // Setup ButterKnife
         ButterKnife.bind(this, observer.getActivityReference());
-        if(observer.isHost()){
+        if(observer.isGameMaster()){
             setHostListView();
         }else {
             setAnswersListView();
@@ -86,7 +86,7 @@ public class ChooseState extends GameState {
                 observer.getFirebaseUsersReference().addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        for (String key:game.getPlayers().keySet()
+                        for (String key:game.getPlayers()
                                 ) {
 
                             adapter.add(String.valueOf(dataSnapshot.child(key).child("nickname").getValue()));

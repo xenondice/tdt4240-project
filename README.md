@@ -24,8 +24,6 @@
 * `scores/`
     * `<game-id>`
         * `<user-id>`
-            * `gameId` - `"<game-id>"` - A string with the ID of the game.
-            * `playerId`- `"<user-id>"` - A string with the ID of the player.
             * `score` -  `0` - An integer with the score of the player
 * `users/`
     * `<user-id`>
