@@ -16,6 +16,7 @@ public class Game {
     private Boolean active;
     private Boolean started;
     private int round;
+    private int question;
     private int stateId;
     private int gameModeId;
     private int maxPlayers;
@@ -33,6 +34,7 @@ public class Game {
         active = true;
         started = false;
         round = 0;
+        question = 0;
         maxPlayers = 8;
         createdAt = ServerValue.TIMESTAMP;
         stateId = 0;
@@ -51,6 +53,10 @@ public class Game {
     public int getGameModeId() { return gameModeId; }
 
     public int getStateId() { return stateId; }
+
+    public int getQuestion() { return question; }
+
+    public void setQuestion(int question) { this.question = question; }
 
     public Boolean getStarted() {
         return started;

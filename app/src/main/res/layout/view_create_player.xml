@@ -1,22 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout android:id="@+id/viewCreatePlayer"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/viewCreatePlayer"
-    android:orientation="vertical"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:focusableInTouchMode="true"
+    android:focusable="true"
+    >
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Create lies"
-        android:id="@+id/textView2"
-        android:layout_gravity="center_horizontal" />
+        android:layout_centerHorizontal="true"
+        android:id="@+id/createTitlePlayerTextView"
+        android:text="@string/text_create_title"
+        android:textSize="@dimen/text_size_extralarge"
+        android:textStyle="bold"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        />
 
-    <Button
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Continue"
-        android:id="@+id/createContinueButton"
-        android:layout_gravity="center_horizontal" />
-</LinearLayout>
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/createTitlePlayerTextView"
+        android:id="@+id/createTitleHintTextView"
+        android:text="@string/text_create_title_hint"
+        android:textSize="@dimen/text_size_large"
+        android:textStyle="italic"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/createTitleHintTextView"
+        android:layout_marginTop="30dp"
+        android:id="@+id/questionTitleTextView"
+        android:text="@string/text_create_question_title"
+        android:textSize="@dimen/text_size_verylarge"
+        android:textStyle="bold"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/questionTitleTextView"
+        android:gravity="center"
+        android:id="@+id/questionTextView"
+        android:text="@string/text_insert_question_here"
+        android:textSize="@dimen/text_size_large"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        />
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/answerTextInputLayout"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_below="@id/questionTextView"
+        android:layout_marginTop="30dp"
+        app:hintEnabled="true"
+        app:errorEnabled="true"
+        app:errorTextAppearance="@color/colorAccentSecondary"
+        >
+
+        <EditText
+            android:id="@+id/answerEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/text_enter_answer"
+            android:imeOptions="actionDone"
+            android:textSize="@dimen/text_size_large"
+            android:inputType="textNoSuggestions"
+            android:digits="@string/edit_valid_nickname"
+            android:singleLine="true"
+            />
+    </android.support.design.widget.TextInputLayout>
+
+    <Button
+        android:id="@+id/createSubmitButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:enabled="false"
+        android:text="@string/btn_submit_answer"
+        android:textSize="@dimen/btn_size_large"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        />
+
+</RelativeLayout>
+
