@@ -4,6 +4,7 @@ import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.FirebaseError;
@@ -30,7 +31,7 @@ public class ChooseState extends GameState {
 
     @Bind(R.id.chooseContinueButton) Button chooseContinueButton;
     @Bind(R.id.answersView) ListView answerListView;
-
+    @Bind(R.id.correctView) TextView correctAnswerView;
 
     private static final int MAIN_VIEW = 3;
     private static final int WAITING_VIEW = 4;
@@ -58,6 +59,18 @@ public class ChooseState extends GameState {
         //Notice the use of simple list item layout
         final HostArrayAdapter<String> adapter = new HostArrayAdapter(observer.getActivityReference(),android.R.layout.simple_list_item_1,answersList);
         setList(adapter);
+        correctAnswerView.setText("test");
+        observer.getFirebaseRootReference().child("questions").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
     }
 
     @Override

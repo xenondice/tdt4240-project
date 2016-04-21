@@ -17,6 +17,12 @@
         android:layout_height="wrap_content"
         android:id="@+id/answersView"
         android:layout_weight="1"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/correctView"
+        android:text="Correct answer"
+        android:layout_gravity="center_horizontal"/>
 
     <Button
         android:layout_width="wrap_content"
