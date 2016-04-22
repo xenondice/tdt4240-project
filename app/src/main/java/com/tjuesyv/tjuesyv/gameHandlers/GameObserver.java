@@ -102,15 +102,14 @@ public class GameObserver implements Closeable {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
-                    Game newGameInfo = dataSnapshot.getValue(Game.class);
+                    Game oldGameInfo = gameInfo;
+                    gameInfo = dataSnapshot.getValue(Game.class);
 
-                    if (gameInfo == null) {
-                        gameInfo = newGameInfo;
+                    if (oldGameInfo == null) {
                         //startListeners();
                         enterLobbyClient();
                     } else {
-                        handleNewData(newGameInfo);
-                        gameInfo = newGameInfo;
+                        handleNewData(oldGameInfo);
                     }
                 }
             }
@@ -126,14 +125,14 @@ public class GameObserver implements Closeable {
     /**
      * See what is new and do something
      */
-    private void handleNewData(Game newGameInfo) {
-        if (gameInfo.getStateId() != newGameInfo.getStateId()) {
-            if (newGameInfo.getStateId() == 0) enterLobbyClient();
-            else setActiveState(gameMode.getStates().get(newGameInfo.getStateId()-1));
+    private void handleNewData(Game oldGameInfo) {
+        if (gameInfo.getStateId() != oldGameInfo.getStateId()) {
+            if (gameInfo.getStateId() == 0) enterLobbyClient();
+            else setActiveState(gameMode.getStates().get(gameInfo.getStateId()-1));
         }
 
-        if (gameInfo.getGameModeId() != newGameInfo.getGameModeId()) {
-            changeGamemodeClient(newGameInfo.getGameModeId());
+        if (gameInfo.getGameModeId() != oldGameInfo.getGameModeId()) {
+            changeGamemodeClient(gameInfo.getGameModeId());
         }
     }
 
