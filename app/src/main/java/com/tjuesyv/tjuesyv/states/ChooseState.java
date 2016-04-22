@@ -7,6 +7,7 @@ import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
 import com.firebase.client.DataSnapshot;
+import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
 import com.tjuesyv.tjuesyv.GameActivity;
@@ -58,7 +59,6 @@ public class ChooseState extends GameState {
     }
 
     private void setMasterListView() {
-        //adapter = new SimpleAdapter();
         masterAnswerListView.setAdapter(adapter);
         observer.getFirebaseGameReference().addValueEventListener(new ValueEventListener() {
             @Override
@@ -95,12 +95,11 @@ public class ChooseState extends GameState {
         final ArrayList<String>answersList=new ArrayList<String>();
 
         answerListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-        String correctAnswer = observer.getFirebaseQuestionsReference().child(String.valueOf(observer.getGameInfo().getCurrentQuestion())).toString();
 
         //TODO: give points to the player with the selected answer
 
         final ArrayAdapter<String> adapter = new ArrayAdapter<>(observer.getActivityReference(),android.R.layout.simple_list_item_single_choice,answersList);
-        adapter.add(correctAnswer);
+
         setList(adapter);
 
     }
@@ -110,16 +109,29 @@ public class ChooseState extends GameState {
     }
 
     private void setList(final ArrayAdapter<String> adapter) {
+        final String correctAnswer = String.valueOf(observer.getGameInfo().getQuestion());
         observer.getFirebaseGameReference().addValueEventListener(new ValueEventListener() {
 
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 final Game game=dataSnapshot.getValue(Game.class);
+                observer.getFirebaseQuestionsReference().addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        adapter.add(String.valueOf(dataSnapshot.child(correctAnswer).child("answer").getValue()));
+                    }
+
+                    @Override
+                    public void onCancelled(FirebaseError firebaseError) {
+
+                    }
+                });
+
+                //the following is WRONG - users should not be listed here
                 observer.getFirebaseUsersReference().addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        for (String key:game.getPlayers()
-                                ) {
+                        for (String key:game.getPlayers()) {
 
                             adapter.add(String.valueOf(dataSnapshot.child(key).child("nickname").getValue()));
 

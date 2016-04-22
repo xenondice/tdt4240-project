@@ -15,7 +15,7 @@
         * `players` - A list of players who are in this game.
             * `<user-id>` - `True` - A boolean value indicating if the player is the game master or not  
         * `round` - `1` - An integer value of the current round.
-        * `currentQuestion` - `<currentQuestion-id>` - An integer value of the id of the current currentQuestion.
+        * `question` - `<question-id>` - An integer value of the id of the current question.
         * `answers`
             * `<user-id>` - `Bob is your uncle` - A string value of the answer for this player.
         * `started` - `false` - A boolean value indicating if the game has started.
@@ -23,8 +23,8 @@
         * `gameModeId` - `0` - A id for the current active game mode (0 = DefaultMode).
         * `gameMaster` - `<gameHost>` - A string with the user ID for the game master for the current round (changes each round).
 * `questions/`
-    * `<currentQuestion-id>`
-         * `currentQuestion` - `"The name of the dog that won the 2012 World's Ugliest Dog Competition."` - A string with a currentQuestion
+    * `<question-id>`
+         * `question` - `"The name of the dog that won the 2012 World's Ugliest Dog Competition."` - A string with a question
          * `answer` - `"Mugly"` - A string with a currentQuestion
 * `scores/`
     * `<game-id>`

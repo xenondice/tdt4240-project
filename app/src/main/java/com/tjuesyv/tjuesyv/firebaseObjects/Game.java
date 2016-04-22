@@ -5,6 +5,7 @@ import com.firebase.client.ServerValue;
 import com.tjuesyv.tjuesyv.gameHandlers.GameMode;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -15,13 +16,14 @@ public class Game {
     private Boolean active;
     private Boolean started;
     private int round;
-    private int currentQuestion;
+    private int question;
     private int stateId;
     private int gameModeId;
     private int maxPlayers;
     private Map<String, String> createdAt;
     private List<String> players = new ArrayList<>();
     private Map<String, String> answers;
+    private Map<String,String> selectedAns;
 
     // Required default constructor for Firebase object mapping
     @SuppressWarnings("unused")
@@ -34,7 +36,7 @@ public class Game {
         active = true;
         started = false;
         round = 0;
-        currentQuestion = 0;
+        question = 0;
         maxPlayers = 8;
         createdAt = ServerValue.TIMESTAMP;
         stateId = 0;
@@ -56,9 +58,9 @@ public class Game {
 
     public Map<String, String> getAnswers() { return answers; }
 
-    public int getCurrentQuestion() { return currentQuestion; }
+    public int getQuestion() { return question; }
 
-    public void setCurrentQuestion(int currentQuestion) { this.currentQuestion = currentQuestion; }
+    public void setQuestion(int question) { this.question = question; }
 
     public Boolean getStarted() {
         return started;
@@ -99,5 +101,7 @@ public class Game {
     public int getMaxPlayers() {
         return maxPlayers;
     }
+
+    public Map<String, String> getSelectedAns(){return selectedAns;}
 
 }

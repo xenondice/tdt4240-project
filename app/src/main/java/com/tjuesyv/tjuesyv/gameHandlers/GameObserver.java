@@ -13,7 +13,6 @@ import com.firebase.client.ValueEventListener;
 import com.tjuesyv.tjuesyv.GameActivity;
 import com.tjuesyv.tjuesyv.R;
 import com.tjuesyv.tjuesyv.firebaseObjects.Game;
-import com.tjuesyv.tjuesyv.firebaseObjects.Question;
 import com.tjuesyv.tjuesyv.gameModes.DefaultMode;
 import com.tjuesyv.tjuesyv.states.LobbyState;
 
