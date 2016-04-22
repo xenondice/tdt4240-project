@@ -22,6 +22,7 @@ public class Game {
     private int maxPlayers;
     private Map<String, String> createdAt;
     private List<String> players = new ArrayList<>();
+    private Map<String, String> answers;
 
     // Required default constructor for Firebase object mapping
     @SuppressWarnings("unused")
@@ -53,6 +54,8 @@ public class Game {
     public int getGameModeId() { return gameModeId; }
 
     public int getStateId() { return stateId; }
+
+    public Map<String, String> getAnswers() { return answers; }
 
     public int getQuestion() { return question; }
 

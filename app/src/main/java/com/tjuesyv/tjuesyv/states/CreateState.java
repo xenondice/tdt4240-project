@@ -14,6 +14,9 @@ import com.tjuesyv.tjuesyv.firebaseObjects.Question;
 import com.tjuesyv.tjuesyv.gameHandlers.GameObserver;
 import com.tjuesyv.tjuesyv.gameHandlers.GameState;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -50,9 +53,8 @@ public class CreateState extends GameState {
         // Setup ButterKnife
         ButterKnife.bind(this, observer.getActivityReference());
 
-        // Get question
+        // Get the question for this round
         getQuestion();
-
     }
 
     @Override
@@ -71,11 +73,26 @@ public class CreateState extends GameState {
         // Check if answer is valid
         if (!isValidAnswer(answer)) return;
 
+        // Submit the answers to the game object
+        submitAnswer(answer);
+
+        // Clear field
         answerEditText.setText(null);
-        // TODO: Submit question
 
         // Go to next state
         nextState();
+    }
+
+    /**
+     * Submits the answer of the player and sets it in the Firebase game object
+     * @param answer    The answer to be submitted
+     */
+    private void submitAnswer(String answer) {
+        // Create Map with player Id and their answer
+        Map<String, Object> answerMap = new HashMap<>();
+        answerMap.put(observer.getFirebaseAuthenticationData().getUid(), answer);
+        // Update the answers node in the game object
+        observer.getFirebaseGameReference().child("answers").updateChildren(answerMap);
     }
 
     /**
