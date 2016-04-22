@@ -127,7 +127,7 @@ public class ChooseState extends GameState {
                     }
                 });
 
-                //the following is WRONG - users should not be listed here
+                //TODO:Change from "nickname" to "answer" when datastucture is created (waiting for createState to be finished)
                 observer.getFirebaseUsersReference().addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
