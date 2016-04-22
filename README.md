@@ -16,6 +16,8 @@
             * `<user-id>` - `True` - A boolean value indicating if the player is the game master or not  
         * `round` - `1` - An integer value of the current round.
         * `question` - `<question-id>` - An integer value of the id of the current question.
+        * `answers`
+            * `<user-id>` - `Bob is your uncle` - A string value of the answer for this player.
         * `started` - `false` - A boolean value indicating if the game has started.
         * `stateId` - `0` - A integer describing which state in the active game mode the server is in (0 = lobby, 1+ = index for state list).
         * `gameModeId` - `0` - A id for the current active game mode (0 = DefaultMode).
