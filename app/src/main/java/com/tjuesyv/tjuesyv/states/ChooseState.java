@@ -4,6 +4,7 @@ import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.SimpleAdapter;
 
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.FirebaseError;
@@ -30,10 +31,13 @@ public class ChooseState extends GameState {
 
     @Bind(R.id.chooseContinueButton) Button chooseContinueButton;
     @Bind(R.id.answersView) ListView answerListView;
+    @Bind(R.id.chooseGameMasterListView) ListView masterAnswerListView;
 
 
     private static final int MAIN_VIEW = 3;
     private static final int WAITING_VIEW = 4;
+
+    private SimpleAdapter adapter;
 
     /**
      * Called once the state is entered
@@ -46,22 +50,44 @@ public class ChooseState extends GameState {
         // Setup ButterKnife
         ButterKnife.bind(this, observer.getActivityReference());
         if(observer.isGameMaster()){
-            setHostListView();
+            setMasterListView();
         }else {
             setAnswersListView();
         }
 
     }
 
-    private void setHostListView() {
-        final ArrayList<String> answersList= new ArrayList<>();
-        //Notice the use of simple list item layout
-        final HostArrayAdapter<String> adapter = new HostArrayAdapter(observer.getActivityReference(),android.R.layout.simple_list_item_1,answersList);
-        setList(adapter);
+    private void setMasterListView() {
+        //adapter = new SimpleAdapter();
+        masterAnswerListView.setAdapter(adapter);
+        observer.getFirebaseGameReference().addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                final Game game = dataSnapshot.getValue(Game.class);
+                observer.getFirebaseAnswersReference().addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                    }
+
+                    @Override
+                    public void onCancelled(FirebaseError firebaseError) {
+
+                    }
+                });
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
     }
 
     @Override
     public int getViewId() {
+        if (observer.isGameMaster()) return WAITING_VIEW;
         return MAIN_VIEW;
     }
 
@@ -69,12 +95,16 @@ public class ChooseState extends GameState {
         final ArrayList<String>answersList=new ArrayList<String>();
 
         answerListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-        //TODO: fill array with answer data from ???
+        //answersList.add(randomInt(),observer.get);
         //TODO: give points to the player with the selected answer
 
         final ArrayAdapter<String> adapter = new ArrayAdapter<>(observer.getActivityReference(),android.R.layout.simple_list_item_single_choice,answersList);
 
         setList(adapter);
+    }
+    private int randomInt(){
+        int random = (int) Math.floor(Math.random() * observer.getGameInfo().getAnswers().size());
+        return random;
     }
 
     private void setList(final ArrayAdapter<String> adapter) {
@@ -121,14 +151,4 @@ public class ChooseState extends GameState {
 
     }
 
-    private class HostArrayAdapter<T> extends ArrayAdapter {
-        public HostArrayAdapter(GameActivity activityReference, int simple_list_item_single_choice, ArrayList<String> answersList) {
-            super(activityReference,simple_list_item_single_choice,answersList);
-        }
-        @Override
-        public boolean isEnabled(int position) {
-            //Ensures that the elements are not clickable
-            return false;
-        }
-    }
 }

@@ -59,6 +59,9 @@ public class CreateState extends GameState {
 
     @Override
     public int getViewId() {
+        if (observer.isGameMaster()){
+            return GAME_MASTER_VIEW;
+        }
         return PLAYER_VIEW;
     }
 

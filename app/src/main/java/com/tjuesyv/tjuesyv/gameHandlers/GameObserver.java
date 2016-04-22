@@ -45,6 +45,7 @@ public class GameObserver implements Closeable {
     private Firebase questionsRef;
     private Firebase currentGameRef;
     private Firebase currentUserRef;
+    private Firebase roundAnswersRef;
     private AuthData authData;
 
     private ValueEventListener serverListener;
@@ -96,6 +97,7 @@ public class GameObserver implements Closeable {
         questionsRef = rootRef.child("questions");
         currentGameRef = gamesRef.child(gameUID);
         currentUserRef = usersRef.child(authData.getUid());
+        roundAnswersRef = currentGameRef.child("answers");
 
         // Start listening for changes from the server
         serverListener = new ValueEventListener() {
@@ -345,6 +347,14 @@ public class GameObserver implements Closeable {
     }
 
     /**
+     * Get the firebase reference to the answers in the current round
+     * @return
+     */
+    public Firebase getFirebaseAnswersReference() {
+        return roundAnswersRef;
+    }
+
+    /**
      * Get the firebase reference to the questions
      * @return
      */
@@ -357,13 +367,21 @@ public class GameObserver implements Closeable {
      */
     public Firebase getFirebaseRootReference(){return rootRef;};
 
+
     /**
      * Get the firebase authentication object
      */
+
     public AuthData getFirebaseAuthenticationData() {
         return authData;
     }
 
+    /**
+     * Get the whole Game object
+     */
+    public Game getGameInfo(){
+        return gameInfo;
+    }
     public void close() {
         getFirebaseGameReference().removeEventListener(serverListener);
     }
