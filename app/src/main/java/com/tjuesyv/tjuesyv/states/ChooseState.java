@@ -45,7 +45,7 @@ public class ChooseState extends GameState {
 
         // Setup ButterKnife
         ButterKnife.bind(this, observer.getActivityReference());
-        if(observer.isHost()){
+        if(observer.isGameMaster()){
             setHostListView();
         }else {
             setAnswersListView();

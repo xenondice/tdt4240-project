@@ -40,6 +40,7 @@ public class GameObserver implements Closeable {
     private Firebase rootRef;
     private Firebase usersRef;
     private Firebase scoresRef;
+    private Firebase questionsRef;
     private Firebase currentGameRef;
     private Firebase currentUserRef;
     private AuthData authData;
@@ -95,6 +96,7 @@ public class GameObserver implements Closeable {
         Firebase gamesRef = rootRef.child("games");
         usersRef = rootRef.child("users");
         scoresRef = rootRef.child("scores");
+        questionsRef = rootRef.child("questions");
         currentGameRef = gamesRef.child(gameUID);
         currentUserRef = usersRef.child(authData.getUid());
 
@@ -242,6 +244,7 @@ public class GameObserver implements Closeable {
     }
 
     private void enterLobbyClient() {
+        setRandomQuestion();
         setActiveState(gameMode.getLobby());
     }
 
@@ -292,6 +295,8 @@ public class GameObserver implements Closeable {
      * Make server start new round
      */
     private void startNewRoundServer() {
+        setRandomQuestion();
+
         String tempGameMaster = null;
 
         // Choose game master
@@ -343,7 +348,7 @@ public class GameObserver implements Closeable {
     }
 
     /**
-     * Get if current player is the host
+     * Get if current player is the game master
      */
     public boolean isGameMaster() {
         return gameInfo.getGameMaster().equals(authData.getUid());
@@ -354,6 +359,24 @@ public class GameObserver implements Closeable {
      */
     public Game getGameInfo() {
         return gameInfo;
+    }
+
+    /**
+     * Helper method to generate a random question ID
+     * @return
+     */
+    private void setRandomQuestion() {
+        getFirebaseQuestionsReference().addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                int random = (int) Math.floor(Math.random() * dataSnapshot.getChildrenCount());
+                getFirebaseGameReference().child("question").setValue(random);
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+            }
+        });
     }
 
     /**
@@ -376,6 +399,14 @@ public class GameObserver implements Closeable {
      */
     public Firebase getFirebaseScoresReference() {
         return scoresRef;
+    }
+
+    /**
+     * Get the firebase reference to the questions
+     * @return
+     */
+    public Firebase getFirebaseQuestionsReference() {
+        return questionsRef;
     }
 
     /**
