@@ -28,7 +28,7 @@
     <string name="text_create_title">Time to get creative</string>
     <string name="text_create_game_master_title">Waiting on answers</string>
     <string name="text_create_title_hint">Good luck!</string>
-    <string name="text_create_game_master_title_hint">I hope it won't be too long!</string>
+    <string name="text_create_game_master_title_hint">I hope it wont be too long!</string>
     <string name="text_create_question_title">Question:</string>
     <string name="text_enter_answer">Enter your answer here</string>
     <string name="text_insert_question_here">Insert question here</string>
