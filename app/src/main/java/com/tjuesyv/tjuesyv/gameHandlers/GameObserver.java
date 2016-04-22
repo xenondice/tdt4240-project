@@ -13,6 +13,7 @@ import com.firebase.client.ValueEventListener;
 import com.tjuesyv.tjuesyv.GameActivity;
 import com.tjuesyv.tjuesyv.R;
 import com.tjuesyv.tjuesyv.firebaseObjects.Game;
+import com.tjuesyv.tjuesyv.firebaseObjects.Question;
 import com.tjuesyv.tjuesyv.gameModes.DefaultMode;
 import com.tjuesyv.tjuesyv.states.LobbyState;
 
@@ -125,6 +126,7 @@ public class GameObserver implements Closeable {
     }
 
     /**
+     * TODO: Update description
      * See what is new and do something
      */
     private void handleNewData(Game oldGameInfo) {
@@ -139,6 +141,7 @@ public class GameObserver implements Closeable {
     }
 
     /**
+     * TODO: Is this necessary?
      * Start listeners for necessary values
      * After one is added here, make a function in GameState, which you can then overrride
      * Also check if the value was actually changed to a new value, or if it the same

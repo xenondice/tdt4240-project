@@ -5,7 +5,6 @@ import com.firebase.client.ServerValue;
 import com.tjuesyv.tjuesyv.gameHandlers.GameMode;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -16,7 +15,7 @@ public class Game {
     private Boolean active;
     private Boolean started;
     private int round;
-    private int question;
+    private int currentQuestion;
     private int stateId;
     private int gameModeId;
     private int maxPlayers;
@@ -35,7 +34,7 @@ public class Game {
         active = true;
         started = false;
         round = 0;
-        question = 0;
+        currentQuestion = 0;
         maxPlayers = 8;
         createdAt = ServerValue.TIMESTAMP;
         stateId = 0;
@@ -57,9 +56,9 @@ public class Game {
 
     public Map<String, String> getAnswers() { return answers; }
 
-    public int getQuestion() { return question; }
+    public int getCurrentQuestion() { return currentQuestion; }
 
-    public void setQuestion(int question) { this.question = question; }
+    public void setCurrentQuestion(int currentQuestion) { this.currentQuestion = currentQuestion; }
 
     public Boolean getStarted() {
         return started;

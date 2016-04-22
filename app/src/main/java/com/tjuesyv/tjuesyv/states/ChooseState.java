@@ -95,12 +95,14 @@ public class ChooseState extends GameState {
         final ArrayList<String>answersList=new ArrayList<String>();
 
         answerListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-        //answersList.add(randomInt(),observer.get);
+        String correctAnswer = observer.getFirebaseQuestionsReference().child(String.valueOf(observer.getGameInfo().getCurrentQuestion())).toString();
+
         //TODO: give points to the player with the selected answer
 
         final ArrayAdapter<String> adapter = new ArrayAdapter<>(observer.getActivityReference(),android.R.layout.simple_list_item_single_choice,answersList);
-
+        adapter.add(correctAnswer);
         setList(adapter);
+
     }
     private int randomInt(){
         int random = (int) Math.floor(Math.random() * observer.getGameInfo().getAnswers().size());
