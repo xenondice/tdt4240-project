@@ -1,11 +1,10 @@
 package com.tjuesyv.tjuesyv.gameHandlers;
 
-import android.app.usage.NetworkStats;
-import android.content.Context;
 import android.content.Intent;
 import android.widget.ViewFlipper;
 
 import com.firebase.client.AuthData;
+import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
@@ -13,17 +12,16 @@ import com.firebase.client.ValueEventListener;
 import com.tjuesyv.tjuesyv.GameActivity;
 import com.tjuesyv.tjuesyv.R;
 import com.tjuesyv.tjuesyv.firebaseObjects.Game;
+import com.tjuesyv.tjuesyv.firebaseObjects.Player;
+import com.tjuesyv.tjuesyv.firebaseObjects.Score;
 import com.tjuesyv.tjuesyv.gameModes.DefaultMode;
-import com.tjuesyv.tjuesyv.states.LobbyState;
 
 import java.io.Closeable;
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -46,8 +44,10 @@ public class GameObserver implements Closeable {
     private Firebase currentUserRef;
     private AuthData authData;
 
-    private ValueEventListener serverListener;
     private Game gameInfo;
+    private Map<String, Player> activePlayers;
+    private Map<String, Score> activeScores;
+    private List<ValueEventListener> listeners;
     private boolean startedListening;
 
     public GameObserver(GameActivity activityReference, GameMode gameMode) {
@@ -57,6 +57,9 @@ public class GameObserver implements Closeable {
         this.gameMode = gameMode;
         currentState = null;
         this.activityReference = activityReference;
+        activeScores = new HashMap<>();
+        activePlayers = new HashMap<>();
+        listeners = new ArrayList<>();
 
         // Setup ButterKnife
         ButterKnife.bind(this, activityReference);
@@ -96,19 +99,18 @@ public class GameObserver implements Closeable {
         currentUserRef = usersRef.child(authData.getUid());
 
         // Start listening for changes from the server
-        serverListener = new ValueEventListener() {
+        ValueEventListener serverListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
-                    Game newGameInfo = dataSnapshot.getValue(Game.class);
+                    Game oldGameInfo = gameInfo;
+                    gameInfo = dataSnapshot.getValue(Game.class);
 
-                    if (gameInfo == null) {
-                        gameInfo = newGameInfo;
-                        //startListeners();
+                    if (oldGameInfo == null) {
+                        setListeners();
                         enterLobbyClient();
                     } else {
-                        handleNewData(newGameInfo);
-                        gameInfo = newGameInfo;
+                        handleNewData(oldGameInfo);
                     }
                 }
             }
@@ -119,39 +121,86 @@ public class GameObserver implements Closeable {
             }
         };
         getFirebaseGameReference().addValueEventListener(serverListener);
+        listeners.add(serverListener);
     }
 
     /**
      * See what is new and do something
      */
-    private void handleNewData(Game newGameInfo) {
-        if (gameInfo.getStateId() != newGameInfo.getStateId()) {
-            if (newGameInfo.getStateId() == 0) enterLobbyClient();
-            else setActiveState(gameMode.getStates().get(newGameInfo.getStateId()-1));
+    private void handleNewData(Game oldGameInfo) {
+        if (gameInfo.getStateId() != oldGameInfo.getStateId()) {
+            if (gameInfo.getStateId() == 0) enterLobbyClient();
+            else setActiveState(gameMode.getStates().get(gameInfo.getStateId()-1));
         }
 
-        if (gameInfo.getGameModeId() != newGameInfo.getGameModeId()) {
-            changeGamemodeClient(newGameInfo.getGameModeId());
+        if (gameInfo.getGameModeId() != oldGameInfo.getGameModeId()) {
+            changeGamemodeClient(gameInfo.getGameModeId());
         }
     }
 
     /**
-     * Start listeners for necessary values
-     * After one is added here, make a function in GameState, which you can then overrride
-     * Also check if the value was actually changed to a new value, or if it the same
+     * Setup listeners
      */
-    private void startListeners() {
-        getFirebaseGameReference().child("stateId").addValueEventListener(new ValueEventListener() {
+    public void setListeners() {
+        getFirebaseGameReference().child("players").addChildEventListener(new ChildEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                // Look up player in users reference
+                final String playerId = (String) dataSnapshot.getValue();
 
+                getFirebaseUsersReference().child(playerId).addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot playerSnapshot) {
+                        // Get the player object
+                        Player player = playerSnapshot.getValue(Player.class);
+                        activePlayers.put(playerId, player);
+                    }
+
+                    @Override
+                    public void onCancelled(FirebaseError firebaseError) {}
+                });
+
+                getFirebaseScoresReference().child(playerId).addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot scoreSnapshot) {
+                        // Get the player object
+                        Score score = scoreSnapshot.getValue(Score.class);
+                        // Store info for future reference (updated last so notify here)
+                        if (activeScores.put(playerId, score) == null)
+                            currentState.newPlayerJoined(playerId);
+                        else currentState.playerScoreChanged(playerId);
+                    }
+
+                    @Override
+                    public void onCancelled(FirebaseError firebaseError) {}
+                });
             }
 
             @Override
-            public void onCancelled(FirebaseError firebaseError) {
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {}
 
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                String playerId = (String) dataSnapshot.getValue();
+                activePlayers.remove(playerId);
+                activeScores.remove(playerId);
+                currentState.playerLeft(playerId);
             }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {}
         });
+    }
+
+    public Player getPlayerFromId(String playerId) {
+        return activePlayers.get(playerId);
+    }
+
+    public Score getScoreForPlayer(String playerId) {
+        return activeScores.get(playerId);
     }
 
     /**
@@ -159,6 +208,7 @@ public class GameObserver implements Closeable {
      */
     private void setActiveState(Class<? extends GameState> state) {
         try {
+            if (currentState != null) currentState.onExit();
             currentState = state.getConstructor(this.getClass()).newInstance(this);
             rootFlipper.setDisplayedChild(currentState.getViewId());
         } catch (InstantiationException e) {
@@ -211,7 +261,7 @@ public class GameObserver implements Closeable {
      * Only one player should be able to call this function since it changes for everyone
      */
     public void progressServer() {
-        //TODO: Make observer, have functions called in gamemode instead of having access to observer
+        //TODO: Make observer, have functions called in game state instead of having access to observer
         if (isInLobby()) {
             startNewRoundServer();
         } else {
@@ -300,6 +350,13 @@ public class GameObserver implements Closeable {
     }
 
     /**
+     * Get current game info
+     */
+    public Game getGameInfo() {
+        return gameInfo;
+    }
+
+    /**
      * Get the firebase reference to the current game
      */
     public Firebase getFirebaseGameReference() {
@@ -334,6 +391,8 @@ public class GameObserver implements Closeable {
     }
 
     public void close() {
-        getFirebaseGameReference().removeEventListener(serverListener);
+        for (ValueEventListener listener : listeners) {
+            getFirebaseRootReference().removeEventListener(listener);
+        }
     }
 }
