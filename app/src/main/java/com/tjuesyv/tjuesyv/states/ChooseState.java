@@ -132,8 +132,9 @@ public class ChooseState extends GameState {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         for (String key:game.getPlayers()) {
-
-                            adapter.add(String.valueOf(dataSnapshot.child(key).child("nickname").getValue()));
+                            String temp = game.getAnswers().get(key);
+                            //adapter.add(String.valueOf(dataSnapshot.child(key).child("nickname").getValue()));
+                            adapter.add(temp);
 
                         }
                     }
