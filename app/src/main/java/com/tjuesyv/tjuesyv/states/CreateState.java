@@ -1,6 +1,7 @@
 package com.tjuesyv.tjuesyv.states;
 
 import android.support.design.widget.TextInputLayout;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -34,7 +35,9 @@ public class CreateState extends GameState {
 
     @Bind(R.id.createSubmitButton) Button createSubmitButton;
     @Bind(R.id.createContinueButton) Button createContinueButton;
-    @Bind(R.id.questionTextView) TextView questionTextView;
+    @Bind(R.id.questionPlayerTextView) TextView questionPlayerTextView;
+    @Bind(R.id.questionGameMasterTextView) TextView questionGameMasterTextView;
+    @Bind(R.id.answerTextView) TextView answerTextView;
     @Bind(R.id.answerEditText) EditText answerEditText;
     @Bind(R.id.answerTextInputLayout) TextInputLayout answerTextInputLayout;
     @Bind(R.id.answersGameMasterListView) ListView answersGameListView;
@@ -52,6 +55,11 @@ public class CreateState extends GameState {
 
         // Setup ButterKnife
         ButterKnife.bind(this, observer.getActivityReference());
+
+        // Clear fields and buttons
+        answerTextInputLayout.setVisibility(View.VISIBLE);
+        createSubmitButton.setEnabled(true);
+        createSubmitButton.setText(observer.getActivityReference().getString(R.string.btn_submit_answer));
 
         // Get the question for this round
         getQuestion();
@@ -81,6 +89,15 @@ public class CreateState extends GameState {
 
         // Clear field
         answerEditText.setText(null);
+        answerTextInputLayout.setVisibility(View.INVISIBLE);
+        createSubmitButton.setEnabled(false);
+        createSubmitButton.setText("Waiting on Game Master to continue");
+
+    }
+
+    @OnClick(R.id.createContinueButton)
+    protected void continueButton() {
+        String answer = answerEditText.getText().toString();
 
         // Go to next state
         nextState();
@@ -114,7 +131,13 @@ public class CreateState extends GameState {
                     public void onDataChange(DataSnapshot questionSnapshot) {
                         // Get the question and print it
                         Question question = questionSnapshot.getValue(Question.class);
-                        questionTextView.setText(question.getQuestion());
+
+                        if (getViewId() == PLAYER_VIEW) {
+                            questionPlayerTextView.setText(question.getQuestion());
+                        } else if (getViewId() == GAME_MASTER_VIEW) {
+                            questionGameMasterTextView.setText(question.getQuestion());
+                            answerTextView.setText(question.getAnswer());
+                        }
                     }
 
                     @Override
