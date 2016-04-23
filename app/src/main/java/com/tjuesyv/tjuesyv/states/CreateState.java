@@ -1,20 +1,26 @@
 package com.tjuesyv.tjuesyv.states;
 
+import android.provider.ContactsContract;
 import android.support.design.widget.TextInputLayout;
+import android.widget.ArrayAdapter;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
+import com.tjuesyv.tjuesyv.MainApplication;
 import com.tjuesyv.tjuesyv.R;
+import com.tjuesyv.tjuesyv.firebaseObjects.Game;
 import com.tjuesyv.tjuesyv.firebaseObjects.Question;
 import com.tjuesyv.tjuesyv.gameHandlers.GameObserver;
 import com.tjuesyv.tjuesyv.gameHandlers.GameState;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,10 +46,17 @@ public class CreateState extends GameState {
     @Bind(R.id.answerTextView) TextView answerTextView;
     @Bind(R.id.answerEditText) EditText answerEditText;
     @Bind(R.id.answerTextInputLayout) TextInputLayout answerTextInputLayout;
-    @Bind(R.id.answersGameMasterListView) ListView answersGameListView;
+    @Bind(R.id.answersGameMasterListView) ListView answersGameMasterListView;
 
     private  static final int PLAYER_VIEW = 1;
     private  static final int GAME_MASTER_VIEW = 2;
+
+    private boolean hasSubmitted = false;
+    private int answerCounter;
+
+    private ArrayList<String> answersList=new ArrayList<String>();
+    private ArrayAdapter<String> adapter = new ArrayAdapter<>(observer.getActivityReference(),android.R.layout.simple_list_item_multiple_choice,answersList);
+
 
     /**
      * Called once the state is entered
@@ -63,6 +76,74 @@ public class CreateState extends GameState {
 
         // Get the question for this round
         getQuestion();
+        if(observer.isGameMaster()){
+            answerCounter = 0;
+            setMasterListView();
+            createContinueButton.setEnabled(true);
+        }
+    }
+
+    private void setMasterListView() {
+        adapter.clear();
+        answersList.clear();
+        answersGameMasterListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+        observer.getFirebaseAnswersReference().setValue(null);
+
+        //TODO: give points to the player with the selected answer
+
+        setList(adapter);
+/*        */
+    }
+
+    /*
+    * Necessary for duck sake.
+     */
+    private String holderNick;
+    private void nickHolder(String nick){
+        holderNick = nick;
+    }
+    private String getHolderNick(){
+        return holderNick;
+    }
+
+    private void setList(final ArrayAdapter<String> adapter) {
+        //answersGameMasterListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+                observer.getFirebaseAnswersReference().addChildEventListener(new ChildEventListener() {
+                    @Override
+                    public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                        final String ans = (String) dataSnapshot.getValue();
+                        final String key = dataSnapshot.getKey();
+                        observer.getFirebaseUsersReference().child(key).addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                nickHolder(String.valueOf(dataSnapshot.child("nickname").getValue()));
+                                adapter.add(getHolderNick() + ": " + ans);
+                            }
+
+                            @Override
+                            public void onCancelled(FirebaseError firebaseError) {
+
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                    }
+
+                    @Override
+                    public void onChildRemoved(DataSnapshot dataSnapshot) {
+                    }
+
+                    @Override
+                    public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+                    }
+
+                    @Override
+                    public void onCancelled(FirebaseError firebaseError) {
+                    }
+                });
+        answersGameMasterListView.setAdapter(adapter);
     }
 
     @Override
@@ -76,6 +157,11 @@ public class CreateState extends GameState {
     @OnTextChanged(R.id.answerEditText)
     protected void validAnswer(CharSequence input) {
         isValidAnswer(input.toString());
+    }
+
+    @OnClick(R.id.createContinueButton)
+    protected void continueButton(){
+        nextState();
     }
 
     @OnClick(R.id.createSubmitButton)
@@ -93,14 +179,6 @@ public class CreateState extends GameState {
         createSubmitButton.setEnabled(false);
         createSubmitButton.setText("Waiting on Game Master to continue");
 
-    }
-
-    @OnClick(R.id.createContinueButton)
-    protected void continueButton() {
-        String answer = answerEditText.getText().toString();
-
-        // Go to next state
-        nextState();
     }
 
     /**
@@ -164,7 +242,7 @@ public class CreateState extends GameState {
         } else {
             answerTextInputLayout.setErrorEnabled(false);
             answerTextInputLayout.setError(null);
-            createSubmitButton.setEnabled(true);
+            if (!hasSubmitted) createSubmitButton.setEnabled(true);
             return true;
         }
     }

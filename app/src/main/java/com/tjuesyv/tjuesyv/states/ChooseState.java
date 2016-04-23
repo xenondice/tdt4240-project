@@ -12,6 +12,7 @@ import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
 import com.tjuesyv.tjuesyv.GameActivity;
 import com.tjuesyv.tjuesyv.R;
+import com.tjuesyv.tjuesyv.firebaseObjects.Question;
 import com.tjuesyv.tjuesyv.gameHandlers.GameObserver;
 import com.tjuesyv.tjuesyv.firebaseObjects.Game;
 import com.tjuesyv.tjuesyv.gameHandlers.GameState;
@@ -111,41 +112,14 @@ public class ChooseState extends GameState {
     }
 
     private void setList(final ArrayAdapter<String> adapter) {
-        final String correctAnswer = String.valueOf(observer.getGameInfo().getQuestion());
-        observer.getFirebaseGameReference().addValueEventListener(new ValueEventListener() {
+        String correctAnswerKey = String.valueOf(observer.getGameInfo().getQuestion());
 
+        //get the correct answer
+        observer.getFirebaseQuestionsReference().child(correctAnswerKey).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                final Game game=dataSnapshot.getValue(Game.class);
-                observer.getFirebaseQuestionsReference().addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        adapter.add(String.valueOf(dataSnapshot.child(correctAnswer).child("answer").getValue()));
-                    }
-
-                    @Override
-                    public void onCancelled(FirebaseError firebaseError) {
-
-                    }
-                });
-
-                //TODO:Change from "nickname" to "answer" when datastucture is created (waiting for createState to be finished)
-                observer.getFirebaseUsersReference().addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        for (String key:game.getPlayers()) {
-
-                            adapter.add(String.valueOf(dataSnapshot.child(key).child("nickname").getValue()));
-
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(FirebaseError firebaseError) {
-
-                    }
-                });
-                answerListView.setAdapter(adapter);
+                Question question = dataSnapshot.getValue(Question.class);
+                adapter.add(question.getAnswer());
             }
 
             @Override
@@ -153,6 +127,17 @@ public class ChooseState extends GameState {
 
             }
         });
+        //populate ListView with answers from players
+        for (String key:observer.getGameInfo().getPlayers()) {
+            String temp = null;
+            //Must check that the uID for game master is skipped, because answer will be null.
+            if (!key.equals(observer.getGameInfo().getGameMaster())) {
+                temp = observer.getGameInfo().getAnswers().get(key);
+                adapter.add(temp);
+            }
+        }
+        //TODO: Random sort listview.
+        answerListView.setAdapter(adapter);
     }
 
     @OnClick(R.id.chooseContinueButton)
