@@ -178,7 +178,6 @@ public class GameObserver {
         }
 
         if (gameInfo.getPlayers().size() > oldGameInfo.getPlayers().size()) {
-            System.out.println("Called from handler");
             notifyPlayer(gameInfo.getPlayers().get(gameInfo.getPlayers().size()-1));
         }
     }
@@ -202,7 +201,6 @@ public class GameObserver {
                         // Get the player object
                         Player player = playerSnapshot.getValue(Player.class);
                         if (activePlayers.put(playerId, player) == null) {
-                            System.out.println("Called from player listener");
                             notifyPlayer(playerId);
                         }
                     }
@@ -218,7 +216,6 @@ public class GameObserver {
                         Score score = scoreSnapshot.getValue(Score.class);
                         // Store info for future reference
                         if (activeScores.put(playerId, score) == null) {
-                            System.out.println("Called from score listener");
                             notifyPlayer(playerId);
                         }
                         else currentState.playerScoreChanged(playerId);
@@ -342,7 +339,6 @@ public class GameObserver {
                 activePlayers.get(playerId) != null &&
                 activeScores.get(playerId) != null) {
             fullySyncedPlayers.add(playerId);
-            System.out.println("Set synced player");
             getActivityReference().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -394,7 +390,6 @@ public class GameObserver {
                     }
 
                 if (tempGameMaster == null) {
-                    System.out.println("No existing game master found, setting as host");
                     tempGameMaster = gameInfo.getGameHost();
                 }
 
