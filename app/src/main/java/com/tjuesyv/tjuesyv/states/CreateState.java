@@ -49,6 +49,7 @@ public class CreateState extends GameState {
     @Bind(R.id.answerEditText) EditText answerEditText;
     @Bind(R.id.answerTextInputLayout) TextInputLayout answerTextInputLayout;
     @Bind(R.id.answersGameMasterListView) ListView answersGameMasterListView;
+    @Bind(R.id.textWhoIsMasterCreate) TextView textWhoIsMaster;
 
     private static final int PLAYER_VIEW = 1;
     private static final int GAME_MASTER_VIEW = 2;
@@ -70,6 +71,7 @@ public class CreateState extends GameState {
         answerTextInputLayout.setVisibility(View.VISIBLE);
         createSubmitButton.setEnabled(true);
         createSubmitButton.setText(observer.getActivityReference().getString(R.string.btn_submit_answer));
+        textWhoIsMaster.setText("Current Game Master: "+observer.getPlayerFromId(observer.getGameInfo().getGameMaster()).getNickname());
 
         // Get the question for this round
         getQuestion();
@@ -219,37 +221,14 @@ public class CreateState extends GameState {
      * Gets the current question set in the Firebase game object
      */
     private void getQuestion() {
-        // Lookup the question ID
-        observer.getFirebaseGameReference().child("question").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                // Get the current question ID in this game
-                String questionId = (String) dataSnapshot.getValue().toString();
-                // Lookup the actual question
-                observer.getFirebaseQuestionsReference().child(questionId).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot questionSnapshot) {
-                        // Get the question and print it
-                        Question question = questionSnapshot.getValue(Question.class);
+        Question question = observer.getQuestion();
 
-                        if (getViewId() == PLAYER_VIEW) {
-                            questionPlayerTextView.setText(question.getQuestion());
-                        } else if (getViewId() == GAME_MASTER_VIEW) {
-                            questionGameMasterTextView.setText(question.getQuestion());
-                            answerTextView.setText(question.getAnswer());
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(FirebaseError firebaseError) {
-                    }
-                });
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-            }
-        });
+        if (getViewId() == PLAYER_VIEW) {
+            questionPlayerTextView.setText(question.getQuestion());
+        } else if (getViewId() == GAME_MASTER_VIEW) {
+            questionGameMasterTextView.setText(question.getQuestion());
+            answerTextView.setText(question.getAnswer());
+        }
     }
 
     /**

@@ -32,7 +32,7 @@
     <string name="text_create_question_title">Question:</string>
     <string name="text_enter_answer">Enter your answer here</string>
     <string name="text_insert_question_here">Insert question here</string>
-    <string name="text_answered_list">Who has entered an answer?</string>
+    <string name="text_answered_list">Choose correct answers, if any:</string>
     <string name="text_choose_master_title">Waiting for others to choose answers.</string>
 
     <string name="prompt_positive">Yes</string>

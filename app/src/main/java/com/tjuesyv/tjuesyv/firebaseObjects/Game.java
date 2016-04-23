@@ -33,7 +33,7 @@ public class Game {
     public Game(String gameCode, String gameHost) {
         this.gameCode = gameCode;
         this.gameHost = gameHost;
-        gameMaster = gameHost;
+        gameMaster = "";
         active = true;
         started = false;
         round = 0;
