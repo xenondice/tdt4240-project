@@ -23,7 +23,8 @@ public class Game {
     private Map<String, String> createdAt;
     private List<String> players = new ArrayList<>();
     private Map<String, String> answers;
-    private Map<String,String> selectedAns;
+    private Map<String, String> selectedAns;
+    private Map<String, String> correctAnswers;
 
     // Required default constructor for Firebase object mapping
     @SuppressWarnings("unused")
@@ -57,6 +58,8 @@ public class Game {
     public int getStateId() { return stateId; }
 
     public Map<String, String> getAnswers() { return answers; }
+
+    public Map<String, String> getCorrectAnswers() { return correctAnswers; }
 
     public int getQuestion() { return question; }
 
