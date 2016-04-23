@@ -54,6 +54,7 @@ public class GameObserver {
     private Question activeQuestion;
     private Map<String, Player> activePlayers;
     private Map<String, Score> activeScores;
+    private List<String> fullySyncedPlayers;
     private boolean startedListening;
 
     public GameObserver(GameActivity activityReference, GameMode gameMode) {
@@ -65,6 +66,7 @@ public class GameObserver {
         this.activityReference = activityReference;
         activeScores = new HashMap<>();
         activePlayers = new HashMap<>();
+        fullySyncedPlayers = new ArrayList<>();
         activeQuestion = null;
 
         // Setup ButterKnife
@@ -175,7 +177,8 @@ public class GameObserver {
             changeGamemodeClient(gameInfo.getGameModeId());
         }
 
-        if (gameInfo.getPlayers().equals(oldGameInfo.getPlayers())) {
+        if (gameInfo.getPlayers().size() > oldGameInfo.getPlayers().size()) {
+            System.out.println("Called from handler");
             notifyPlayer(gameInfo.getPlayers().get(gameInfo.getPlayers().size()-1));
         }
     }
@@ -198,8 +201,10 @@ public class GameObserver {
                     public void onDataChange(DataSnapshot playerSnapshot) {
                         // Get the player object
                         Player player = playerSnapshot.getValue(Player.class);
-                        if (activePlayers.put(playerId, player) == null)
+                        if (activePlayers.put(playerId, player) == null) {
+                            System.out.println("Called from player listener");
                             notifyPlayer(playerId);
+                        }
                     }
 
                     @Override
@@ -211,9 +216,11 @@ public class GameObserver {
                     public void onDataChange(DataSnapshot scoreSnapshot) {
                         // Get the player object
                         Score score = scoreSnapshot.getValue(Score.class);
-                        // Store info for future reference (updated last so notify here)
-                        if (activeScores.put(playerId, score) == null)
+                        // Store info for future reference
+                        if (activeScores.put(playerId, score) == null) {
+                            System.out.println("Called from score listener");
                             notifyPlayer(playerId);
+                        }
                         else currentState.playerScoreChanged(playerId);
                     }
 
@@ -334,6 +341,8 @@ public class GameObserver {
         if (gameInfo.getPlayers().contains(playerId) &&
                 activePlayers.get(playerId) != null &&
                 activeScores.get(playerId) != null) {
+            fullySyncedPlayers.add(playerId);
+            System.out.println("Set synced player");
             getActivityReference().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -350,8 +359,8 @@ public class GameObserver {
         getFirebaseGameReference().child("stateId").setValue(gameInfo.getStateId() + 1);
     }
 
-    public Set<String> getActivePlayers() {
-        return activeScores.keySet();
+    public List<String> getActivePlayers() {
+        return fullySyncedPlayers;
     }
 
     /**
