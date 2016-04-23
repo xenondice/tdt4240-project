@@ -177,7 +177,6 @@ public class CreateState extends GameState {
         this.hasSubmitted = true;
         // Go to next state
         if (observer.isGameMaster()) nextState();
-        Toast.makeText(observer.getActivityReference(), "Thank you! Waiting for Game Master...", Toast.LENGTH_LONG).show();
         createSubmitButton.setEnabled(false);
     }
 
