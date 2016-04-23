@@ -144,7 +144,6 @@ public class ChooseState extends GameState {
 
     @OnClick(R.id.chooseContinueButton)
     protected void goToScore() {
-        processAnswer(answerListView.getCheckedItemPosition());
 
         nextState();
     }
@@ -170,6 +169,7 @@ public class ChooseState extends GameState {
     @OnClick(R.id.chooseSubmitButton)
     protected void submitChoice() {
         //TODO: Submit choice to firebase
+        processAnswer(answerListView.getCheckedItemPosition());
         chooseSubmitButton.setEnabled(false);
         chooseSubmitButton.setText("Waiting for Game Master");
     }
