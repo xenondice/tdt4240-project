@@ -115,18 +115,9 @@ public class ChooseState extends GameState {
         String correctAnswerKey = String.valueOf(observer.getGameInfo().getQuestion());
 
         //get the correct answer
-        observer.getFirebaseQuestionsReference().child(correctAnswerKey).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Question question = dataSnapshot.getValue(Question.class);
-                adapter.add(question.getAnswer());
-            }
+        Question question = observer.getQuestion();
+        adapter.add(question.getAnswer());
 
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-
-            }
-        });
         //populate ListView with answers from players
         for (String key:observer.getGameInfo().getPlayers()) {
             String temp = null;
