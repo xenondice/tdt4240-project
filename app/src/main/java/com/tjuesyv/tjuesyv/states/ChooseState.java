@@ -176,7 +176,6 @@ public class ChooseState extends GameState {
 
     @OnClick(R.id.chooseSubmitButton)
     protected void submitChoice() {
-        //TODO: fix dette
         if (answerListView.getCheckedItemCount() != 0){
             processAnswer(answerListView.getCheckedItemPosition());
             answerListView.setEnabled(false);
