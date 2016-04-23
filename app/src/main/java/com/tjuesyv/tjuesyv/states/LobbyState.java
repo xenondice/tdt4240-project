@@ -35,7 +35,7 @@ public class LobbyState extends GameState {
     @Bind(R.id.playerListView) ListView playersListView;
 
     private static final int MAIN_VIEW = 0;
-    private final List<Map<String, String>> playersList = new ArrayList<Map<String, String>>();
+    private final List<Map<String, String>> playersList = new ArrayList<>();
     private SimpleAdapter simpleAdapter;
 
     @Override
@@ -51,9 +51,6 @@ public class LobbyState extends GameState {
 
         // Displays game info
         setGameInfo();
-
-        // Displays playersList in a listView
-        setPlayerListListener();
 
         // Set startbutton if host
         setStartButton();
@@ -103,6 +100,18 @@ public class LobbyState extends GameState {
         startedTextView.setText(getGameInfo().getStarted()?
                 R.string.text_game_has_started:
                 R.string.text_game_not_started);
+        // Create an adapter to represent the playersList
+        simpleAdapter = new SimpleAdapter(observer.getActivityReference(),
+                playersList,
+                android.R.layout.simple_list_item_2,
+                new String[]{"nickname", "role"},
+                new int[]{android.R.id.text1, android.R.id.text2});
+        // Assign adapter to the ListView
+        playersListView.setAdapter(simpleAdapter);
+        // Fill with existing players
+        for (String playerId : observer.getActivePlayers()) {
+            putPlayerInList(playerId);
+        }
     }
 
     /**
@@ -120,8 +129,13 @@ public class LobbyState extends GameState {
 
     @Override
     public void newPlayerJoined(String playerId) {
+        putPlayerInList(playerId);
+    }
+
+    private void putPlayerInList(String playerId) {
         // Get the player object
         Player player = observer.getPlayerFromId(playerId);
+        System.out.println(player);
 
         // Create list to represent player in the list
         Map<String, String> playerItem = new HashMap<String, String>(3);
@@ -143,20 +157,6 @@ public class LobbyState extends GameState {
         // Add player to playersList list and notify
         playersList.add(playerItem);
         simpleAdapter.notifyDataSetChanged();
-    }
-
-    /**
-     * Updates player list when players join or leave the game.
-     */
-    private void setPlayerListListener() {
-        // Create an adapter to represent the playersList
-        simpleAdapter = new SimpleAdapter(observer.getActivityReference(),
-                playersList,
-                android.R.layout.simple_list_item_2,
-                new String[]{"nickname", "role"},
-                new int[]{android.R.id.text1, android.R.id.text2});
-        // Assign adapter to the ListView
-        playersListView.setAdapter(simpleAdapter);
     }
 
     // If player is removed

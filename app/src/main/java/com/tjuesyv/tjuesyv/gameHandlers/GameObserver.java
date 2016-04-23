@@ -13,6 +13,7 @@ import com.tjuesyv.tjuesyv.GameActivity;
 import com.tjuesyv.tjuesyv.R;
 import com.tjuesyv.tjuesyv.firebaseObjects.Game;
 import com.tjuesyv.tjuesyv.firebaseObjects.Player;
+import com.tjuesyv.tjuesyv.firebaseObjects.Question;
 import com.tjuesyv.tjuesyv.firebaseObjects.Score;
 import com.tjuesyv.tjuesyv.gameModes.DefaultMode;
 
@@ -22,6 +23,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -46,9 +49,9 @@ public class GameObserver implements Closeable {
     private AuthData authData;
 
     private Game gameInfo;
+    private Question activeQuestion;
     private Map<String, Player> activePlayers;
     private Map<String, Score> activeScores;
-    private List<ValueEventListener> listeners;
     private boolean startedListening;
 
     public GameObserver(GameActivity activityReference, GameMode gameMode) {
@@ -60,7 +63,7 @@ public class GameObserver implements Closeable {
         this.activityReference = activityReference;
         activeScores = new HashMap<>();
         activePlayers = new HashMap<>();
-        listeners = new ArrayList<>();
+        activeQuestion = null;
 
         // Setup ButterKnife
         ButterKnife.bind(this, activityReference);
@@ -105,14 +108,19 @@ public class GameObserver implements Closeable {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
-                    Game oldGameInfo = gameInfo;
+                    final Game oldGameInfo = gameInfo;
                     gameInfo = dataSnapshot.getValue(Game.class);
 
                     if (oldGameInfo == null) {
                         setListeners();
                         enterLobbyClient();
                     } else {
-                        handleNewData(oldGameInfo);
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                handleNewData(oldGameInfo);
+                            }
+                        }).start();
                     }
                 }
             }
@@ -123,15 +131,38 @@ public class GameObserver implements Closeable {
             }
         };
         getFirebaseGameReference().addValueEventListener(serverListener);
-        listeners.add(serverListener);
     }
 
     /**
      * See what is new and do something
      */
-    private void handleNewData(Game oldGameInfo) {
+    synchronized private void handleNewData(Game oldGameInfo) {
+        if (gameInfo.getQuestion() != oldGameInfo.getQuestion()) {
+            final CountDownLatch waiter = new CountDownLatch(1);
+            getFirebaseQuestionsReference().child("" + gameInfo.getQuestion()).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    activeQuestion = dataSnapshot.getValue(Question.class);
+                    waiter.countDown();
+                }
+
+                @Override
+                public void onCancelled(FirebaseError firebaseError) {
+                    activeQuestion = new Question("No question!", "No answer!");
+                    waiter.countDown();
+                }
+            });
+
+            try {
+                waiter.await();
+            } catch (InterruptedException e) {
+                activeQuestion = new Question("No question!", "No answer!");
+            }
+        }
+
         if (gameInfo.getStateId() != oldGameInfo.getStateId()) {
             if (gameInfo.getStateId() == 0) enterLobbyClient();
+            else if (gameInfo.getStateId() == 1) startNewRoundClient();
             else setActiveState(gameMode.getStates().get(gameInfo.getStateId()-1));
         }
 
@@ -205,27 +236,38 @@ public class GameObserver implements Closeable {
         return activeScores.get(playerId);
     }
 
+    public Question getQuestion() {
+        return activeQuestion;
+    }
+
     /**
      * Create a new instance of the class and set the correct view for the local player
      */
     private void setActiveState(Class<? extends GameState> state) {
-        try {
-            if (currentState != null) currentState.onExit();
-            currentState = state.getConstructor(this.getClass()).newInstance(this);
-            rootFlipper.setDisplayedChild(currentState.getViewId());
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-            System.exit(-1);
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-            System.exit(-1);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-            System.exit(-1);
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-            System.exit(-1);
-        }
+        final Class<? extends GameState> finalState = state;
+        final GameObserver observer = this;
+        getActivityReference().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    if (currentState != null) currentState.onExit();
+                    currentState = finalState.getConstructor(observer.getClass()).newInstance(observer);
+                    rootFlipper.setDisplayedChild(currentState.getViewId());
+                } catch (InstantiationException e) {
+                    e.printStackTrace();
+                    System.exit(-1);
+                } catch (InvocationTargetException e) {
+                    e.getCause().printStackTrace();
+                    System.exit(-1);
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                    System.exit(-1);
+                } catch (NoSuchMethodException e) {
+                    e.printStackTrace();
+                    System.exit(-1);
+                }
+            }
+        });
     }
 
     /**
@@ -244,7 +286,6 @@ public class GameObserver implements Closeable {
     }
 
     private void enterLobbyClient() {
-        setRandomQuestion();
         setActiveState(gameMode.getLobby());
     }
 
@@ -277,11 +318,19 @@ public class GameObserver implements Closeable {
         }
     }
 
+    private void startNewRoundClient() {
+        setActiveState(gameMode.getStates().get(0));
+    }
+
     /**
      * Move server to next state
      */
     private void nextStateServer() {
         getFirebaseGameReference().child("stateId").setValue(gameInfo.getStateId() + 1);
+    }
+
+    public Set<String> getActivePlayers() {
+        return activePlayers.keySet();
     }
 
     /**
@@ -295,31 +344,42 @@ public class GameObserver implements Closeable {
      * Make server start new round
      */
     private void startNewRoundServer() {
-        setRandomQuestion();
+        // Choose a question
+        getFirebaseQuestionsReference().addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                int random = (int) Math.floor(Math.random() * dataSnapshot.getChildrenCount());
 
-        String tempGameMaster = null;
+                String tempGameMaster = null;
 
-        // Choose game master
-        for (int i = 0; i < gameInfo.getPlayers().size(); i++) {
-            String player = gameInfo.getPlayers().get(i);
-            if (gameInfo.getGameMaster().equals(player)) {
-                int newGmId = (i + 1) % gameInfo.getPlayers().size();
-                tempGameMaster = gameInfo.getPlayers().get(newGmId);
-                break;
+                // Choose game master
+                for (int i = 0; i < gameInfo.getPlayers().size(); i++) {
+                    String player = gameInfo.getPlayers().get(i);
+                    if (gameInfo.getGameMaster().equals(player)) {
+                        int newGmId = (i + 1) % gameInfo.getPlayers().size();
+                        tempGameMaster = gameInfo.getPlayers().get(newGmId);
+                        break;
+                    }
+                }
+                if (tempGameMaster == null) {
+                    System.out.println("No existing game master found, setting as host");
+                    tempGameMaster = gameInfo.getGameHost();
+                }
+
+                // Set variables
+                Map<String, Object> data = new HashMap<>();
+                data.put("question", random);
+                data.put("gameMaster", tempGameMaster);
+                data.put("started", true);
+                data.put("round", gameInfo.getRound() + 1);
+                data.put("stateId", 1);
+                getFirebaseGameReference().updateChildren(data);
             }
-        }
-        if (tempGameMaster == null) {
-            System.out.println("No existing game master found, setting as host");
-            tempGameMaster = gameInfo.getGameHost();
-        }
 
-        // Set variables
-        Map<String, Object> data = new HashMap<>();
-        data.put("gameMaster", tempGameMaster);
-        data.put("started", true);
-        data.put("round", gameInfo.getRound() + 1);
-        data.put("stateId", 1);
-        getFirebaseGameReference().updateChildren(data);
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+            }
+        });
     }
 
     /**
@@ -362,24 +422,6 @@ public class GameObserver implements Closeable {
     }
 
     /**
-     * Helper method to generate a random question ID
-     * @return
-     */
-    private void setRandomQuestion() {
-        getFirebaseQuestionsReference().addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                int random = (int) Math.floor(Math.random() * dataSnapshot.getChildrenCount());
-                getFirebaseGameReference().child("question").setValue(random);
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-            }
-        });
-    }
-
-    /**
      * Get the firebase reference to the current game
      */
     public Firebase getFirebaseGameReference() {
@@ -395,7 +437,6 @@ public class GameObserver implements Closeable {
 
     /**
      * Get the firebase reference to the scores
-     * @return
      */
     public Firebase getFirebaseScoresReference() {
         return scoresRef;
@@ -403,7 +444,6 @@ public class GameObserver implements Closeable {
 
     /**
      * Get the firebase reference to the questions
-     * @return
      */
     public Firebase getFirebaseQuestionsReference() {
         return questionsRef;
@@ -421,9 +461,10 @@ public class GameObserver implements Closeable {
         return authData;
     }
 
+    /**
+     * Close all listeners
+     */
     public void close() {
-        for (ValueEventListener listener : listeners) {
-            getFirebaseRootReference().removeEventListener(listener);
-        }
+
     }
 }
