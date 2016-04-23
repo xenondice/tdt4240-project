@@ -9,6 +9,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
@@ -154,10 +155,21 @@ public class CreateState extends GameState {
 
     @OnClick(R.id.createContinueButton)
     protected void continueButton(){
-        // Score correct answers
-        scoreCorrectAnswers();
 
-        nextState();
+        int numberOfPlayers = observer.getGameInfo().getPlayers().size();
+        if (observer.getGameInfo().getAnswers() != null) {
+            if (observer.getGameInfo().getAnswers().size() == numberOfPlayers - 1){
+                // Score correct answers
+                scoreCorrectAnswers();
+                // Go to next state
+                nextState();
+            }else{
+                Toast.makeText(observer.getActivityReference(), "Missing a few answers.. Nag the players!", Toast.LENGTH_LONG).show();
+            }
+
+        }else{
+            Toast.makeText(observer.getActivityReference(), "No answers submitted :(", Toast.LENGTH_LONG).show();
+        }
     }
 
     private void scoreCorrectAnswers() {
@@ -170,7 +182,7 @@ public class CreateState extends GameState {
                 correctAnswerItem.put(answerItem.get("playerId").toString(), true);
                 observer.getFirebaseGameReference().child("correctAnswers").updateChildren(correctAnswerItem);
 
-                // Update score
+                //TODO: Update score
             }
         }
     }

@@ -6,6 +6,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
@@ -60,39 +61,13 @@ public class LobbyState extends GameState {
 
     @OnClick(R.id.startGameButton)
     protected void startGameButton() {
-        if (observer.isHost()) nextState();
-    }
-
-    @OnItemLongClick(R.id.playerListView)
-    protected boolean onPlayerLongClick(final int position) {
-        // Make sure that you can only kick someone else when you are the game host
-        if (observer.isHost() && !playersList.get(position).get("id").equals(observer.getFirebaseAuthenticationData().getUid())) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(observer.getActivityReference())
-                    .setTitle("Kick player?")
-                    .setMessage("Would you like to kick: " + playersList.get(position).get("nickname") + "?")
-                    .setCancelable(true)
-                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            observer.getFirebaseGameReference()
-                                    .child("players")
-                                    .child(playersList.get(position).get("id"))
-                                    .removeValue();
-                            dialog.cancel();
-                        }
-                    })
-                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.cancel();
-                        }
-                    });
-            AlertDialog dialog = builder.show();
+        if (playersList.size() < 2) {
+            Toast.makeText(observer.getActivityReference(), "Get some friends! You cannot play alone :(", Toast.LENGTH_LONG).show();
+        }else {
+            nextState();
         }
-
-        // Need to return something due to ButterKnife
-        return true;
     }
+
 
     /**
      * Populates game info textViews.
