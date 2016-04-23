@@ -73,7 +73,7 @@
             android:hint="@string/text_enter_answer"
             android:imeOptions="actionDone"
             android:textSize="@dimen/text_size_large"
-            android:inputType="textNoSuggestions"
+            android:inputType="textNoSuggestions|textCapSentences"
             android:digits="@string/edit_valid_nickname"
             android:singleLine="true"
             />
