@@ -63,36 +63,6 @@ public class LobbyState extends GameState {
         if (observer.isHost()) nextState();
     }
 
-    @OnItemLongClick(R.id.playerListView)
-    protected boolean onPlayerLongClick(final int position) {
-        // Make sure that you can only kick someone else when you are the game host
-        if (observer.isHost() && !playersList.get(position).get("id").equals(observer.getFirebaseAuthenticationData().getUid())) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(observer.getActivityReference())
-                    .setTitle("Kick player?")
-                    .setMessage("Would you like to kick: " + playersList.get(position).get("nickname") + "?")
-                    .setCancelable(true)
-                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            observer.getFirebaseGameReference()
-                                    .child("players")
-                                    .child(playersList.get(position).get("id"))
-                                    .removeValue();
-                            dialog.cancel();
-                        }
-                    })
-                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.cancel();
-                        }
-                    });
-            AlertDialog dialog = builder.show();
-        }
-
-        // Need to return something due to ButterKnife
-        return true;
-    }
 
     /**
      * Populates game info textViews.
