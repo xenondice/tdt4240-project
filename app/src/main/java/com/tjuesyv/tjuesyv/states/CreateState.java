@@ -176,6 +176,7 @@ public class CreateState extends GameState {
     }
 
     private void scoreCorrectAnswers() {
+        //TODO: Does not work for items lower on the list
         SparseBooleanArray checked = answersGameMasterListView.getCheckedItemPositions();
         for (int i = 0; i < checked.size(); i++) {
             if (checked.get(i)) {

@@ -6,6 +6,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
@@ -63,7 +64,9 @@ public class ChooseState extends GameState {
             setMasterListView();
             chooseContinueButton.setEnabled(true);
         }else {
-
+            answerListView.setEnabled(true);
+            chooseSubmitButton.setEnabled(true);
+            chooseSubmitButton.setText("Submit");
             textWhoIsMaster.setText("Current Game Master: "+observer.getPlayerFromId(observer.getGameInfo().getGameMaster()).getNickname());
             setAnswersListView();
         }
@@ -170,10 +173,16 @@ public class ChooseState extends GameState {
     }
     @OnClick(R.id.chooseSubmitButton)
     protected void submitChoice() {
-        //TODO: Submit choice to firebase
-        processAnswer(answerListView.getCheckedItemPosition());
-        chooseSubmitButton.setEnabled(false);
-        chooseSubmitButton.setText("Waiting for Game Master");
+        //TODO: fix dette
+        if (answerListView.getSelectedItemPosition() >= 0){
+            processAnswer(answerListView.getCheckedItemPosition());
+            answerListView.setEnabled(false);
+            chooseSubmitButton.setEnabled(false);
+            chooseSubmitButton.setText("Waiting for Game Master");
+        }else{
+            Toast.makeText(observer.getActivityReference(), "Nothing selected! Please select an answer.", Toast.LENGTH_LONG).show();
+        }
+
     }
 
 }
