@@ -15,6 +15,7 @@ import com.tjuesyv.tjuesyv.GameActivity;
 import com.tjuesyv.tjuesyv.R;
 import com.tjuesyv.tjuesyv.firebaseObjects.Player;
 import com.tjuesyv.tjuesyv.firebaseObjects.Question;
+import com.tjuesyv.tjuesyv.firebaseObjects.Score;
 import com.tjuesyv.tjuesyv.gameHandlers.GameObserver;
 import com.tjuesyv.tjuesyv.firebaseObjects.Game;
 import com.tjuesyv.tjuesyv.gameHandlers.GameState;
@@ -121,9 +122,11 @@ public class ChooseState extends GameState {
 
         //populate ListView with answers from players
         for (Map.Entry<String, String> answer : observer.getGameInfo().getAnswers().entrySet()) {
-            if (observer.getGameInfo().getCorrectAnswers() != null &&
-                    !observer.getGameInfo().getCorrectAnswers().containsKey(answer.getKey())) {
-                return;
+            // Hide correct answers from players
+            if (observer.getGameInfo().getCorrectAnswers() != null) {
+                if (observer.getGameInfo().getCorrectAnswers().containsKey(answer.getKey())) {
+                    continue;
+                }
             }
                 Map<String, Object> answerItem = new HashMap<String, Object>();
                 answerItem.put("answer", answer.getValue());
@@ -148,19 +151,18 @@ public class ChooseState extends GameState {
     private void processAnswer(int selectionPos) {
         Map<String, Object> answer = answersList.get(selectionPos);
 
+        // Chose the correct pre made answer
         if (answer.containsKey("correct")) {
-            // Chose the correct pre made answer
-            //TODO: Add points
-
-        } else {
-            // We need to look up if answer was correct
-            if (observer.getGameInfo().getCorrectAnswers() != null) {
-                if (observer.getGameInfo().getCorrectAnswers().containsKey(answer.get("playerId"))) {
-                    //TODO: Add points for correct answer
-                }
-            } else {
-                 //TODO: Wrong answer. Add points for other player
-            }
+            Score currentScore = observer.getScoreForPlayer(observer.getFirebaseAuthenticationData().getUid());
+            currentScore.incrementScore(1);
+            observer.getFirebaseScoresReference().child(observer.getFirebaseGameReference().getKey()).child(observer.getFirebaseAuthenticationData().getUid()).setValue(currentScore);
+        }
+        // Chose wrong answer, give points to other player
+        else {
+            String playerId = answer.get("playerId").toString();
+            Score currentScore = observer.getScoreForPlayer(playerId);
+            currentScore.incrementScore(1);
+            observer.getFirebaseScoresReference().child(observer.getFirebaseGameReference().getKey()).child(playerId).setValue(currentScore);
         }
     }
 }
