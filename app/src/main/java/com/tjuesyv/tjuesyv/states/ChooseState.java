@@ -20,6 +20,9 @@ import com.tjuesyv.tjuesyv.firebaseObjects.Game;
 import com.tjuesyv.tjuesyv.gameHandlers.GameState;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -42,6 +45,7 @@ public class ChooseState extends GameState {
     private static final int WAITING_VIEW = 4;
 
     private SimpleAdapter adapter;
+    private List<Map<String, Object>> answersList = new ArrayList<>();
 
     /**
      * Called once the state is entered
@@ -60,10 +64,10 @@ public class ChooseState extends GameState {
             textWhoIsMaster.setText("Current Game Master: "+observer.getPlayerFromId(observer.getGameInfo().getGameMaster()).getNickname());
             setAnswersListView();
         }
-
     }
 
     private void setMasterListView() {
+        //TODO
         masterAnswerListView.setAdapter(adapter);
         observer.getFirebaseGameReference().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -73,19 +77,16 @@ public class ChooseState extends GameState {
                 observer.getFirebaseAnswersReference().addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-
                     }
 
                     @Override
                     public void onCancelled(FirebaseError firebaseError) {
-
                     }
                 });
             }
 
             @Override
             public void onCancelled(FirebaseError firebaseError) {
-
             }
         });
     }
@@ -99,40 +100,42 @@ public class ChooseState extends GameState {
     }
 
     private void setAnswersListView() {
-        final ArrayList<String>answersList=new ArrayList<String>();
+        final SimpleAdapter answersAdapter = new SimpleAdapter(observer.getActivityReference(),
+                answersList,
+                android.R.layout.simple_list_item_single_choice,
+                new String[] {"answer"},
+                new int[] {android.R.id.text1});
 
+        answerListView.setAdapter(answersAdapter);
         answerListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 
-        //TODO: give points to the player with the selected answer
-
-        final ArrayAdapter<String> adapter = new ArrayAdapter<>(observer.getActivityReference(),android.R.layout.simple_list_item_single_choice,answersList);
-
-        setList(adapter);
-
-    }
-    private int randomInt(){
-        int random = (int) Math.floor(Math.random() * observer.getGameInfo().getAnswers().size());
-        return random;
-    }
-
-    private void setList(final ArrayAdapter<String> adapter) {
         String correctAnswerKey = String.valueOf(observer.getGameInfo().getQuestion());
 
         //get the correct answer
         Question question = observer.getQuestion();
-        adapter.add(question.getAnswer());
+        Map<String, Object> correctAnswerItem = new HashMap<String, Object>();
+        correctAnswerItem.put("answer", question.getAnswer());
+        correctAnswerItem.put("correct", true);
+        answersList.add(correctAnswerItem);
+        answersAdapter.notifyDataSetChanged();
 
         //populate ListView with answers from players
-        for (String key:observer.getGameInfo().getPlayers()) {
-            String temp = null;
-            //Must check that the uID for game master is skipped, because answer will be null.
-            if (!key.equals(observer.getGameInfo().getGameMaster())) {
-                temp = observer.getGameInfo().getAnswers().get(key);
-                adapter.add(temp);
+        for (Map.Entry<String, String> answer : observer.getGameInfo().getAnswers().entrySet()) {
+            if (observer.getGameInfo().getCorrectAnswers() != null &&
+                    !observer.getGameInfo().getCorrectAnswers().containsKey(answer.getKey())) {
+                return;
             }
+                Map<String, Object> answerItem = new HashMap<String, Object>();
+                answerItem.put("answer", answer.getValue());
+                answerItem.put("playerId", answer.getKey());
+                answersList.add(answerItem);
         }
-        //TODO: Random sort listview.
-        answerListView.setAdapter(adapter);
+        answersAdapter.notifyDataSetChanged();
+    }
+
+    private int randomInt(){
+        int random = (int) Math.floor(Math.random() * observer.getGameInfo().getAnswers().size());
+        return random;
     }
 
     @OnClick(R.id.chooseContinueButton)
@@ -143,8 +146,21 @@ public class ChooseState extends GameState {
     }
 
     private void processAnswer(int selectionPos) {
-        //TODO: more processing of answers here
+        Map<String, Object> answer = answersList.get(selectionPos);
 
+        if (answer.containsKey("correct")) {
+            // Chose the correct pre made answer
+            //TODO: Add points
+
+        } else {
+            // We need to look up if answer was correct
+            if (observer.getGameInfo().getCorrectAnswers() != null) {
+                if (observer.getGameInfo().getCorrectAnswers().containsKey(answer.get("playerId"))) {
+                    //TODO: Add points for correct answer
+                }
+            } else {
+                 //TODO: Wrong answer. Add points for other player
+            }
+        }
     }
-
 }
