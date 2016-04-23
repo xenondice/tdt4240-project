@@ -6,6 +6,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
@@ -60,7 +61,11 @@ public class LobbyState extends GameState {
 
     @OnClick(R.id.startGameButton)
     protected void startGameButton() {
-        if (observer.isHost()) nextState();
+        if (playersList.size() < 2) {
+            Toast.makeText(observer.getActivityReference(), "Get some friends! You cannot play alone :(", Toast.LENGTH_LONG).show();
+        }else {
+            nextState();
+        }
     }
 
 
