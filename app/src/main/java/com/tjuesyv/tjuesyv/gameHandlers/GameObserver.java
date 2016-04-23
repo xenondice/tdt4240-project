@@ -32,7 +32,7 @@ import butterknife.ButterKnife;
 /**
  * Created by RayTM on 08.04.2016.
  */
-public class GameObserver implements Closeable {
+public class GameObserver {
 
     @Bind(R.id.rootFlipper) ViewFlipper rootFlipper;
 
@@ -46,6 +46,7 @@ public class GameObserver implements Closeable {
     private Firebase questionsRef;
     private Firebase currentGameRef;
     private Firebase currentUserRef;
+    private Firebase roundAnswersRef;
     private AuthData authData;
 
     private Game gameInfo;
@@ -102,6 +103,7 @@ public class GameObserver implements Closeable {
         questionsRef = rootRef.child("questions");
         currentGameRef = gamesRef.child(gameUID);
         currentUserRef = usersRef.child(authData.getUid());
+        roundAnswersRef = currentGameRef.child("answers");
 
         // Start listening for changes from the server
         ValueEventListener serverListener = new ValueEventListener() {
@@ -134,6 +136,7 @@ public class GameObserver implements Closeable {
     }
 
     /**
+     * TODO: Update description
      * See what is new and do something
      */
     synchronized private void handleNewData(Game oldGameInfo) {
@@ -173,6 +176,9 @@ public class GameObserver implements Closeable {
 
     /**
      * Setup listeners
+     * Start listeners for necessary values
+     * After one is added here, make a function in GameState, which you can then overrride
+     * Also check if the value was actually changed to a new value, or if it the same
      */
     public void setListeners() {
         getFirebaseGameReference().child("players").addChildEventListener(new ChildEventListener() {
@@ -348,19 +354,21 @@ public class GameObserver implements Closeable {
         getFirebaseQuestionsReference().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                int random = (int) Math.floor(Math.random() * dataSnapshot.getChildrenCount());
+                int randomQuestion = (int) Math.floor(Math.random() * dataSnapshot.getChildrenCount());
 
                 String tempGameMaster = null;
 
                 // Choose game master
-                for (int i = 0; i < gameInfo.getPlayers().size(); i++) {
-                    String player = gameInfo.getPlayers().get(i);
-                    if (gameInfo.getGameMaster().equals(player)) {
-                        int newGmId = (i + 1) % gameInfo.getPlayers().size();
-                        tempGameMaster = gameInfo.getPlayers().get(newGmId);
-                        break;
+                if (!gameInfo.getGameMaster().isEmpty())
+                    for (int i = 0; i < gameInfo.getPlayers().size(); i++) {
+                        String player = gameInfo.getPlayers().get(i);
+                        if (gameInfo.getGameMaster().equals(player)) {
+                            int newGmId = (i + 1) % gameInfo.getPlayers().size();
+                            tempGameMaster = gameInfo.getPlayers().get(newGmId);
+                            break;
+                        }
                     }
-                }
+                
                 if (tempGameMaster == null) {
                     System.out.println("No existing game master found, setting as host");
                     tempGameMaster = gameInfo.getGameHost();
@@ -368,7 +376,7 @@ public class GameObserver implements Closeable {
 
                 // Set variables
                 Map<String, Object> data = new HashMap<>();
-                data.put("question", random);
+                data.put("question", randomQuestion);
                 data.put("gameMaster", tempGameMaster);
                 data.put("started", true);
                 data.put("round", gameInfo.getRound() + 1);
@@ -443,6 +451,14 @@ public class GameObserver implements Closeable {
     }
 
     /**
+     * Get the firebase reference to the answers in the current round
+     * @return
+     */
+    public Firebase getFirebaseAnswersReference() {
+        return roundAnswersRef;
+    }
+
+    /**
      * Get the firebase reference to the questions
      */
     public Firebase getFirebaseQuestionsReference() {
@@ -454,17 +470,12 @@ public class GameObserver implements Closeable {
      */
     public Firebase getFirebaseRootReference(){return rootRef;};
 
+
     /**
      * Get the firebase authentication object
      */
+
     public AuthData getFirebaseAuthenticationData() {
         return authData;
-    }
-
-    /**
-     * Close all listeners
-     */
-    public void close() {
-
     }
 }

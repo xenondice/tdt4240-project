@@ -96,8 +96,8 @@ public class LobbyState extends GameState {
      * Populates game info textViews.
      */
     private void setGameInfo() {
-        gameCodeTextView.setText(getGameInfo().getGameCode());
-        startedTextView.setText(getGameInfo().getStarted()?
+        gameCodeTextView.setText(observer.getGameInfo().getGameCode());
+        startedTextView.setText(observer.getGameInfo().getStarted()?
                 R.string.text_game_has_started:
                 R.string.text_game_not_started);
         // Create an adapter to represent the playersList
@@ -135,7 +135,6 @@ public class LobbyState extends GameState {
     private void putPlayerInList(String playerId) {
         // Get the player object
         Player player = observer.getPlayerFromId(playerId);
-        System.out.println(player);
 
         // Create list to represent player in the list
         Map<String, String> playerItem = new HashMap<String, String>(3);

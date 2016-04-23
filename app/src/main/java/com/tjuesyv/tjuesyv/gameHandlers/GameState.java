@@ -32,13 +32,6 @@ public abstract class GameState {
     }
 
     /**
-     * Get the most current game information
-     */
-    public Game getGameInfo() {
-        return observer.getGameInfo();
-    }
-
-    /**
      * Check if user is game master
      */
     public boolean isGameMaster() {

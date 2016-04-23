@@ -4,12 +4,15 @@ import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.SimpleAdapter;
 
 import com.firebase.client.DataSnapshot;
+import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
 import com.tjuesyv.tjuesyv.GameActivity;
 import com.tjuesyv.tjuesyv.R;
+import com.tjuesyv.tjuesyv.firebaseObjects.Question;
 import com.tjuesyv.tjuesyv.gameHandlers.GameObserver;
 import com.tjuesyv.tjuesyv.firebaseObjects.Game;
 import com.tjuesyv.tjuesyv.gameHandlers.GameState;
@@ -30,10 +33,13 @@ public class ChooseState extends GameState {
 
     @Bind(R.id.chooseContinueButton) Button chooseContinueButton;
     @Bind(R.id.answersView) ListView answerListView;
+    @Bind(R.id.chooseGameMasterListView) ListView masterAnswerListView;
 
 
     private static final int MAIN_VIEW = 3;
     private static final int WAITING_VIEW = 4;
+
+    private SimpleAdapter adapter;
 
     /**
      * Called once the state is entered
@@ -46,52 +52,24 @@ public class ChooseState extends GameState {
         // Setup ButterKnife
         ButterKnife.bind(this, observer.getActivityReference());
         if(observer.isGameMaster()){
-            setHostListView();
+            setMasterListView();
         }else {
             setAnswersListView();
         }
 
     }
 
-    private void setHostListView() {
-        final ArrayList<String> answersList= new ArrayList<>();
-        //Notice the use of simple list item layout
-        final HostArrayAdapter<String> adapter = new HostArrayAdapter(observer.getActivityReference(),android.R.layout.simple_list_item_1,answersList);
-        setList(adapter);
-    }
-
-    @Override
-    public int getViewId() {
-        return MAIN_VIEW;
-    }
-
-    private void setAnswersListView() {
-        final ArrayList<String>answersList=new ArrayList<String>();
-
-        answerListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-        //TODO: fill array with answer data from ???
-        //TODO: give points to the player with the selected answer
-
-        final ArrayAdapter<String> adapter = new ArrayAdapter<>(observer.getActivityReference(),android.R.layout.simple_list_item_single_choice,answersList);
-
-        setList(adapter);
-    }
-
-    private void setList(final ArrayAdapter<String> adapter) {
-        observer.getFirebaseGameReference().addValueEventListener(new ValueEventListener() {
-
+    private void setMasterListView() {
+        masterAnswerListView.setAdapter(adapter);
+        observer.getFirebaseGameReference().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                final Game game=dataSnapshot.getValue(Game.class);
-                observer.getFirebaseUsersReference().addListenerForSingleValueEvent(new ValueEventListener() {
+
+                final Game game = dataSnapshot.getValue(Game.class);
+                observer.getFirebaseAnswersReference().addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        for (String key:game.getPlayers()
-                                ) {
 
-                            adapter.add(String.valueOf(dataSnapshot.child(key).child("nickname").getValue()));
-
-                        }
                     }
 
                     @Override
@@ -99,7 +77,6 @@ public class ChooseState extends GameState {
 
                     }
                 });
-                answerListView.setAdapter(adapter);
             }
 
             @Override
@@ -107,6 +84,60 @@ public class ChooseState extends GameState {
 
             }
         });
+    }
+
+    @Override
+    public int getViewId() {
+        if (observer.isGameMaster()) 
+            return WAITING_VIEW;
+        else
+            return MAIN_VIEW;
+    }
+
+    private void setAnswersListView() {
+        final ArrayList<String>answersList=new ArrayList<String>();
+
+        answerListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+
+        //TODO: give points to the player with the selected answer
+
+        final ArrayAdapter<String> adapter = new ArrayAdapter<>(observer.getActivityReference(),android.R.layout.simple_list_item_single_choice,answersList);
+
+        setList(adapter);
+
+    }
+    private int randomInt(){
+        int random = (int) Math.floor(Math.random() * observer.getGameInfo().getAnswers().size());
+        return random;
+    }
+
+    private void setList(final ArrayAdapter<String> adapter) {
+        String correctAnswerKey = String.valueOf(observer.getGameInfo().getQuestion());
+
+        //get the correct answer
+        observer.getFirebaseQuestionsReference().child(correctAnswerKey).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Question question = dataSnapshot.getValue(Question.class);
+                adapter.add(question.getAnswer());
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+        //populate ListView with answers from players
+        for (String key:observer.getGameInfo().getPlayers()) {
+            String temp = null;
+            //Must check that the uID for game master is skipped, because answer will be null.
+            if (!key.equals(observer.getGameInfo().getGameMaster())) {
+                temp = observer.getGameInfo().getAnswers().get(key);
+                adapter.add(temp);
+            }
+        }
+        //TODO: Random sort listview.
+        answerListView.setAdapter(adapter);
     }
 
     @OnClick(R.id.chooseContinueButton)
@@ -121,14 +152,4 @@ public class ChooseState extends GameState {
 
     }
 
-    private class HostArrayAdapter<T> extends ArrayAdapter {
-        public HostArrayAdapter(GameActivity activityReference, int simple_list_item_single_choice, ArrayList<String> answersList) {
-            super(activityReference,simple_list_item_single_choice,answersList);
-        }
-        @Override
-        public boolean isEnabled(int position) {
-            //Ensures that the elements are not clickable
-            return false;
-        }
-    }
 }

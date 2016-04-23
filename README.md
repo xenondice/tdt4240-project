@@ -24,8 +24,8 @@
         * `gameMaster` - `<gameHost>` - A string with the user ID for the game master for the current round (changes each round).
 * `questions/`
     * `<question-id>`
-         * `question` - `"The name of the dog that won the 2012 World's Ugliest Dog Competition."` - A string with a question 
-         * `answer` - `"Mugly"` - A string with a question
+         * `question` - `"The name of the dog that won the 2012 World's Ugliest Dog Competition."` - A string with a question
+         * `answer` - `"Mugly"` - A string with a currentQuestion
 * `scores/`
     * `<game-id>`
         * `<user-id>`
