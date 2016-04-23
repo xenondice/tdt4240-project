@@ -38,7 +38,6 @@ public class ChooseState extends GameState {
     @Bind(R.id.chooseGameMasterListView) ListView masterAnswerListView;
     @Bind(R.id.textWhoIsMasterChoose) TextView textWhoIsMaster;
 
-
     private static final int MAIN_VIEW = 3;
     private static final int WAITING_VIEW = 4;
 
