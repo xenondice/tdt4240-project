@@ -65,4 +65,9 @@ public abstract class GameState {
      * Fired once a player leaves the game
      */
     public void playerLeft(String playerId) {}
+
+    /**
+     * Fired once a player inputs a answer
+     */
+    public void playerSubmittedAnswer(String playerId) {}
 }

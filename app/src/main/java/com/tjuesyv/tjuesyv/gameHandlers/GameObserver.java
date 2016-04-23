@@ -54,6 +54,7 @@ public class GameObserver {
     private Question activeQuestion;
     private Map<String, Player> activePlayers;
     private Map<String, Score> activeScores;
+    private Map<String, String> playerAnswers;
     private List<String> fullySyncedPlayers;
     private boolean startedListening;
 
@@ -66,6 +67,7 @@ public class GameObserver {
         this.activityReference = activityReference;
         activeScores = new HashMap<>();
         activePlayers = new HashMap<>();
+        playerAnswers = new HashMap<>();
         fullySyncedPlayers = new ArrayList<>();
         activeQuestion = null;
 
@@ -139,9 +141,14 @@ public class GameObserver {
         getFirebaseGameReference().addValueEventListener(serverListener);
     }
 
+    public String getPlayerAnswer(String playerId) {
+        return playerAnswers.get(playerId);
+    }
+
     /**
-     * TODO: Update description
-     * See what is new and do something
+     * See what is new and do something.
+     * This checks for differences in the game object in firebase and compares it with the old one
+     * If a change is detected, it does something regarding the change
      */
     synchronized private void handleNewData(Game oldGameInfo) {
         if (gameInfo.getQuestion() != oldGameInfo.getQuestion()) {
@@ -178,7 +185,7 @@ public class GameObserver {
         }
 
         if (gameInfo.getPlayers().size() > oldGameInfo.getPlayers().size()) {
-            notifyPlayer(gameInfo.getPlayers().get(gameInfo.getPlayers().size()-1));
+            notifyPlayer(gameInfo.getPlayers().get(gameInfo.getPlayers().size() - 1));
         }
     }
 
@@ -217,8 +224,22 @@ public class GameObserver {
                         // Store info for future reference
                         if (activeScores.put(playerId, score) == null) {
                             notifyPlayer(playerId);
-                        }
-                        else currentState.playerScoreChanged(playerId);
+                        } else currentState.playerScoreChanged(playerId);
+                    }
+
+                    @Override
+                    public void onCancelled(FirebaseError firebaseError) {
+                    }
+                });
+
+                getFirebaseAnswersReference().child(playerId).addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot scoreSnapshot) {
+                        // Get the player object
+                        String answer = (String) scoreSnapshot.getValue();
+                        // Store info for future reference
+                        playerAnswers.put(playerId, answer);
+                        currentState.playerSubmittedAnswer(playerId);
                     }
 
                     @Override
@@ -245,14 +266,23 @@ public class GameObserver {
         });
     }
 
+    /**
+     * Get the player object for a given connected player id
+     */
     public Player getPlayerFromId(String playerId) {
         return activePlayers.get(playerId);
     }
 
+    /**
+     * Gets the score object for a given connected player id
+     */
     public Score getScoreForPlayer(String playerId) {
         return activeScores.get(playerId);
     }
 
+    /**
+     * Gets the active question for this round
+     */
     public Question getQuestion() {
         return activeQuestion;
     }
@@ -291,12 +321,18 @@ public class GameObserver {
         getFirebaseGameReference().child("gameModeId").setValue(firebaseGameModeId);
     }
 
+    /**
+     * Does everything needed by the client once the server changes game mode
+     */
     private void changeGamemodeClient(int firebaseGameModeId) {
         gameMode = GameMode.getGameModeFromId(firebaseGameModeId);
         if (gameMode == null) throw new IllegalStateException("Server switched to an invalid gamemode!");
         enterLobbyClient();
     }
 
+    /**
+     * Does everything needed by the client once the server changes to the lobby state
+     */
     private void enterLobbyClient() {
         setActiveState(gameMode.getLobby());
     }
@@ -308,6 +344,9 @@ public class GameObserver {
         return activityReference;
     }
 
+    /**
+     * Gets the current round
+     */
     public int getCurrentRound() {
         return gameInfo.getRound();
     }
@@ -330,10 +369,17 @@ public class GameObserver {
         }
     }
 
+    /**
+     * Make the client do the necessary preparations when the server has changed its state
+     */
     private void startNewRoundClient() {
         setActiveState(gameMode.getStates().get(0));
     }
 
+    /**
+     * A function made in order to make sure all information about a joining player is set before notifying currentState of the player
+     * Also fills in the fullySyncedPlayers, made so that a player only can get the players that are fully logged in
+     */
     private void notifyPlayer(final String playerId) {
         if (gameInfo.getPlayers().contains(playerId) &&
                 activePlayers.get(playerId) != null &&
@@ -355,6 +401,10 @@ public class GameObserver {
         getFirebaseGameReference().child("stateId").setValue(gameInfo.getStateId() + 1);
     }
 
+    /**
+     * If you want a list of players, use this function, not getGameInfo().players.
+     * This is ensures all information about a player is set when calling getScore or getPlayer
+     */
     public List<String> getActivePlayers() {
         return fullySyncedPlayers;
     }
@@ -493,7 +543,6 @@ public class GameObserver {
     /**
      * Get the firebase authentication object
      */
-
     public AuthData getFirebaseAuthenticationData() {
         return authData;
     }
