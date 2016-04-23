@@ -18,6 +18,7 @@ import com.firebase.client.ValueEventListener;
 import com.tjuesyv.tjuesyv.R;
 import com.tjuesyv.tjuesyv.firebaseObjects.Player;
 import com.tjuesyv.tjuesyv.firebaseObjects.Question;
+import com.tjuesyv.tjuesyv.firebaseObjects.Score;
 import com.tjuesyv.tjuesyv.gameHandlers.GameObserver;
 import com.tjuesyv.tjuesyv.gameHandlers.GameState;
 
@@ -179,11 +180,15 @@ public class CreateState extends GameState {
         for (int i = 0; i < checked.size(); i++) {
             if (checked.get(i)) {
                 Map<String, Object> answerItem = answersList.get(i);
+                String playerId = answerItem.get("playerId").toString();
                 // Create new data format for correctAnswers
                 Map<String, Object> correctAnswerItem = new HashMap<>();
-                correctAnswerItem.put(answerItem.get("playerId").toString(), true);
+                correctAnswerItem.put(playerId, true);
                 observer.getFirebaseGameReference().child("correctAnswers").updateChildren(correctAnswerItem);
 
+                Score currentScore = observer.getScoreForPlayer(playerId);
+                currentScore.incrementScore(2);
+                observer.getFirebaseScoresReference().child(observer.getFirebaseGameReference().getKey()).child(playerId).setValue(currentScore);
                 //TODO: Update score
             }
         }
@@ -241,6 +246,7 @@ public class CreateState extends GameState {
             createSubmitButton.setEnabled(false);
             return false;
         } else {
+            createSubmitButton.setEnabled(true);
             answerTextInputLayout.setErrorEnabled(false);
             answerTextInputLayout.setError(null);
             return true;

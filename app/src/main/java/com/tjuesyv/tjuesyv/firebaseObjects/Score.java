@@ -19,7 +19,7 @@ public class Score {
         this.score = score;
     }
 
-    public  void incrementScore(){
-        score++;
+    public  void incrementScore(int i){
+        this.score = score + i;
     }
 }
