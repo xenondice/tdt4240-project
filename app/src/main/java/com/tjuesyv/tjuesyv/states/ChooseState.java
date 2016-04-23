@@ -88,8 +88,10 @@ public class ChooseState extends GameState {
 
     @Override
     public int getViewId() {
-        if (observer.isGameMaster()) return WAITING_VIEW;
-        return MAIN_VIEW;
+        if (observer.isGameMaster()) 
+            return WAITING_VIEW;
+        else
+            return MAIN_VIEW;
     }
 
     private void setAnswersListView() {

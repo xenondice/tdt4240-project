@@ -21,7 +21,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:id="@+id/choosesubTitleGameMasterTextView"
-        android:text="Playsers who have chosen:"
+        android:text="Players who have chosen:"
         android:textSize="@dimen/text_size_large"
         android:textStyle="bold"
         android:textAppearance="?android:attr/textAppearanceLarge"

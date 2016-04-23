@@ -3,11 +3,11 @@ package com.tjuesyv.tjuesyv.states;
 import android.provider.ContactsContract;
 import android.support.design.widget.TextInputLayout;
 import android.widget.ArrayAdapter;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
@@ -41,7 +41,9 @@ public class CreateState extends GameState {
 
     @Bind(R.id.createSubmitButton) Button createSubmitButton;
     @Bind(R.id.createContinueButton) Button createContinueButton;
-    @Bind(R.id.questionTextView) TextView questionTextView;
+    @Bind(R.id.questionPlayerTextView) TextView questionPlayerTextView;
+    @Bind(R.id.questionGameMasterTextView) TextView questionGameMasterTextView;
+    @Bind(R.id.answerTextView) TextView answerTextView;
     @Bind(R.id.answerEditText) EditText answerEditText;
     @Bind(R.id.answerTextInputLayout) TextInputLayout answerTextInputLayout;
     @Bind(R.id.answersGameMasterListView) ListView answersGameMasterListView;
@@ -66,6 +68,11 @@ public class CreateState extends GameState {
 
         // Setup ButterKnife
         ButterKnife.bind(this, observer.getActivityReference());
+
+        // Clear fields and buttons
+        answerTextInputLayout.setVisibility(View.VISIBLE);
+        createSubmitButton.setEnabled(true);
+        createSubmitButton.setText(observer.getActivityReference().getString(R.string.btn_submit_answer));
 
         // Get the question for this round
         getQuestion();
@@ -118,28 +125,22 @@ public class CreateState extends GameState {
 
                             }
                         });
-
-
                     }
 
                     @Override
                     public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
                     }
 
                     @Override
                     public void onChildRemoved(DataSnapshot dataSnapshot) {
-
                     }
 
                     @Override
                     public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
                     }
 
                     @Override
                     public void onCancelled(FirebaseError firebaseError) {
-
                     }
                 });
         answersGameMasterListView.setAdapter(adapter);
@@ -147,16 +148,17 @@ public class CreateState extends GameState {
 
     @Override
     public int getViewId() {
-        if (observer.isGameMaster()){
+        if (observer.isGameMaster())
             return GAME_MASTER_VIEW;
-        }
-        return PLAYER_VIEW;
+        else
+            return PLAYER_VIEW;
     }
 
     @OnTextChanged(R.id.answerEditText)
     protected void validAnswer(CharSequence input) {
         isValidAnswer(input.toString());
     }
+
     @OnClick(R.id.createContinueButton)
     protected void continueButton(){
         nextState();
@@ -173,11 +175,10 @@ public class CreateState extends GameState {
 
         // Clear field
         answerEditText.setText(null);
-
-        this.hasSubmitted = true;
-        // Go to next state
-        if (observer.isGameMaster()) nextState();
+        answerTextInputLayout.setVisibility(View.INVISIBLE);
         createSubmitButton.setEnabled(false);
+        createSubmitButton.setText("Waiting on Game Master to continue");
+
     }
 
     /**
@@ -208,7 +209,13 @@ public class CreateState extends GameState {
                     public void onDataChange(DataSnapshot questionSnapshot) {
                         // Get the question and print it
                         Question question = questionSnapshot.getValue(Question.class);
-                        questionTextView.setText(question.getQuestion());
+
+                        if (getViewId() == PLAYER_VIEW) {
+                            questionPlayerTextView.setText(question.getQuestion());
+                        } else if (getViewId() == GAME_MASTER_VIEW) {
+                            questionGameMasterTextView.setText(question.getQuestion());
+                            answerTextView.setText(question.getAnswer());
+                        }
                     }
 
                     @Override
