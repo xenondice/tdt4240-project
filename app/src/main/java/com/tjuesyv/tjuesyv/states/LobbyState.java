@@ -36,7 +36,8 @@ public class LobbyState extends GameState {
     @Bind(R.id.playerListView) ListView playersListView;
 
     private static final int MAIN_VIEW = 0;
-    private final List<Map<String, String>> playersList = new ArrayList<Map<String, String>>();
+    private final List<Map<String, String>> playersList = new ArrayList<>();
+    private SimpleAdapter simpleAdapter;
 
     @Override
     public int getViewId() {
@@ -51,9 +52,6 @@ public class LobbyState extends GameState {
 
         // Displays game info
         setGameInfo();
-
-        // Displays playersList in a listView
-        setPlayerListListener();
 
         // Set startbutton if host
         setStartButton();
@@ -73,21 +71,22 @@ public class LobbyState extends GameState {
      * Populates game info textViews.
      */
     private void setGameInfo() {
-        observer.getFirebaseGameReference().addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Game game = dataSnapshot.getValue(Game.class);
-                gameCodeTextView.setText("Game Code: " + game.getGameCode());
-                if (game.getStarted())
-                    startedTextView.setText(R.string.text_game_has_started);
-                else
-                    startedTextView.setText(R.string.text_game_not_started);
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-            }
-        });
+        gameCodeTextView.setText(observer.getGameInfo().getGameCode());
+        startedTextView.setText(observer.getGameInfo().getStarted()?
+                R.string.text_game_has_started:
+                R.string.text_game_not_started);
+        // Create an adapter to represent the playersList
+        simpleAdapter = new SimpleAdapter(observer.getActivityReference(),
+                playersList,
+                android.R.layout.simple_list_item_2,
+                new String[]{"nickname", "role"},
+                new int[]{android.R.id.text1, android.R.id.text2});
+        // Assign adapter to the ListView
+        playersListView.setAdapter(simpleAdapter);
+        // Fill with existing players
+        for (String playerId : observer.getActivePlayers()) {
+            putPlayerInList(playerId);
+        }
     }
 
     /**
@@ -103,91 +102,45 @@ public class LobbyState extends GameState {
         }
     }
 
-    /**
-     * Updates player list when players join or leave the game.
-     */
-    private void setPlayerListListener() {
-        // Create an adapter to represent the playersList
-        final SimpleAdapter simpleAdapter = new SimpleAdapter(observer.getActivityReference(),
-                playersList,
-                android.R.layout.simple_list_item_2,
-                new String[] {"nickname", "role"},
-                new int[] {android.R.id.text1, android.R.id.text2});
-        // Assign adapter to the ListView
-        playersListView.setAdapter(simpleAdapter);
+    @Override
+    public void newPlayerJoined(String playerId) {
+        putPlayerInList(playerId);
+    }
 
-        // Create a child event listener on the game object in Firebase to listen for changes in the players list
-        observer.getFirebaseGameReference().child("players").addChildEventListener(new ChildEventListener() {
-            // If player has joined
-            @Override
-            public void onChildAdded(final DataSnapshot playerInGameSnapshot, String s) {
-                // Look up player in users reference
-                String playerId = (String) playerInGameSnapshot.getValue();
-                observer.getFirebaseUsersReference().child(playerId).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot playerSnapshot) {
-                        // Get the player object
-                        Player player = playerSnapshot.getValue(Player.class);
+    private void putPlayerInList(String playerId) {
+        // Get the player object
+        Player player = observer.getPlayerFromId(playerId);
 
-                        // Create list to represent player in the list
-                        Map<String, String> playerItem = new HashMap<String, String>(3);
-                        playerItem.put("id", playerSnapshot.getKey());
-                        playerItem.put("nickname", player.getNickname());
+        // Create list to represent player in the list
+        Map<String, String> playerItem = new HashMap<String, String>(3);
+        playerItem.put("id", playerId);
+        playerItem.put("nickname", player.getNickname());
 
-                        // Put the specific role of the player
-                        if (playerSnapshot.getKey().equals(observer.getFirebaseAuthenticationData().getUid()) && player.isGameHostInGame(observer.getFirebaseGameReference().getKey())) {
-                            // Player is us and we are the game host
-                            playerItem.put("role", "You are the Game Host");
-                        } else if (playerSnapshot.getKey().equals(observer.getFirebaseAuthenticationData().getUid())) {
-                            // Player is us
-                            playerItem.put("role", "You");
-                        } else if (player.isGameHostInGame(observer.getFirebaseGameReference().getKey())) {
-                            // Other player is game host
-                            playerItem.put("role", "Game Host");
-                        }
+        // Put the specific role of the player
+        if (playerId.equals(observer.getFirebaseAuthenticationData().getUid()) && player.isGameHostInGame(observer.getFirebaseGameReference().getKey())) {
+            // Player is us and we are the game host
+            playerItem.put("role", "You are the Game Host");
+        } else if (playerId.equals(observer.getFirebaseAuthenticationData().getUid())) {
+            // Player is us
+            playerItem.put("role", "You");
+        } else if (player.isGameHostInGame(observer.getFirebaseGameReference().getKey())) {
+            // Other player is game host
+            playerItem.put("role", "Game Host");
+        }
 
-                        // Add player to playersList list and notify
-                        playersList.add(playerItem);
-                        simpleAdapter.notifyDataSetChanged();
-                    }
+        // Add player to playersList list and notify
+        playersList.add(playerItem);
+        simpleAdapter.notifyDataSetChanged();
+    }
 
-                    @Override
-                    public void onCancelled(FirebaseError firebaseError) {
-                    }
-                });
-            }
-
-            // If player is removed
-            @Override
-            public void onChildRemoved(final DataSnapshot playerInGameSnapshot) {
-                observer.getFirebaseUsersReference().child(playerInGameSnapshot.getKey()).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot playerSnapshot) {
-                        // Find player with the correct player Id to remove from the players list
-                        for (int i = 0; i < playersList.toArray().length; i++) {
-                            if (playersList.get(i).get("id").equals(playerSnapshot.getKey()))
-                                playersList.remove(i);
-                        }
-                        simpleAdapter.notifyDataSetChanged();
-                    }
-
-                    @Override
-                    public void onCancelled(FirebaseError firebaseError) {
-                    }
-                });
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-            }
-        });
+    // If player is removed
+    @Override
+    public void playerLeft(String playerId) {
+        // Find player with the correct player Id to remove from the players list
+        for (int i = 0; i < playersList.toArray().length; i++) {
+            if (playersList.get(i).get("id").equals(playerId))
+                playersList.remove(i);
+        }
+        simpleAdapter.notifyDataSetChanged();
     }
 }

@@ -49,7 +49,6 @@ public class GameActivity extends AppCompatActivity {
     @Override
     public void finish() {
         super.finish();
-        gameObserver.close();
         // Exit server if host
         // Logout if user
     }
