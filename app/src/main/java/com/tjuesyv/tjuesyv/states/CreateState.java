@@ -49,6 +49,7 @@ public class CreateState extends GameState {
     @Bind(R.id.answerEditText) EditText answerEditText;
     @Bind(R.id.answerTextInputLayout) TextInputLayout answerTextInputLayout;
     @Bind(R.id.answersGameMasterListView) ListView answersGameMasterListView;
+    @Bind(R.id.textWhoIsMasterCreate) TextView textWhoIsMaster;
 
     private static final int PLAYER_VIEW = 1;
     private static final int GAME_MASTER_VIEW = 2;
@@ -70,6 +71,7 @@ public class CreateState extends GameState {
         answerTextInputLayout.setVisibility(View.VISIBLE);
         createSubmitButton.setEnabled(true);
         createSubmitButton.setText(observer.getActivityReference().getString(R.string.btn_submit_answer));
+        textWhoIsMaster.setText("Current Game Master: "+observer.getPlayerFromId(observer.getGameInfo().getGameMaster()).getNickname());
 
         // Get the question for this round
         getQuestion();
