@@ -99,6 +99,9 @@ public class GameObserver implements Closeable {
         currentUserRef = usersRef.child(authData.getUid());
         roundAnswersRef = currentGameRef.child("answers");
 
+        // Set random initial question
+        setRandomQuestion();
+
         // Start listening for changes from the server
         serverListener = new ValueEventListener() {
             @Override
@@ -197,7 +200,6 @@ public class GameObserver implements Closeable {
     }
 
     private void enterLobbyClient() {
-        setRandomQuestion();
         setActiveState(gameMode.getLobby());
     }
 
@@ -248,8 +250,6 @@ public class GameObserver implements Closeable {
      * Make server start new round
      */
     private void startNewRoundServer() {
-        setRandomQuestion();
-
         String tempGameMaster = null;
 
         // Choose game master
@@ -311,7 +311,7 @@ public class GameObserver implements Closeable {
      * Helper method to generate a random question ID
      * @return
      */
-    private void setRandomQuestion() {
+    public void setRandomQuestion() {
         getFirebaseQuestionsReference().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {

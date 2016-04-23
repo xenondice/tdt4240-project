@@ -51,6 +51,9 @@ public class ScoreState extends GameState {
 
         // Sets a listener for the scores of the players
         setScoreListListener();
+
+        // Set a new random question for the next round
+        observer.setRandomQuestion();
     }
 
     @Override

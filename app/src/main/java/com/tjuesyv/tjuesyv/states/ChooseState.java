@@ -61,7 +61,7 @@ public class ChooseState extends GameState {
 
     private void setMasterListView() {
         masterAnswerListView.setAdapter(adapter);
-        observer.getFirebaseGameReference().addValueEventListener(new ValueEventListener() {
+        observer.getFirebaseGameReference().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
