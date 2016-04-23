@@ -1,27 +1,28 @@
 package com.tjuesyv.tjuesyv.states;
 
-import android.provider.ContactsContract;
 import android.support.design.widget.TextInputLayout;
+import android.util.SparseBooleanArray;
 import android.widget.ArrayAdapter;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
-import com.tjuesyv.tjuesyv.MainApplication;
 import com.tjuesyv.tjuesyv.R;
-import com.tjuesyv.tjuesyv.firebaseObjects.Game;
+import com.tjuesyv.tjuesyv.firebaseObjects.Player;
 import com.tjuesyv.tjuesyv.firebaseObjects.Question;
 import com.tjuesyv.tjuesyv.gameHandlers.GameObserver;
 import com.tjuesyv.tjuesyv.gameHandlers.GameState;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import butterknife.Bind;
@@ -48,15 +49,10 @@ public class CreateState extends GameState {
     @Bind(R.id.answerTextInputLayout) TextInputLayout answerTextInputLayout;
     @Bind(R.id.answersGameMasterListView) ListView answersGameMasterListView;
 
-    private  static final int PLAYER_VIEW = 1;
-    private  static final int GAME_MASTER_VIEW = 2;
+    private static final int PLAYER_VIEW = 1;
+    private static final int GAME_MASTER_VIEW = 2;
 
-    private boolean hasSubmitted = false;
-    private int answerCounter;
-
-    private ArrayList<String> answersList=new ArrayList<String>();
-    private ArrayAdapter<String> adapter = new ArrayAdapter<>(observer.getActivityReference(),android.R.layout.simple_list_item_multiple_choice,answersList);
-
+    private List<Map<String, Object>> answersList = new ArrayList<>();
 
     /**
      * Called once the state is entered
@@ -76,74 +72,71 @@ public class CreateState extends GameState {
 
         // Get the question for this round
         getQuestion();
+
         if(observer.isGameMaster()){
-            answerCounter = 0;
             setMasterListView();
-            createContinueButton.setEnabled(true);
         }
     }
 
     private void setMasterListView() {
-        adapter.clear();
+        final SimpleAdapter answersAdapter = new SimpleAdapter(observer.getActivityReference(),
+                answersList,
+                android.R.layout.simple_list_item_multiple_choice,
+                new String[] {"answer"},
+                new int[] {android.R.id.text1});
+
+        // Clear from previous round
         answersList.clear();
-        answersGameMasterListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
         observer.getFirebaseAnswersReference().setValue(null);
+        observer.getFirebaseGameReference().child("correctAnswers").setValue(null);
+
+        // Set adapter
+        answersGameMasterListView.setAdapter(answersAdapter);
+        answersGameMasterListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
 
         //TODO: give points to the player with the selected answer
 
-        setList(adapter);
-/*        */
-    }
-
-    /*
-    * Necessary for duck sake.
-     */
-    private String holderNick;
-    private void nickHolder(String nick){
-        holderNick = nick;
-    }
-    private String getHolderNick(){
-        return holderNick;
-    }
-
-    private void setList(final ArrayAdapter<String> adapter) {
-        //answersGameMasterListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-                observer.getFirebaseAnswersReference().addChildEventListener(new ChildEventListener() {
+        observer.getFirebaseAnswersReference().addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                final String answer = (String) dataSnapshot.getValue();
+                final String playerKey = dataSnapshot.getKey();
+                observer.getFirebaseUsersReference().child(playerKey).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
-                    public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                        final String ans = (String) dataSnapshot.getValue();
-                        final String key = dataSnapshot.getKey();
-                        observer.getFirebaseUsersReference().child(key).addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                nickHolder(String.valueOf(dataSnapshot.child("nickname").getValue()));
-                                adapter.add(getHolderNick() + ": " + ans);
-                            }
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        Player player = dataSnapshot.getValue(Player.class);
 
-                            @Override
-                            public void onCancelled(FirebaseError firebaseError) {
+                        Map<String, Object> answerItem = new HashMap<String, Object>();
+                        answerItem.put("nickname", player.getNickname());
+                        answerItem.put("playerId", playerKey);
+                        answerItem.put("answer", answer);
 
-                            }
-                        });
-                    }
-
-                    @Override
-                    public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                    }
-
-                    @Override
-                    public void onChildRemoved(DataSnapshot dataSnapshot) {
-                    }
-
-                    @Override
-                    public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+                        answersList.add(answerItem);
+                        answersAdapter.notifyDataSetChanged();
                     }
 
                     @Override
                     public void onCancelled(FirebaseError firebaseError) {
                     }
                 });
-        answersGameMasterListView.setAdapter(adapter);
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+            }
+        });
     }
 
     @Override
@@ -161,7 +154,25 @@ public class CreateState extends GameState {
 
     @OnClick(R.id.createContinueButton)
     protected void continueButton(){
+        // Score correct answers
+        scoreCorrectAnswers();
+
         nextState();
+    }
+
+    private void scoreCorrectAnswers() {
+        SparseBooleanArray checked = answersGameMasterListView.getCheckedItemPositions();
+        for (int i = 0; i < checked.size(); i++) {
+            if (checked.get(i)) {
+                Map<String, Object> answerItem = answersList.get(i);
+                // Create new data format for correctAnswers
+                Map<String, Object> correctAnswerItem = new HashMap<>();
+                correctAnswerItem.put(answerItem.get("playerId").toString(), true);
+                observer.getFirebaseGameReference().child("correctAnswers").updateChildren(correctAnswerItem);
+
+                // Update score
+            }
+        }
     }
 
     @OnClick(R.id.createSubmitButton)
@@ -178,7 +189,6 @@ public class CreateState extends GameState {
         answerTextInputLayout.setVisibility(View.INVISIBLE);
         createSubmitButton.setEnabled(false);
         createSubmitButton.setText("Waiting on Game Master to continue");
-
     }
 
     /**
@@ -242,7 +252,6 @@ public class CreateState extends GameState {
         } else {
             answerTextInputLayout.setErrorEnabled(false);
             answerTextInputLayout.setError(null);
-            if (!hasSubmitted) createSubmitButton.setEnabled(true);
             return true;
         }
     }
