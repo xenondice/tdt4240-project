@@ -48,6 +48,7 @@ public class GameObserver {
     private Firebase currentUserRef;
     private Firebase roundAnswersRef;
     private AuthData authData;
+    private String gameUid;
 
     private Game gameInfo;
     private Question activeQuestion;
@@ -89,6 +90,7 @@ public class GameObserver {
         // Get ID
         Intent activityIntent = activityReference.getIntent();
         String gameUID = activityIntent.getStringExtra("GAME_UID");
+        this.gameUid = gameUID;
 
         // Create main Firebase ref
         rootRef = new Firebase(activityReference.getResources().getString(R.string.firebase_url));
@@ -172,12 +174,16 @@ public class GameObserver {
         if (gameInfo.getGameModeId() != oldGameInfo.getGameModeId()) {
             changeGamemodeClient(gameInfo.getGameModeId());
         }
+
+        if (gameInfo.getPlayers().equals(oldGameInfo.getPlayers())) {
+            notifyPlayer(gameInfo.getPlayers().get(gameInfo.getPlayers().size()-1));
+        }
     }
 
     /**
      * Setup listeners
      * Start listeners for necessary values
-     * After one is added here, make a function in GameState, which you can then overrride
+     * After one is added here, make a function in GameState, which you can then override
      * Also check if the value was actually changed to a new value, or if it the same
      */
     public void setListeners() {
@@ -192,21 +198,22 @@ public class GameObserver {
                     public void onDataChange(DataSnapshot playerSnapshot) {
                         // Get the player object
                         Player player = playerSnapshot.getValue(Player.class);
-                        activePlayers.put(playerId, player);
+                        if (activePlayers.put(playerId, player) == null)
+                            notifyPlayer(playerId);
                     }
 
                     @Override
                     public void onCancelled(FirebaseError firebaseError) {}
                 });
 
-                getFirebaseScoresReference().child(playerId).addValueEventListener(new ValueEventListener() {
+                getFirebaseScoresReference().child(gameUid).child(playerId).addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot scoreSnapshot) {
                         // Get the player object
                         Score score = scoreSnapshot.getValue(Score.class);
                         // Store info for future reference (updated last so notify here)
                         if (activeScores.put(playerId, score) == null)
-                            currentState.newPlayerJoined(playerId);
+                            notifyPlayer(playerId);
                         else currentState.playerScoreChanged(playerId);
                     }
 
@@ -249,28 +256,23 @@ public class GameObserver {
     /**
      * Create a new instance of the class and set the correct view for the local player
      */
-    private void setActiveState(Class<? extends GameState> state) {
-        final Class<? extends GameState> finalState = state;
+    private void setActiveState(final Class<? extends GameState> state) {
         final GameObserver observer = this;
         getActivityReference().runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 try {
                     if (currentState != null) currentState.onExit();
-                    currentState = finalState.getConstructor(observer.getClass()).newInstance(observer);
+                    currentState = state.getConstructor(observer.getClass()).newInstance(observer);
                     rootFlipper.setDisplayedChild(currentState.getViewId());
                 } catch (InstantiationException e) {
                     e.printStackTrace();
-                    System.exit(-1);
                 } catch (InvocationTargetException e) {
                     e.getCause().printStackTrace();
-                    System.exit(-1);
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
-                    System.exit(-1);
                 } catch (NoSuchMethodException e) {
                     e.printStackTrace();
-                    System.exit(-1);
                 }
             }
         });
@@ -328,6 +330,19 @@ public class GameObserver {
         setActiveState(gameMode.getStates().get(0));
     }
 
+    private void notifyPlayer(final String playerId) {
+        if (gameInfo.getPlayers().contains(playerId) &&
+                activePlayers.get(playerId) != null &&
+                activeScores.get(playerId) != null) {
+            getActivityReference().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    currentState.newPlayerJoined(playerId);
+                }
+            });
+        }
+    }
+
     /**
      * Move server to next state
      */
@@ -336,7 +351,7 @@ public class GameObserver {
     }
 
     public Set<String> getActivePlayers() {
-        return activePlayers.keySet();
+        return activeScores.keySet();
     }
 
     /**
@@ -368,7 +383,7 @@ public class GameObserver {
                             break;
                         }
                     }
-                
+
                 if (tempGameMaster == null) {
                     System.out.println("No existing game master found, setting as host");
                     tempGameMaster = gameInfo.getGameHost();

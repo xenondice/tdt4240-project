@@ -76,48 +76,10 @@ public class ScoreState extends GameState {
 
         // Need to lookup players in game, the nicknames of the players and their scores
         // Get the players that are in the current game
-        observer.getFirebaseGameReference().child("players").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot playerIdSnapshot) {
-                // We get a list of players as a Map
-                List<String> playerIds = (List<String>) playerIdSnapshot.getValue();
-                // Iterate over the players in the game
-                for (final String playerId : playerIds) {
-                    // Lookup players by their playerId
-                    observer.getFirebaseUsersReference().child(playerId).addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(final DataSnapshot playerSnapshot) {
-                            // Get the Player object
-                            final Player player = playerSnapshot.getValue(Player.class);
-
-                            // Find scores of player
-                            observer.getFirebaseScoresReference().child(observer.getFirebaseGameReference().getKey()).child(playerSnapshot.getKey()).addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(DataSnapshot scoreSnapshot) {
-                                    // Get the Score object
-                                    Score score = scoreSnapshot.getValue(Score.class);
-
-                                    // Add player and their score to adapter
-                                    adapter.add(player.getNickname() + " - " + score.getScore());
-                                }
-
-                                @Override
-                                public void onCancelled(FirebaseError firebaseError) {
-                                }
-                            });
-                        }
-
-                        @Override
-                        public void onCancelled(FirebaseError firebaseError) {
-                        }
-                    });
-
-                }
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-            }
-        });
+        for (String playerId : observer.getActivePlayers()) {
+            Player player = observer.getPlayerFromId(playerId);
+            Score score = observer.getScoreForPlayer(playerId);
+            adapter.add(player.getNickname() + " - " + score.getScore());
+        }
     }
 }
