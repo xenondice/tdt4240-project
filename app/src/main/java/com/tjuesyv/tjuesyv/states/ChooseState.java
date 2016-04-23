@@ -5,6 +5,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.TextView;
 
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
@@ -12,6 +13,7 @@ import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
 import com.tjuesyv.tjuesyv.GameActivity;
 import com.tjuesyv.tjuesyv.R;
+import com.tjuesyv.tjuesyv.firebaseObjects.Player;
 import com.tjuesyv.tjuesyv.firebaseObjects.Question;
 import com.tjuesyv.tjuesyv.gameHandlers.GameObserver;
 import com.tjuesyv.tjuesyv.firebaseObjects.Game;
@@ -34,6 +36,7 @@ public class ChooseState extends GameState {
     @Bind(R.id.chooseContinueButton) Button chooseContinueButton;
     @Bind(R.id.answersView) ListView answerListView;
     @Bind(R.id.chooseGameMasterListView) ListView masterAnswerListView;
+    @Bind(R.id.textWhoIsMasterChoose) TextView textWhoIsMaster;
 
 
     private static final int MAIN_VIEW = 3;
@@ -54,6 +57,8 @@ public class ChooseState extends GameState {
         if(observer.isGameMaster()){
             setMasterListView();
         }else {
+
+            textWhoIsMaster.setText("Current Game Master: "+observer.getPlayerFromId(observer.getGameInfo().getGameMaster()).getNickname());
             setAnswersListView();
         }
 
