@@ -34,6 +34,7 @@ import butterknife.OnClick;
 public class ChooseState extends GameState {
 
     @Bind(R.id.chooseContinueButton) Button chooseContinueButton;
+    @Bind(R.id.chooseSubmitButton) Button chooseSubmitButton;
     @Bind(R.id.answersView) ListView answerListView;
     @Bind(R.id.chooseGameMasterListView) ListView masterAnswerListView;
     @Bind(R.id.textWhoIsMasterChoose) TextView textWhoIsMaster;
@@ -55,6 +56,7 @@ public class ChooseState extends GameState {
         ButterKnife.bind(this, observer.getActivityReference());
         if(observer.isGameMaster()){
             setMasterListView();
+            chooseContinueButton.setEnabled(true);
         }else {
 
             textWhoIsMaster.setText("Current Game Master: "+observer.getPlayerFromId(observer.getGameInfo().getGameMaster()).getNickname());
@@ -137,14 +139,16 @@ public class ChooseState extends GameState {
 
     @OnClick(R.id.chooseContinueButton)
     protected void goToScore() {
-        processAnswer(answerListView.getCheckedItemPosition());
-
+       //TODO: Make shure all players have answered before calling nextState()
+        chooseContinueButton.setEnabled(false);
         nextState();
     }
-
-    private void processAnswer(int selectionPos) {
-        //TODO: more processing of answers here
-
+    @OnClick(R.id.chooseSubmitButton)
+    protected void submitChoice() {
+        //TODO: Submit choice to firebase
+        chooseSubmitButton.setEnabled(false);
+        chooseSubmitButton.setText("Waiting for Game Master");
     }
+
 
 }
