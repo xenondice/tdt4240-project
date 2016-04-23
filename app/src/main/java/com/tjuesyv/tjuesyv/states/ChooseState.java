@@ -38,6 +38,7 @@ import butterknife.OnClick;
 public class ChooseState extends GameState {
 
     @Bind(R.id.chooseContinueButton) Button chooseContinueButton;
+    @Bind(R.id.chooseSubmitButton) Button chooseSubmitButton;
     @Bind(R.id.answersView) ListView answerListView;
     @Bind(R.id.chooseGameMasterListView) ListView masterAnswerListView;
     @Bind(R.id.textWhoIsMasterChoose) TextView textWhoIsMaster;
@@ -60,6 +61,7 @@ public class ChooseState extends GameState {
         ButterKnife.bind(this, observer.getActivityReference());
         if(observer.isGameMaster()){
             setMasterListView();
+            chooseContinueButton.setEnabled(true);
         }else {
 
             textWhoIsMaster.setText("Current Game Master: "+observer.getPlayerFromId(observer.getGameInfo().getGameMaster()).getNickname());
@@ -68,7 +70,6 @@ public class ChooseState extends GameState {
     }
 
     private void setMasterListView() {
-        //TODO
         masterAnswerListView.setAdapter(adapter);
         observer.getFirebaseGameReference().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -78,16 +79,19 @@ public class ChooseState extends GameState {
                 observer.getFirebaseAnswersReference().addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
+
                     }
 
                     @Override
                     public void onCancelled(FirebaseError firebaseError) {
+
                     }
                 });
             }
 
             @Override
             public void onCancelled(FirebaseError firebaseError) {
+
             }
         });
     }
@@ -143,7 +147,6 @@ public class ChooseState extends GameState {
 
     @OnClick(R.id.chooseContinueButton)
     protected void goToScore() {
-        processAnswer(answerListView.getCheckedItemPosition());
 
         nextState();
     }
@@ -165,4 +168,12 @@ public class ChooseState extends GameState {
             observer.getFirebaseScoresReference().child(observer.getFirebaseGameReference().getKey()).child(playerId).setValue(currentScore);
         }
     }
+    @OnClick(R.id.chooseSubmitButton)
+    protected void submitChoice() {
+        //TODO: Submit choice to firebase
+        processAnswer(answerListView.getCheckedItemPosition());
+        chooseSubmitButton.setEnabled(false);
+        chooseSubmitButton.setText("Waiting for Game Master");
+    }
+
 }

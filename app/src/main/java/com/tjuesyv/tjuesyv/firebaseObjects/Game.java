@@ -24,6 +24,7 @@ public class Game {
     private List<String> players = new ArrayList<>();
     private Map<String, String> answers;
     private Map<String, String> selectedAns;
+    private Map<String, String> checkedAns;
     private Map<String, String> correctAnswers;
 
     // Required default constructor for Firebase object mapping
