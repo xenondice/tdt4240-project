@@ -50,8 +50,14 @@ public class ScoreState extends GameState {
 
         roundTextField.setText(observer.getCurrentRound() + " of " + DefaultMode.NUMBER_OF_ROUNDS);
 
-        scoreContinueButton.setEnabled(true);
-        scoreContinueButton.setText("Continue");
+        if (observer.isGameMaster()) {
+            scoreContinueButton.setEnabled(true);
+            scoreContinueButton.setText("Continue");
+        }
+        else {
+            scoreContinueButton.setEnabled(false);
+            scoreContinueButton.setText("Waiting for Game Master");
+        }
 
         // Sets a listener for the scores of the players
         setScoreListListener();
@@ -68,7 +74,7 @@ public class ScoreState extends GameState {
         if (observer.isGameMaster()) {
             nextState();
         }else{
-            Toast.makeText(observer.getActivityReference(), "Waiting for Game Master...",Toast.LENGTH_SHORT).show();
+            Toast.makeText(observer.getActivityReference(), "Waiting for Game Master...",Toast.LENGTH_LONG).show();
             scoreContinueButton.setEnabled(false);
             scoreContinueButton.setText("Waiting for Game Master...");
         }
