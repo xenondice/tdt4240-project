@@ -72,6 +72,12 @@ public class ChooseState extends GameState {
         }
     }
 
+    private void setMasterListView() {
+        //This is where a list of chosen answers should be generated for the game master.
+        //We didn't have time to implement this, as it would require every users choice to be mapped in Firebase. As of now - only
+        //an increment of the score is stored in Firebase.
+    }
+
     @Override
     public int getViewId() {
         if (observer.isGameMaster()) 

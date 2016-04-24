@@ -5,6 +5,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.FirebaseError;
@@ -49,6 +50,9 @@ public class ScoreState extends GameState {
 
         roundTextField.setText(observer.getCurrentRound() + " of " + DefaultMode.NUMBER_OF_ROUNDS);
 
+        scoreContinueButton.setEnabled(true);
+        scoreContinueButton.setText("Continue");
+
         // Sets a listener for the scores of the players
         setScoreListListener();
     }
@@ -60,7 +64,15 @@ public class ScoreState extends GameState {
 
     @OnClick(R.id.scoreContinueButton)
     protected void goToNextRound() {
-        nextState();
+
+        if (observer.isGameMaster()) {
+            nextState();
+        }else{
+            Toast.makeText(observer.getActivityReference(), "Waiting for Game Master...",Toast.LENGTH_SHORT).show();
+            scoreContinueButton.setEnabled(false);
+            scoreContinueButton.setText("Waiting for Game Master...");
+        }
+
     }
 
     /**
