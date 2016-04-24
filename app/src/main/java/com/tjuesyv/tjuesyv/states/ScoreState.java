@@ -68,7 +68,7 @@ public class ScoreState extends GameState {
         if (observer.isGameMaster()) {
             nextState();
         }else{
-            Toast.makeText(observer.getActivityReference(), "Waiting for Game Master...",Toast.LENGTH_SHORT).show();
+            Toast.makeText(observer.getActivityReference(), "Waiting for Game Master...",Toast.LENGTH_LONG).show();
             scoreContinueButton.setEnabled(false);
             scoreContinueButton.setText("Waiting for Game Master...");
         }
