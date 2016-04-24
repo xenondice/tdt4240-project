@@ -74,30 +74,9 @@ public class ChooseState extends GameState {
     }
 
     private void setMasterListView() {
-        masterAnswerListView.setAdapter(adapter);
-        observer.getFirebaseGameReference().addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                final Game game = dataSnapshot.getValue(Game.class);
-                observer.getFirebaseAnswersReference().addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-
-                    }
-
-                    @Override
-                    public void onCancelled(FirebaseError firebaseError) {
-
-                    }
-                });
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-
-            }
-        });
+        //This is where a list of chosen answers should be generated for the game master.
+        //We didn't have time to implement this, as it would require every users choice to be mapped in Firebase. As of now - only
+        //an increment of the score is stored in Firebase.
     }
 
     @Override
