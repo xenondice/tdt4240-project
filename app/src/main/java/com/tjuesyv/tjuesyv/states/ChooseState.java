@@ -62,7 +62,6 @@ public class ChooseState extends GameState {
         // Setup ButterKnife
         ButterKnife.bind(this, observer.getActivityReference());
         if(observer.isGameMaster()){
-            setMasterListView();
             chooseContinueButton.setEnabled(true);
         }else {
             answerListView.setEnabled(true);
@@ -115,10 +114,10 @@ public class ChooseState extends GameState {
                     continue;
                 }
             }
-                Map<String, Object> answerItem = new HashMap<String, Object>();
-                answerItem.put("answer", answer.getValue());
-                answerItem.put("playerId", answer.getKey());
-                answersList.add(answerItem);
+            Map<String, Object> answerItem = new HashMap<String, Object>();
+            answerItem.put("answer", answer.getValue());
+            answerItem.put("playerId", answer.getKey());
+            answersList.add(answerItem);
         }
         answersAdapter.notifyDataSetChanged();
     }
