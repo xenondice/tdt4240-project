@@ -17,7 +17,7 @@
         * `round` - `1` - An integer value of the current round.
         * `question` - `<question-id>` - An integer value of the id of the current question.
         * `answers`
-            * `<user-id>` - `Bob is your uncle` - A string value of the answer for this player.
+            * `<user-id>` - `"Bob is your uncle"` - A string value of the answer for this player.
         * `correctAanswers`
             * `<user-id>` - `true` - A boolean value if the answer from the player is marked as correct by the Game Host.
         * `started` - `false` - A boolean value indicating if the game has started.
