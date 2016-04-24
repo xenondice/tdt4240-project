@@ -56,6 +56,7 @@ public class CreateState extends GameState {
     private static final int GAME_MASTER_VIEW = 2;
 
     private List<Map<String, Object>> answersList = new ArrayList<>();
+    private SimpleAdapter answersAdapter;
 
     /**
      * Called once the state is entered
@@ -72,7 +73,7 @@ public class CreateState extends GameState {
         answerTextInputLayout.setVisibility(View.VISIBLE);
         createSubmitButton.setEnabled(true);
         createSubmitButton.setText(observer.getActivityReference().getString(R.string.btn_submit_answer));
-        textWhoIsMaster.setText("Current Game Master: "+observer.getPlayerFromId(observer.getGameInfo().getGameMaster()).getNickname());
+        textWhoIsMaster.setText("Current Game Master: " + observer.getPlayerFromId(observer.getGameInfo().getGameMaster()).getNickname());
 
         // Get the question for this round
         getQuestion();
@@ -83,64 +84,37 @@ public class CreateState extends GameState {
     }
 
     private void setMasterListView() {
-        final SimpleAdapter answersAdapter = new SimpleAdapter(observer.getActivityReference(),
+        answersAdapter = new SimpleAdapter(observer.getActivityReference(),
                 answersList,
                 android.R.layout.simple_list_item_multiple_choice,
-                new String[] {"answer"},
-                new int[] {android.R.id.text1});
+                new String[]{"answer"},
+                new int[]{android.R.id.text1});
 
         // Clear from previous round
-        answersList.clear();
-        observer.getFirebaseAnswersReference().setValue(null);
-        observer.getFirebaseGameReference().child("correctAnswers").setValue(null);
+        //answersList.clear();
+        //observer.getFirebaseAnswersReference().setValue(null);
+        //observer.getFirebaseGameReference().child("correctAnswers").setValue(null);
 
         // Set adapter
         answersGameMasterListView.setAdapter(answersAdapter);
         answersGameMasterListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
 
         //TODO: give points to the player with the selected answer
+    }
 
-        observer.getFirebaseAnswersReference().addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                final String answer = (String) dataSnapshot.getValue();
-                final String playerKey = dataSnapshot.getKey();
-                observer.getFirebaseUsersReference().child(playerKey).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        Player player = dataSnapshot.getValue(Player.class);
+    @Override
+    public void playerSubmittedAnswer(String playerId) {
+        if (!observer.isGameMaster()) return;
+        String answer = observer.getPlayerAnswer(playerId);
+        Player player = observer.getPlayerFromId(playerId);
 
-                        Map<String, Object> answerItem = new HashMap<String, Object>();
-                        answerItem.put("nickname", player.getNickname());
-                        answerItem.put("playerId", playerKey);
-                        answerItem.put("answer", answer);
+        Map<String, Object> answerItem = new HashMap<>();
+        answerItem.put("nickname", player.getNickname());
+        answerItem.put("playerId", playerId);
+        answerItem.put("answer", answer);
 
-                        answersList.add(answerItem);
-                        answersAdapter.notifyDataSetChanged();
-                    }
-
-                    @Override
-                    public void onCancelled(FirebaseError firebaseError) {
-                    }
-                });
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-            }
-        });
+        answersList.add(answerItem);
+        answersAdapter.notifyDataSetChanged();
     }
 
     @Override

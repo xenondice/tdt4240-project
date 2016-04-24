@@ -62,7 +62,6 @@ public class ChooseState extends GameState {
         // Setup ButterKnife
         ButterKnife.bind(this, observer.getActivityReference());
         if(observer.isGameMaster()){
-            setMasterListView();
             chooseContinueButton.setEnabled(true);
         }else {
             answerListView.setEnabled(true);
@@ -71,33 +70,6 @@ public class ChooseState extends GameState {
             textWhoIsMaster.setText("Current Game Master: "+observer.getPlayerFromId(observer.getGameInfo().getGameMaster()).getNickname());
             setAnswersListView();
         }
-    }
-
-    private void setMasterListView() {
-        masterAnswerListView.setAdapter(adapter);
-        observer.getFirebaseGameReference().addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                final Game game = dataSnapshot.getValue(Game.class);
-                observer.getFirebaseAnswersReference().addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-
-                    }
-
-                    @Override
-                    public void onCancelled(FirebaseError firebaseError) {
-
-                    }
-                });
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-
-            }
-        });
     }
 
     @Override
@@ -136,10 +108,10 @@ public class ChooseState extends GameState {
                     continue;
                 }
             }
-                Map<String, Object> answerItem = new HashMap<String, Object>();
-                answerItem.put("answer", answer.getValue());
-                answerItem.put("playerId", answer.getKey());
-                answersList.add(answerItem);
+            Map<String, Object> answerItem = new HashMap<String, Object>();
+            answerItem.put("answer", answer.getValue());
+            answerItem.put("playerId", answer.getKey());
+            answersList.add(answerItem);
         }
         answersAdapter.notifyDataSetChanged();
     }

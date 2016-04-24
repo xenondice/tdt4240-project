@@ -446,6 +446,7 @@ public class GameObserver {
                 // Set variables
                 Map<String, Object> data = new HashMap<>();
                 data.put("question", randomQuestion);
+                data.put("answers", null);
                 data.put("gameMaster", tempGameMaster);
                 data.put("started", true);
                 data.put("round", gameInfo.getRound() + 1);
